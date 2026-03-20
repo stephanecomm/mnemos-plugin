@@ -1,72 +1,77 @@
 ---
 description: Start Mnemos — persistent memory for Claude
-allowed-tools: ["mcp__mnemos__mnemos_quick_boot", "mcp__mnemos__mnemos_session_start", "mcp__mnemos__mnemos_get_profile", "mcp__mnemos__mnemos_get_stats", "mcp__mnemos__mnemos_list_spaces", "mcp__mnemos__mnemos_read_memory", "mcp__mnemos__mnemos_search_atoms", "mcp__mnemos__mnemos_login", "mcp__mnemos__mnemos_signup", "Read"]
+allowed-tools: ["plugin:mnemos:mnemos - mnemos_whoami", "plugin:mnemos:mnemos - mnemos_login", "plugin:mnemos:mnemos - mnemos_signup", "plugin:mnemos:mnemos - mnemos_quick_boot", "plugin:mnemos:mnemos - mnemos_session_start", "plugin:mnemos:mnemos - mnemos_get_profile", "plugin:mnemos:mnemos - mnemos_get_stats", "plugin:mnemos:mnemos - mnemos_list_spaces", "plugin:mnemos:mnemos - mnemos_read_memory", "plugin:mnemos:mnemos - mnemos_search_atoms", "Read"]
 argument-hint: [espace] ou "help"
 ---
 
-# Commande /mnemos
+# Commande /mnemos:start
 
-Initialise Mnemos, la mémoire persistante de Claude.
+Initialise Mnemos, la memoire persistante de Claude.
 
-## Flux de décision
+## Flux de decision
 
-### 1. Vérifier la connexion
+### 1. Verifier la connexion (TOUJOURS en premier)
 
-Appeler `mnemos_quick_boot(userId:"default")`.
+Appeler `mnemos_whoami()` (sans arguments).
 
-Si quick_boot retourne une erreur d'authentification ou "no credentials" :
-- Afficher ce message d'accueil :
+**Si le resultat contient "connected: true" et un userId :**
+- L'utilisateur est connecte. Passer a l'etape 2 avec ce userId.
+
+**Si le resultat contient "connected: false" ou une erreur :**
+- L'utilisateur n'est PAS connecte. Afficher :
 
 ```
-Mnemos — Mémoire intelligente pour Claude
+Mnemos — Memoire intelligente pour Claude
 
-Mnemos donne à Claude une mémoire persistante entre vos conversations :
-décisions, apprentissages, contacts, faits, réflexions...
+Mnemos donne a Claude une memoire persistante entre vos conversations :
+decisions, apprentissages, contacts, faits, reflexions...
 
-Pour commencer, connectez-vous ou créez votre compte.
-Tapez : /mnemos login   ou   /mnemos signup
+Vous n'etes pas encore connecte.
+Dites-moi "je veux me connecter" (avec votre email/mot de passe)
+ou "je veux creer un compte" pour commencer.
 
 Dashboard : https://mnemos-dashboard.vercel.app
 ```
 
 - STOP. Ne pas aller plus loin.
 
-### 2. Utilisateur connecté — traiter les arguments
+### 2. Utilisateur connecte — traiter les arguments
 
 Si `$ARGUMENTS` est vide ou absent :
-- Exécuter le protocole d'ouverture complet décrit dans le skill SKILL.md (quick_boot, session_start, affichage du bloc d'accueil avec espaces, commandes, lien Dashboard).
+- Executer `mnemos_quick_boot(userId: <userId du whoami>)`
+- Afficher le bloc d'accueil avec espaces, commandes, lien Dashboard.
 - Demander "Sur quel espace on travaille ?"
 
 Si `$ARGUMENTS` = "help" :
 - Lire le fichier `${CLAUDE_PLUGIN_ROOT}/skills/mnemos/SKILL.md`
-- Afficher la table "Commandes en langage naturel" reformatée en blocs thématiques.
+- Afficher la table "Commandes en langage naturel" reformatee en blocs thematiques.
 
 Si `$ARGUMENTS` = "login" :
-- Demander email et mot de passe à l'utilisateur
+- Demander email et mot de passe a l'utilisateur
 - Appeler `mnemos_login(email, password)`
-- Si succès : stocker les credentials, afficher "Connecté ! Tapez /mnemos pour démarrer."
-- Si échec : afficher l'erreur et proposer /mnemos signup
+- Si succes : afficher "Connecte ! Tapez /mnemos:start pour demarrer."
+- Si echec : afficher l'erreur et proposer de creer un compte
 
 Si `$ARGUMENTS` = "signup" :
-- Demander email et mot de passe souhaité à l'utilisateur
+- Demander email et mot de passe souhaite a l'utilisateur
 - Appeler `mnemos_signup(email, password)`
-- Si succès : afficher "Compte créé ! Tapez /mnemos pour démarrer."
-- Si échec : afficher l'erreur
+- Si succes : afficher "Compte cree ! Tapez /mnemos:start pour demarrer."
+- Si echec : afficher l'erreur
 
-Si `$ARGUMENTS` = un nom d'espace (ex: "Développement Mnemos", "CodirIA") :
-- Exécuter quick_boot + session_start(spaceId: $ARGUMENTS)
+Si `$ARGUMENTS` = un nom d'espace (ex: "Developpement Mnemos", "CodirIA") :
+- Executer quick_boot(userId) + session_start(spaceId: $ARGUMENTS)
 - Charger read_memory(spaceId, type:"all")
 - Afficher le contexte et demander confirmation
 
 Si `$ARGUMENTS` = "out" ou "fin" :
-- Exécuter le protocole de clôture décrit dans SKILL.md (workSummary, session_end, write_memory codex, vérification).
+- Executer le protocole de cloture (workSummary, session_end, write_memory).
 
 Si `$ARGUMENTS` = "stats" :
 - Appeler mnemos_get_stats et afficher les compteurs.
 
 ### 3. Toujours afficher le lien Dashboard
 
-Chaque réponse de /mnemos DOIT inclure en fin de message :
+Chaque reponse de /mnemos:start DOIT inclure en fin de message :
 ```
 Dashboard : https://mnemos-dashboard.vercel.app
 ```
