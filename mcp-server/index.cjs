@@ -71707,23 +71707,43 @@ __name(isTokenExpired, "isTokenExpired");
 import_dotenv.default.config();
 var SUPABASE_URL = process.env.SUPABASE_URL;
 var SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwYnNvd2loeXlkemRueHV6b3hzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyODEyODksImV4cCI6MjA4Nzg1NzI4OX0.bz_mlQb6NEYOYMM5AKZKyak8mgLZQiHgEZyFf3EX91c";
 var adminClient = null;
-function getSupabaseClient() {
-  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-    throw new Error("SUPABASE_URL et SUPABASE_SERVICE_ROLE_KEY doivent etre definis dans le .env");
-  }
+function getAdminClient() {
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY)
+    return null;
   if (!adminClient) {
     adminClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false
-      },
-      db: {
-        schema: "public"
-      }
+      auth: { autoRefreshToken: false, persistSession: false },
+      db: { schema: "public" }
     });
   }
   return adminClient;
+}
+__name(getAdminClient, "getAdminClient");
+function getUserClient() {
+  if (!SUPABASE_URL)
+    return null;
+  const creds = loadCredentials();
+  if (!creds || isTokenExpired(creds))
+    return null;
+  return createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: { autoRefreshToken: false, persistSession: false },
+    global: {
+      headers: { Authorization: `Bearer ${creds.accessToken}` }
+    },
+    db: { schema: "public" }
+  });
+}
+__name(getUserClient, "getUserClient");
+function getSupabaseClient() {
+  const admin = getAdminClient();
+  if (admin)
+    return admin;
+  const user = getUserClient();
+  if (user)
+    return user;
+  throw new Error("Mnemos: pas de connexion. Utilisez mnemos_login pour vous connecter, ou configurez SUPABASE_SERVICE_ROLE_KEY pour le mode admin.");
 }
 __name(getSupabaseClient, "getSupabaseClient");
 
@@ -79384,9 +79404,9 @@ __name(getCalibration, "getCalibration");
 
 // dist/tools/auth.js
 var SUPABASE_URL2 = process.env.SUPABASE_URL || "https://hpbsowihyydzdnxuzoxs.supabase.co";
-var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwYnNvd2loeXlkemRueHV6b3hzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyODEyODksImV4cCI6MjA4Nzg1NzI4OX0.bz_mlQb6NEYOYMM5AKZKyak8mgLZQiHgEZyFf3EX91c";
+var SUPABASE_ANON_KEY2 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwYnNvd2loeXlkemRueHV6b3hzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyODEyODksImV4cCI6MjA4Nzg1NzI4OX0.bz_mlQb6NEYOYMM5AKZKyak8mgLZQiHgEZyFf3EX91c";
 function getAuthClient() {
-  return createClient(SUPABASE_URL2, SUPABASE_ANON_KEY, {
+  return createClient(SUPABASE_URL2, SUPABASE_ANON_KEY2, {
     auth: {
       autoRefreshToken: false,
       persistSession: false
