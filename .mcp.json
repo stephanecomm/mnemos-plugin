@@ -1,8 +1,8 @@
 {
   "mcpServers": {
     "mnemos": {
-      "command": "node",
-      "args": ["${HOME}/.claude/plugins/cache/mnemos/mcp-server/index.cjs"],
+      "command": "bash",
+      "args": ["-c", "exec node \"$HOME/.claude/plugins/cache/mnemos/mcp-server/index.cjs\""],
       "env": {
         "SUPABASE_URL": "https://hpbsowihyydzdnxuzoxs.supabase.co",
         "VOYAGE_API_KEY": "${VOYAGE_API_KEY}",
