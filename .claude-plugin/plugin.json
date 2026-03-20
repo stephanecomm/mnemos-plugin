@@ -1,0 +1,10 @@
+{
+  "name": "mnemos",
+  "version": "0.2.0",
+  "description": "Mémoire persistante intelligente pour Claude. 33 outils MCP : sessions, atomes, espaces, profils, documents, contacts, calibration.",
+  "author": {
+    "name": "Stéphane Commenge — EvidencAI"
+  },
+  "homepage": "https://mnemos-dashboard.vercel.app",
+  "keywords": ["memory", "persistence", "knowledge-graph", "supabase"]
+}
