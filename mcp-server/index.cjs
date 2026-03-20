@@ -3499,8 +3499,8 @@ var require_utils = __commonJS({
       return ind;
     }
     __name(findToken, "findToken");
-    function removeDotSegments(path3) {
-      let input = path3;
+    function removeDotSegments(path4) {
+      let input = path4;
       const output = [];
       let nextSlash = -1;
       let len = 0;
@@ -3707,8 +3707,8 @@ var require_schemes = __commonJS({
         wsComponent.secure = void 0;
       }
       if (wsComponent.resourceName) {
-        const [path3, query] = wsComponent.resourceName.split("?");
-        wsComponent.path = path3 && path3 !== "/" ? path3 : void 0;
+        const [path4, query] = wsComponent.resourceName.split("?");
+        wsComponent.path = path4 && path4 !== "/" ? path4 : void 0;
         wsComponent.query = query;
         wsComponent.resourceName = void 0;
       }
@@ -7185,12 +7185,12 @@ var require_dist = __commonJS({
         throw new Error(`Unknown format "${name}"`);
       return f2;
     };
-    function addFormats(ajv, list, fs3, exportName) {
+    function addFormats(ajv, list, fs4, exportName) {
       var _a2;
       var _b;
       (_a2 = (_b = ajv.opts.code).formats) !== null && _a2 !== void 0 ? _a2 : _b.formats = (0, codegen_1._)`require("ajv-formats/dist/formats").${exportName}`;
       for (const f2 of list)
-        ajv.addFormat(f2, fs3[f2]);
+        ajv.addFormat(f2, fs4[f2]);
     }
     __name(addFormats, "addFormats");
     module2.exports = exports2 = formatsPlugin;
@@ -7270,9 +7270,9 @@ var require_package = __commonJS({
 // node_modules/dotenv/lib/main.js
 var require_main = __commonJS({
   "node_modules/dotenv/lib/main.js"(exports2, module2) {
-    var fs3 = require("fs");
-    var path3 = require("path");
-    var os = require("os");
+    var fs4 = require("fs");
+    var path4 = require("path");
+    var os2 = require("os");
     var crypto2 = require("crypto");
     var packageJson = require_package();
     var version5 = packageJson.version;
@@ -7386,7 +7386,7 @@ var require_main = __commonJS({
       if (options && options.path && options.path.length > 0) {
         if (Array.isArray(options.path)) {
           for (const filepath of options.path) {
-            if (fs3.existsSync(filepath)) {
+            if (fs4.existsSync(filepath)) {
               possibleVaultPath = filepath.endsWith(".vault") ? filepath : `${filepath}.vault`;
             }
           }
@@ -7394,16 +7394,16 @@ var require_main = __commonJS({
           possibleVaultPath = options.path.endsWith(".vault") ? options.path : `${options.path}.vault`;
         }
       } else {
-        possibleVaultPath = path3.resolve(process.cwd(), ".env.vault");
+        possibleVaultPath = path4.resolve(process.cwd(), ".env.vault");
       }
-      if (fs3.existsSync(possibleVaultPath)) {
+      if (fs4.existsSync(possibleVaultPath)) {
         return possibleVaultPath;
       }
       return null;
     }
     __name(_vaultPath, "_vaultPath");
     function _resolveHome(envPath) {
-      return envPath[0] === "~" ? path3.join(os.homedir(), envPath.slice(1)) : envPath;
+      return envPath[0] === "~" ? path4.join(os2.homedir(), envPath.slice(1)) : envPath;
     }
     __name(_resolveHome, "_resolveHome");
     function _configVault(options) {
@@ -7422,7 +7422,7 @@ var require_main = __commonJS({
     }
     __name(_configVault, "_configVault");
     function configDotenv(options) {
-      const dotenvPath = path3.resolve(process.cwd(), ".env");
+      const dotenvPath = path4.resolve(process.cwd(), ".env");
       let encoding = "utf8";
       const debug2 = Boolean(options && options.debug);
       const quiet = options && "quiet" in options ? options.quiet : true;
@@ -7446,13 +7446,13 @@ var require_main = __commonJS({
       }
       let lastError;
       const parsedAll = {};
-      for (const path4 of optionPaths) {
+      for (const path5 of optionPaths) {
         try {
-          const parsed = DotenvModule.parse(fs3.readFileSync(path4, { encoding }));
+          const parsed = DotenvModule.parse(fs4.readFileSync(path5, { encoding }));
           DotenvModule.populate(parsedAll, parsed, options);
         } catch (e2) {
           if (debug2) {
-            _debug(`Failed to load ${path4} ${e2.message}`);
+            _debug(`Failed to load ${path5} ${e2.message}`);
           }
           lastError = e2;
         }
@@ -7467,7 +7467,7 @@ var require_main = __commonJS({
         const shortPaths = [];
         for (const filePath of optionPaths) {
           try {
-            const relative = path3.relative(process.cwd(), filePath);
+            const relative = path4.relative(process.cwd(), filePath);
             shortPaths.push(relative);
           } catch (e2) {
             if (debug2) {
@@ -8020,13 +8020,13 @@ function __disposeResources(env) {
   __name(next, "next");
   return next();
 }
-function __rewriteRelativeImportExtension(path3, preserveJsx) {
-  if (typeof path3 === "string" && /^\.\.?\//.test(path3)) {
-    return path3.replace(/\.(tsx)$|((?:\.d)?)((?:\.[^./]+?)?)\.([cm]?)ts$/i, function(m2, tsx, d2, ext, cm) {
+function __rewriteRelativeImportExtension(path4, preserveJsx) {
+  if (typeof path4 === "string" && /^\.\.?\//.test(path4)) {
+    return path4.replace(/\.(tsx)$|((?:\.d)?)((?:\.[^./]+?)?)\.([cm]?)ts$/i, function(m2, tsx, d2, ext, cm) {
       return tsx ? preserveJsx ? ".jsx" : ".js" : d2 && (!ext || !cm) ? m2 : d2 + ext + "." + cm.toLowerCase() + "js";
     });
   }
-  return path3;
+  return path4;
 }
 var extendStatics, __assign, __createBinding, __setModuleDefault, ownKeys, _SuppressedError, tslib_es6_default;
 var init_tslib_es6 = __esm({
@@ -14893,8 +14893,8 @@ var require_GoTrueClient = __commonJS({
        * Generates a new JWT.
        * @param refreshToken A valid refresh token that was returned on login.
        */
-      async _refreshAccessToken(refreshToken) {
-        const debugName = `#_refreshAccessToken(${refreshToken.substring(0, 5)}...)`;
+      async _refreshAccessToken(refreshToken2) {
+        const debugName = `#_refreshAccessToken(${refreshToken2.substring(0, 5)}...)`;
         this._debug(debugName, "begin");
         try {
           const startedAt = Date.now();
@@ -14904,7 +14904,7 @@ var require_GoTrueClient = __commonJS({
             }
             this._debug(debugName, "refreshing attempt", attempt);
             return await (0, fetch_1._request)(this.fetch, "POST", `${this.url}/token?grant_type=refresh_token`, {
-              body: { refresh_token: refreshToken },
+              body: { refresh_token: refreshToken2 },
               headers: this.headers,
               xform: fetch_1._sessionResponse
             });
@@ -15014,19 +15014,19 @@ var require_GoTrueClient = __commonJS({
           this._debug(debugName, "end");
         }
       }
-      async _callRefreshToken(refreshToken) {
+      async _callRefreshToken(refreshToken2) {
         var _a2, _b;
-        if (!refreshToken) {
+        if (!refreshToken2) {
           throw new errors_1.AuthSessionMissingError();
         }
         if (this.refreshingDeferred) {
           return this.refreshingDeferred.promise;
         }
-        const debugName = `#_callRefreshToken(${refreshToken.substring(0, 5)}...)`;
+        const debugName = `#_callRefreshToken(${refreshToken2.substring(0, 5)}...)`;
         this._debug(debugName, "begin");
         try {
           this.refreshingDeferred = new helpers_1.Deferred();
-          const { data, error: error2 } = await this._refreshAccessToken(refreshToken);
+          const { data, error: error2 } = await this._refreshAccessToken(refreshToken2);
           if (error2)
             throw error2;
           if (!data.session)
@@ -16642,14 +16642,14 @@ var require_url_state_machine = __commonJS({
     }
     __name(trimTabAndNewline, "trimTabAndNewline");
     function shortenPath(url) {
-      const path3 = url.path;
-      if (path3.length === 0) {
+      const path4 = url.path;
+      if (path4.length === 0) {
         return;
       }
-      if (url.scheme === "file" && path3.length === 1 && isNormalizedWindowsDriveLetter(path3[0])) {
+      if (url.scheme === "file" && path4.length === 1 && isNormalizedWindowsDriveLetter(path4[0])) {
         return;
       }
-      path3.pop();
+      path4.pop();
     }
     __name(shortenPath, "shortenPath");
     function includesCredentials(url) {
@@ -22572,14 +22572,14 @@ __export(fileFromPath_exports, {
   fileFromPathSync: () => fileFromPathSync,
   isFile: () => isFile
 });
-function createFileFromPath(path3, { mtimeMs, size }, filenameOrOptions, options = {}) {
+function createFileFromPath(path4, { mtimeMs, size }, filenameOrOptions, options = {}) {
   let filename;
   if (isPlainObject_default2(filenameOrOptions)) {
     [options, filename] = [filenameOrOptions, void 0];
   } else {
     filename = filenameOrOptions;
   }
-  const file = new FileFromPath({ path: path3, size, lastModified: mtimeMs });
+  const file = new FileFromPath({ path: path4, size, lastModified: mtimeMs });
   if (!filename) {
     filename = file.name;
   }
@@ -22588,19 +22588,19 @@ function createFileFromPath(path3, { mtimeMs, size }, filenameOrOptions, options
     lastModified: file.lastModified
   });
 }
-function fileFromPathSync(path3, filenameOrOptions, options = {}) {
-  const stats = (0, import_fs.statSync)(path3);
-  return createFileFromPath(path3, stats, filenameOrOptions, options);
+function fileFromPathSync(path4, filenameOrOptions, options = {}) {
+  const stats = (0, import_fs2.statSync)(path4);
+  return createFileFromPath(path4, stats, filenameOrOptions, options);
 }
-async function fileFromPath2(path3, filenameOrOptions, options) {
-  const stats = await import_fs.promises.stat(path3);
-  return createFileFromPath(path3, stats, filenameOrOptions, options);
+async function fileFromPath2(path4, filenameOrOptions, options) {
+  const stats = await import_fs2.promises.stat(path4);
+  return createFileFromPath(path4, stats, filenameOrOptions, options);
 }
-var import_fs, import_path, import_node_domexception, __classPrivateFieldSet5, __classPrivateFieldGet6, _FileFromPath_path, _FileFromPath_start, MESSAGE, FileFromPath;
+var import_fs2, import_path2, import_node_domexception, __classPrivateFieldSet5, __classPrivateFieldGet6, _FileFromPath_path, _FileFromPath_start, MESSAGE, FileFromPath;
 var init_fileFromPath = __esm({
   "node_modules/formdata-node/lib/esm/fileFromPath.js"() {
-    import_fs = require("fs");
-    import_path = require("path");
+    import_fs2 = require("fs");
+    import_path2 = require("path");
     import_node_domexception = __toESM(require_node_domexception(), 1);
     init_File();
     init_isPlainObject();
@@ -22626,7 +22626,7 @@ var init_fileFromPath = __esm({
         _FileFromPath_start.set(this, void 0);
         __classPrivateFieldSet5(this, _FileFromPath_path, input.path, "f");
         __classPrivateFieldSet5(this, _FileFromPath_start, input.start || 0, "f");
-        this.name = (0, import_path.basename)(__classPrivateFieldGet6(this, _FileFromPath_path, "f"));
+        this.name = (0, import_path2.basename)(__classPrivateFieldGet6(this, _FileFromPath_path, "f"));
         this.size = input.size;
         this.lastModified = input.lastModified;
       }
@@ -22639,12 +22639,12 @@ var init_fileFromPath = __esm({
         });
       }
       async *stream() {
-        const { mtimeMs } = await import_fs.promises.stat(__classPrivateFieldGet6(this, _FileFromPath_path, "f"));
+        const { mtimeMs } = await import_fs2.promises.stat(__classPrivateFieldGet6(this, _FileFromPath_path, "f"));
         if (mtimeMs > this.lastModified) {
           throw new import_node_domexception.default(MESSAGE, "NotReadableError");
         }
         if (this.size) {
-          yield* (0, import_fs.createReadStream)(__classPrivateFieldGet6(this, _FileFromPath_path, "f"), {
+          yield* (0, import_fs2.createReadStream)(__classPrivateFieldGet6(this, _FileFromPath_path, "f"), {
             start: __classPrivateFieldGet6(this, _FileFromPath_start, "f"),
             end: __classPrivateFieldGet6(this, _FileFromPath_start, "f") + this.size - 1
           });
@@ -22674,23 +22674,23 @@ __export(memory_files_exports, {
   writeMemoryFile: () => writeMemoryFile
 });
 function getMemoryDir() {
-  return process.env.MNEMOS_MEMORY_DIR || import_path2.default.join(process.cwd(), "..", "memory");
+  return process.env.MNEMOS_MEMORY_DIR || import_path3.default.join(process.cwd(), "..", "memory");
 }
 function slugify(name) {
   return name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
 async function ensureDir(dirPath) {
   try {
-    await import_fs2.promises.access(dirPath);
+    await import_fs3.promises.access(dirPath);
   } catch {
-    await import_fs2.promises.mkdir(dirPath, { recursive: true });
+    await import_fs3.promises.mkdir(dirPath, { recursive: true });
   }
 }
 async function readMemoryFile(spaceSlug, filename) {
   const memoryDir = getMemoryDir();
-  const filePath = import_path2.default.join(memoryDir, spaceSlug, filename);
+  const filePath = import_path3.default.join(memoryDir, spaceSlug, filename);
   try {
-    const content = await import_fs2.promises.readFile(filePath, "utf-8");
+    const content = await import_fs3.promises.readFile(filePath, "utf-8");
     return content;
   } catch (error2) {
     if (error2.code === "ENOENT") {
@@ -22701,27 +22701,27 @@ async function readMemoryFile(spaceSlug, filename) {
 }
 async function writeMemoryFile(spaceSlug, filename, content) {
   const memoryDir = getMemoryDir();
-  const spacePath = import_path2.default.join(memoryDir, spaceSlug);
+  const spacePath = import_path3.default.join(memoryDir, spaceSlug);
   await ensureDir(spacePath);
-  const filePath = import_path2.default.join(spacePath, filename);
-  await import_fs2.promises.writeFile(filePath, content, "utf-8");
+  const filePath = import_path3.default.join(spacePath, filename);
+  await import_fs3.promises.writeFile(filePath, content, "utf-8");
 }
 async function rotateHandovers(spaceSlug, newContent) {
   const memoryDir = getMemoryDir();
-  const spacePath = import_path2.default.join(memoryDir, spaceSlug);
+  const spacePath = import_path3.default.join(memoryDir, spaceSlug);
   await ensureDir(spacePath);
   const files = [
-    { from: import_path2.default.join(spacePath, "handover-002.md"), to: import_path2.default.join(spacePath, "handover-003.md") },
-    { from: import_path2.default.join(spacePath, "handover-001.md"), to: import_path2.default.join(spacePath, "handover-002.md") }
+    { from: import_path3.default.join(spacePath, "handover-002.md"), to: import_path3.default.join(spacePath, "handover-003.md") },
+    { from: import_path3.default.join(spacePath, "handover-001.md"), to: import_path3.default.join(spacePath, "handover-002.md") }
   ];
   for (const { from, to } of files) {
     try {
-      await import_fs2.promises.access(from);
-      await import_fs2.promises.rename(from, to);
+      await import_fs3.promises.access(from);
+      await import_fs3.promises.rename(from, to);
     } catch {
     }
   }
-  await import_fs2.promises.writeFile(import_path2.default.join(spacePath, "handover-001.md"), newContent, "utf-8");
+  await import_fs3.promises.writeFile(import_path3.default.join(spacePath, "handover-001.md"), newContent, "utf-8");
 }
 async function readHandovers(spaceSlug) {
   const results = [];
@@ -22736,9 +22736,9 @@ async function readHandovers(spaceSlug) {
 }
 async function readIndex() {
   const memoryDir = getMemoryDir();
-  const indexPath = import_path2.default.join(memoryDir, "_index.md");
+  const indexPath = import_path3.default.join(memoryDir, "_index.md");
   try {
-    const content = await import_fs2.promises.readFile(indexPath, "utf-8");
+    const content = await import_fs3.promises.readFile(indexPath, "utf-8");
     return content;
   } catch (error2) {
     if (error2.code === "ENOENT") {
@@ -22750,13 +22750,13 @@ async function readIndex() {
 async function writeIndex(content) {
   const memoryDir = getMemoryDir();
   await ensureDir(memoryDir);
-  const indexPath = import_path2.default.join(memoryDir, "_index.md");
-  await import_fs2.promises.writeFile(indexPath, content, "utf-8");
+  const indexPath = import_path3.default.join(memoryDir, "_index.md");
+  await import_fs3.promises.writeFile(indexPath, content, "utf-8");
 }
 async function listMemorySpaces() {
   const memoryDir = getMemoryDir();
   try {
-    const entries = await import_fs2.promises.readdir(memoryDir, { withFileTypes: true });
+    const entries = await import_fs3.promises.readdir(memoryDir, { withFileTypes: true });
     return entries.filter((entry) => entry.isDirectory() && !entry.name.startsWith("_")).map((entry) => entry.name);
   } catch (error2) {
     if (error2.code === "ENOENT") {
@@ -22765,12 +22765,12 @@ async function listMemorySpaces() {
     throw error2;
   }
 }
-var import_fs2, import_path2;
+var import_fs3, import_path3;
 var init_memory_files = __esm({
   "dist/lib/memory-files.js"() {
     "use strict";
-    import_fs2 = require("fs");
-    import_path2 = __toESM(require("path"), 1);
+    import_fs3 = require("fs");
+    import_path3 = __toESM(require("path"), 1);
     __name(getMemoryDir, "getMemoryDir");
     __name(slugify, "slugify");
     __name(ensureDir, "ensureDir");
@@ -23519,8 +23519,8 @@ function wrapReason(ex) {
   return new UnknownErrorException(ex.message, ex.toString());
 }
 async function node_utils_fetchData(url) {
-  const fs3 = process.getBuiltinModule("fs");
-  const data = await fs3.promises.readFile(url);
+  const fs4 = process.getBuiltinModule("fs");
+  const data = await fs4.promises.readFile(url);
   return new Uint8Array(data);
 }
 function expandBBox(array2, index, minX, minY, maxX, maxY) {
@@ -35615,11 +35615,11 @@ var init_pdf = __esm({
         } catch (ex) {
           warn(`getPathGenerator - ignoring character: "${ex}".`);
         }
-        const path3 = new Path2D(cmds || "");
+        const path4 = new Path2D(cmds || "");
         if (!this.fontExtraProperties) {
           objs.delete(objId);
         }
-        return this.compiledGlyphs[character] = path3;
+        return this.compiledGlyphs[character] = path4;
       }
       get black() {
         return this.#fontData.black;
@@ -38267,47 +38267,47 @@ var init_pdf = __esm({
         this._cachedGetSinglePixelWidth = null;
       }
       constructPath(opIdx, op, data, minMax) {
-        let [path3] = data;
+        let [path4] = data;
         if (!minMax) {
-          path3 ||= data[0] = new Path2D();
-          this[op](opIdx, path3);
+          path4 ||= data[0] = new Path2D();
+          this[op](opIdx, path4);
           return;
         }
         if (this.dependencyTracker !== null) {
           const outerExtraSize = op === OPS.stroke ? this.current.lineWidth / 2 : 0;
           this.dependencyTracker.resetBBox(opIdx).recordBBox(opIdx, this.ctx, minMax[0] - outerExtraSize, minMax[2] + outerExtraSize, minMax[1] - outerExtraSize, minMax[3] + outerExtraSize).recordDependencies(opIdx, ["transform"]);
         }
-        if (!(path3 instanceof Path2D)) {
+        if (!(path4 instanceof Path2D)) {
           const path2d = data[0] = new Path2D();
-          for (let i2 = 0, ii = path3.length; i2 < ii; ) {
-            switch (path3[i2++]) {
+          for (let i2 = 0, ii = path4.length; i2 < ii; ) {
+            switch (path4[i2++]) {
               case DrawOPS.moveTo:
-                path2d.moveTo(path3[i2++], path3[i2++]);
+                path2d.moveTo(path4[i2++], path4[i2++]);
                 break;
               case DrawOPS.lineTo:
-                path2d.lineTo(path3[i2++], path3[i2++]);
+                path2d.lineTo(path4[i2++], path4[i2++]);
                 break;
               case DrawOPS.curveTo:
-                path2d.bezierCurveTo(path3[i2++], path3[i2++], path3[i2++], path3[i2++], path3[i2++], path3[i2++]);
+                path2d.bezierCurveTo(path4[i2++], path4[i2++], path4[i2++], path4[i2++], path4[i2++], path4[i2++]);
                 break;
               case DrawOPS.closePath:
                 path2d.closePath();
                 break;
               default:
-                warn(`Unrecognized drawing path operator: ${path3[i2 - 1]}`);
+                warn(`Unrecognized drawing path operator: ${path4[i2 - 1]}`);
                 break;
             }
           }
-          path3 = path2d;
+          path4 = path2d;
         }
         Util.axialAlignedBoundingBox(minMax, getCurrentTransform(this.ctx), this.current.minMax);
-        this[op](opIdx, path3);
+        this[op](opIdx, path4);
         this._pathStartIdx = opIdx;
       }
       closePath(opIdx) {
         this.ctx.closePath();
       }
-      stroke(opIdx, path3, consumePath = true) {
+      stroke(opIdx, path4, consumePath = true) {
         const ctx = this.ctx;
         const strokeColor = this.current.strokeColor;
         ctx.globalAlpha = this.current.strokeAlpha;
@@ -38318,25 +38318,25 @@ var init_pdf = __esm({
             ctx.strokeStyle = strokeColor.getPattern(ctx, this, getCurrentTransformInverse(ctx), PathType.STROKE, opIdx);
             if (baseTransform) {
               const newPath = new Path2D();
-              newPath.addPath(path3, ctx.getTransform().invertSelf().multiplySelf(baseTransform));
-              path3 = newPath;
+              newPath.addPath(path4, ctx.getTransform().invertSelf().multiplySelf(baseTransform));
+              path4 = newPath;
             }
-            this.rescaleAndStroke(path3, false);
+            this.rescaleAndStroke(path4, false);
             ctx.restore();
           } else {
-            this.rescaleAndStroke(path3, true);
+            this.rescaleAndStroke(path4, true);
           }
         }
         this.dependencyTracker?.recordDependencies(opIdx, Dependencies.stroke);
         if (consumePath) {
-          this.consumePath(opIdx, path3, this.current.getClippedPathBoundingBox(PathType.STROKE, getCurrentTransform(this.ctx)));
+          this.consumePath(opIdx, path4, this.current.getClippedPathBoundingBox(PathType.STROKE, getCurrentTransform(this.ctx)));
         }
         ctx.globalAlpha = this.current.fillAlpha;
       }
-      closeStroke(opIdx, path3) {
-        this.stroke(opIdx, path3);
+      closeStroke(opIdx, path4) {
+        this.stroke(opIdx, path4);
       }
-      fill(opIdx, path3, consumePath = true) {
+      fill(opIdx, path4, consumePath = true) {
         const ctx = this.ctx;
         const fillColor = this.current.fillColor;
         const isPatternFill = this.current.patternFill;
@@ -38348,18 +38348,18 @@ var init_pdf = __esm({
           ctx.fillStyle = fillColor.getPattern(ctx, this, getCurrentTransformInverse(ctx), PathType.FILL, opIdx);
           if (baseTransform) {
             const newPath = new Path2D();
-            newPath.addPath(path3, ctx.getTransform().invertSelf().multiplySelf(baseTransform));
-            path3 = newPath;
+            newPath.addPath(path4, ctx.getTransform().invertSelf().multiplySelf(baseTransform));
+            path4 = newPath;
           }
           needRestore = true;
         }
         const intersect = this.current.getClippedPathBoundingBox();
         if (this.contentVisible && intersect !== null) {
           if (this.pendingEOFill) {
-            ctx.fill(path3, "evenodd");
+            ctx.fill(path4, "evenodd");
             this.pendingEOFill = false;
           } else {
-            ctx.fill(path3);
+            ctx.fill(path4);
           }
         }
         this.dependencyTracker?.recordDependencies(opIdx, Dependencies.fill);
@@ -38368,34 +38368,34 @@ var init_pdf = __esm({
           this.dependencyTracker?.restore(opIdx);
         }
         if (consumePath) {
-          this.consumePath(opIdx, path3, intersect);
+          this.consumePath(opIdx, path4, intersect);
         }
       }
-      eoFill(opIdx, path3) {
+      eoFill(opIdx, path4) {
         this.pendingEOFill = true;
-        this.fill(opIdx, path3);
+        this.fill(opIdx, path4);
       }
-      fillStroke(opIdx, path3) {
-        this.fill(opIdx, path3, false);
-        this.stroke(opIdx, path3, false);
-        this.consumePath(opIdx, path3);
+      fillStroke(opIdx, path4) {
+        this.fill(opIdx, path4, false);
+        this.stroke(opIdx, path4, false);
+        this.consumePath(opIdx, path4);
       }
-      eoFillStroke(opIdx, path3) {
+      eoFillStroke(opIdx, path4) {
         this.pendingEOFill = true;
-        this.fillStroke(opIdx, path3);
+        this.fillStroke(opIdx, path4);
       }
-      closeFillStroke(opIdx, path3) {
-        this.fillStroke(opIdx, path3);
+      closeFillStroke(opIdx, path4) {
+        this.fillStroke(opIdx, path4);
       }
-      closeEOFillStroke(opIdx, path3) {
+      closeEOFillStroke(opIdx, path4) {
         this.pendingEOFill = true;
-        this.fillStroke(opIdx, path3);
+        this.fillStroke(opIdx, path4);
       }
-      endPath(opIdx, path3) {
-        this.consumePath(opIdx, path3);
+      endPath(opIdx, path4) {
+        this.consumePath(opIdx, path4);
       }
-      rawFillPath(opIdx, path3) {
-        this.ctx.fill(path3);
+      rawFillPath(opIdx, path4) {
+        this.ctx.fill(path4);
         this.dependencyTracker?.recordDependencies(opIdx, Dependencies.rawFillPath).recordOperation(opIdx);
       }
       clip(opIdx) {
@@ -38433,12 +38433,12 @@ var init_pdf = __esm({
             x: x2,
             y: y2,
             fontSize,
-            path: path3
+            path: path4
           } of paths) {
-            if (!path3) {
+            if (!path4) {
               continue;
             }
-            newPath.addPath(path3, new DOMMatrix(transform2).preMultiplySelf(invTransf).translate(x2, y2).scale(fontSize, -fontSize));
+            newPath.addPath(path4, new DOMMatrix(transform2).preMultiplySelf(invTransf).translate(x2, y2).scale(fontSize, -fontSize));
           }
           ctx.clip(newPath);
         }
@@ -38531,9 +38531,9 @@ var init_pdf = __esm({
         this.moveText(opIdx, 0, this.current.leading);
         this.dependencyTracker?.recordIncrementalData("moveText", this.dependencyTracker.getSimpleIndex("leading") ?? opIdx);
       }
-      #getScaledPath(path3, currentTransform, transform2) {
+      #getScaledPath(path4, currentTransform, transform2) {
         const newPath = new Path2D();
-        newPath.addPath(path3, new DOMMatrix(transform2).invertSelf().multiplySelf(currentTransform));
+        newPath.addPath(path4, new DOMMatrix(transform2).invertSelf().multiplySelf(currentTransform));
         return newPath;
       }
       paintChar(opIdx, character, x2, y2, patternFillTransform, patternStrokeTransform) {
@@ -38546,11 +38546,11 @@ var init_pdf = __esm({
         const isAddToPathSet = !!(textRenderingMode & TextRenderingMode.ADD_TO_PATH_FLAG);
         const patternFill = current.patternFill && !font.missingFile;
         const patternStroke = current.patternStroke && !font.missingFile;
-        let path3;
+        let path4;
         if ((font.disableFontFace || isAddToPathSet || patternFill || patternStroke) && !font.missingFile) {
-          path3 = font.getPathGenerator(this.commonObjs, character);
+          path4 = font.getPathGenerator(this.commonObjs, character);
         }
-        if (path3 && (font.disableFontFace || patternFill || patternStroke)) {
+        if (path4 && (font.disableFontFace || patternFill || patternStroke)) {
           ctx.save();
           ctx.translate(x2, y2);
           ctx.scale(fontSize, -fontSize);
@@ -38560,10 +38560,10 @@ var init_pdf = __esm({
             if (patternFillTransform) {
               currentTransform = ctx.getTransform();
               ctx.setTransform(...patternFillTransform);
-              const scaledPath = this.#getScaledPath(path3, currentTransform, patternFillTransform);
+              const scaledPath = this.#getScaledPath(path4, currentTransform, patternFillTransform);
               ctx.fill(scaledPath);
             } else {
-              ctx.fill(path3);
+              ctx.fill(path4);
             }
           }
           if (fillStrokeMode === TextRenderingMode.STROKE || fillStrokeMode === TextRenderingMode.FILL_STROKE) {
@@ -38580,10 +38580,10 @@ var init_pdf = __esm({
               const transf = Util.transform([a2, b2, c2, d2, 0, 0], invPatternTransform);
               Util.singularValueDecompose2dScale(transf, XY);
               ctx.lineWidth *= Math.max(XY[0], XY[1]) / fontSize;
-              ctx.stroke(this.#getScaledPath(path3, currentTransform, patternStrokeTransform));
+              ctx.stroke(this.#getScaledPath(path4, currentTransform, patternStrokeTransform));
             } else {
               ctx.lineWidth /= fontSize;
-              ctx.stroke(path3);
+              ctx.stroke(path4);
             }
           }
           ctx.restore();
@@ -38606,7 +38606,7 @@ var init_pdf = __esm({
             x: x2,
             y: y2,
             fontSize,
-            path: path3
+            path: path4
           });
           this.dependencyTracker?.recordCharacterBBox(opIdx, ctx, font, fontSize, x2, y2);
         }
@@ -39012,9 +39012,9 @@ var init_pdf = __esm({
         const [x0, y0, x1, y1] = group.bbox;
         clip.rect(x0, y0, x1 - x0, y1 - y0);
         if (group.matrix) {
-          const path3 = new Path2D();
-          path3.addPath(clip, new DOMMatrix(group.matrix));
-          clip = path3;
+          const path4 = new Path2D();
+          path4.addPath(clip, new DOMMatrix(group.matrix));
+          clip = path4;
         }
         groupCtx.clip(clip);
         if (group.smask) {
@@ -39358,7 +39358,7 @@ var init_pdf = __esm({
       }
       endCompat(opIdx) {
       }
-      consumePath(opIdx, path3, clipBox) {
+      consumePath(opIdx, path4, clipBox) {
         const isEmpty = this.current.isEmptyClip();
         if (this.pendingClip) {
           this.current.updateClipFromPath();
@@ -39370,9 +39370,9 @@ var init_pdf = __esm({
         if (this.pendingClip) {
           if (!isEmpty) {
             if (this.pendingClip === EO_CLIP) {
-              ctx.clip(path3, "evenodd");
+              ctx.clip(path4, "evenodd");
             } else {
-              ctx.clip(path3);
+              ctx.clip(path4);
             }
           }
           this.pendingClip = null;
@@ -39445,7 +39445,7 @@ var init_pdf = __esm({
         }
         return this._cachedScaleForStroking;
       }
-      rescaleAndStroke(path3, saveRestore) {
+      rescaleAndStroke(path4, saveRestore) {
         const {
           ctx,
           current: {
@@ -39455,7 +39455,7 @@ var init_pdf = __esm({
         const [scaleX, scaleY] = this.getScaleForStroking();
         if (scaleX === scaleY) {
           ctx.lineWidth = (lineWidth || 1) * scaleX;
-          ctx.stroke(path3);
+          ctx.stroke(path4);
           return;
         }
         const dashes = ctx.getLineDash();
@@ -39466,7 +39466,7 @@ var init_pdf = __esm({
         SCALE_MATRIX.a = 1 / scaleX;
         SCALE_MATRIX.d = 1 / scaleY;
         const newPath = new Path2D();
-        newPath.addPath(path3, SCALE_MATRIX);
+        newPath.addPath(path4, SCALE_MATRIX);
         if (dashes.length > 0) {
           const scale = Math.max(scaleX, scaleY);
           ctx.setLineDash(dashes.map((x2) => x2 / scale));
@@ -41194,10 +41194,10 @@ var init_pdf = __esm({
         this._readableStream = null;
         this._readCapability = Promise.withResolvers();
         this._headersCapability = Promise.withResolvers();
-        const fs3 = process.getBuiltinModule("fs");
-        fs3.promises.lstat(this._url).then((stat) => {
+        const fs4 = process.getBuiltinModule("fs");
+        fs4.promises.lstat(this._url).then((stat) => {
           this._contentLength = stat.size;
-          this._setReadableStream(fs3.createReadStream(this._url));
+          this._setReadableStream(fs4.createReadStream(this._url));
           this._headersCapability.resolve();
         }, (error2) => {
           if (error2.code === "ENOENT") {
@@ -41295,8 +41295,8 @@ var init_pdf = __esm({
         this._readCapability = Promise.withResolvers();
         const source = stream.source;
         this._isStreamingSupported = !source.disableStream;
-        const fs3 = process.getBuiltinModule("fs");
-        this._setReadableStream(fs3.createReadStream(this._url, {
+        const fs4 = process.getBuiltinModule("fs");
+        this._setReadableStream(fs4.createReadStream(this._url, {
           start,
           end: end - 1
         }));
@@ -50863,11 +50863,11 @@ var init_pdf = __esm({
         __name(this, "ContourDrawOutline");
       }
       toSVGPath() {
-        let path3 = super.toSVGPath();
-        if (!path3.endsWith("Z")) {
-          path3 += "Z";
+        let path4 = super.toSVGPath();
+        if (!path4.endsWith("Z")) {
+          path4 += "Z";
         }
-        return path3;
+        return path4;
       }
     };
     BASE_HEADER_LENGTH = 8;
@@ -53364,13 +53364,13 @@ var init_pdf = __esm({
         const root = this.#createSVG();
         const defs = _DrawLayer._svgFactory.createElement("defs");
         root.append(defs);
-        const path3 = _DrawLayer._svgFactory.createElement("path");
-        defs.append(path3);
+        const path4 = _DrawLayer._svgFactory.createElement("path");
+        defs.append(path4);
         const pathId = `path_p${this.pageIndex}_${id}`;
-        path3.setAttribute("id", pathId);
-        path3.setAttribute("vector-effect", "non-scaling-stroke");
+        path4.setAttribute("id", pathId);
+        path4.setAttribute("vector-effect", "non-scaling-stroke");
         if (isPathUpdatable) {
-          this.#toUpdate.set(id, path3);
+          this.#toUpdate.set(id, path4);
         }
         const clipPathId = hasClip ? this.#createClipPath(defs, pathId) : null;
         const use = _DrawLayer._svgFactory.createElement("use");
@@ -53388,11 +53388,11 @@ var init_pdf = __esm({
         const root = this.#createSVG();
         const defs = _DrawLayer._svgFactory.createElement("defs");
         root.append(defs);
-        const path3 = _DrawLayer._svgFactory.createElement("path");
-        defs.append(path3);
+        const path4 = _DrawLayer._svgFactory.createElement("path");
+        defs.append(path4);
         const pathId = `path_p${this.pageIndex}_${id}`;
-        path3.setAttribute("id", pathId);
-        path3.setAttribute("vector-effect", "non-scaling-stroke");
+        path4.setAttribute("id", pathId);
+        path4.setAttribute("vector-effect", "non-scaling-stroke");
         let maskId;
         if (mustRemoveSelfIntersections) {
           const mask = _DrawLayer._svgFactory.createElement("mask");
@@ -53439,7 +53439,7 @@ var init_pdf = __esm({
           root,
           bbox,
           rootClass,
-          path: path3
+          path: path4
         } = properties;
         const element = typeof elementOrId === "number" ? this.#mapping.get(elementOrId) : elementOrId;
         if (!element) {
@@ -53459,10 +53459,10 @@ var init_pdf = __esm({
             classList.toggle(className, value);
           }
         }
-        if (path3) {
+        if (path4) {
           const defs = element.firstChild;
           const pathElement = defs.firstChild;
-          this.#updateProperties(pathElement, path3);
+          this.#updateProperties(pathElement, path4);
         }
       }
       updateParent(id, layer) {
@@ -55993,8 +55993,8 @@ __name(getErrorMap, "getErrorMap");
 
 // node_modules/zod/v3/helpers/parseUtil.js
 var makeIssue = /* @__PURE__ */ __name((params) => {
-  const { data, path: path3, errorMaps, issueData } = params;
-  const fullPath = [...path3, ...issueData.path || []];
+  const { data, path: path4, errorMaps, issueData } = params;
+  const fullPath = [...path4, ...issueData.path || []];
   const fullIssue = {
     ...issueData,
     path: fullPath
@@ -56117,11 +56117,11 @@ var ParseInputLazyPath = class {
   static {
     __name(this, "ParseInputLazyPath");
   }
-  constructor(parent, value, path3, key) {
+  constructor(parent, value, path4, key) {
     this._cachedPath = [];
     this.parent = parent;
     this.data = value;
-    this._path = path3;
+    this._path = path4;
     this._key = key;
   }
   get path() {
@@ -59910,10 +59910,10 @@ function assignProp(target, prop, value) {
   });
 }
 __name(assignProp, "assignProp");
-function getElementAtPath(obj, path3) {
-  if (!path3)
+function getElementAtPath(obj, path4) {
+  if (!path4)
     return obj;
-  return path3.reduce((acc, key) => acc?.[key], obj);
+  return path4.reduce((acc, key) => acc?.[key], obj);
 }
 __name(getElementAtPath, "getElementAtPath");
 function promiseAllObject(promisesObj) {
@@ -60253,11 +60253,11 @@ function aborted(x2, startIndex = 0) {
   return false;
 }
 __name(aborted, "aborted");
-function prefixIssues(path3, issues) {
+function prefixIssues(path4, issues) {
   return issues.map((iss) => {
     var _a2;
     (_a2 = iss).path ?? (_a2.path = []);
-    iss.path.unshift(path3);
+    iss.path.unshift(path4);
     return iss;
   });
 }
@@ -66967,7 +66967,7 @@ var StdioServerTransport = class {
 // dist/index.js
 var import_dotenv4 = __toESM(require_main(), 1);
 var import_child_process = require("child_process");
-var import_path3 = __toESM(require("path"), 1);
+var import_path4 = __toESM(require("path"), 1);
 var import_url = require("url");
 
 // node_modules/@supabase/supabase-js/dist/index.mjs
@@ -68356,8 +68356,8 @@ var IcebergError = class extends Error {
     return this.status === 419;
   }
 };
-function buildUrl(baseUrl, path3, query) {
-  const url = new URL(path3, baseUrl);
+function buildUrl(baseUrl, path4, query) {
+  const url = new URL(path4, baseUrl);
   if (query) {
     for (const [key, value] of Object.entries(query)) {
       if (value !== void 0) {
@@ -68389,12 +68389,12 @@ function createFetchClient(options) {
   return {
     async request({
       method,
-      path: path3,
+      path: path4,
       query,
       body,
       headers
     }) {
-      const url = buildUrl(options.baseUrl, path3, query);
+      const url = buildUrl(options.baseUrl, path4, query);
       const authHeaders = await buildAuthHeaders(options.auth);
       const res = await fetchFn(url, {
         method,
@@ -69263,7 +69263,7 @@ var StorageFileApi = class extends BaseApiClient {
   * @param path The relative file path. Should be of the format `folder/subfolder/filename.png`. The bucket must already exist before attempting to upload.
   * @param fileBody The body of the file to be stored in the bucket.
   */
-  async uploadOrUpdate(method, path3, fileBody, fileOptions) {
+  async uploadOrUpdate(method, path4, fileBody, fileOptions) {
     var _this = this;
     return _this.handleOperation(async () => {
       let body;
@@ -69287,7 +69287,7 @@ var StorageFileApi = class extends BaseApiClient {
         if ((typeof ReadableStream !== "undefined" && body instanceof ReadableStream || body && typeof body === "object" && "pipe" in body && typeof body.pipe === "function") && !options.duplex) options.duplex = "half";
       }
       if (fileOptions === null || fileOptions === void 0 ? void 0 : fileOptions.headers) headers = _objectSpread22(_objectSpread22({}, headers), fileOptions.headers);
-      const cleanPath = _this._removeEmptyFolders(path3);
+      const cleanPath = _this._removeEmptyFolders(path4);
       const _path = _this._getFinalPath(cleanPath);
       const data = await (method == "PUT" ? put : post)(_this.fetch, `${_this.url}/object/${_path}`, body, _objectSpread22({ headers }, (options === null || options === void 0 ? void 0 : options.duplex) ? { duplex: options.duplex } : {}));
       return {
@@ -69341,8 +69341,8 @@ var StorageFileApi = class extends BaseApiClient {
   *   })
   * ```
   */
-  async upload(path3, fileBody, fileOptions) {
-    return this.uploadOrUpdate("POST", path3, fileBody, fileOptions);
+  async upload(path4, fileBody, fileOptions) {
+    return this.uploadOrUpdate("POST", path4, fileBody, fileOptions);
   }
   /**
   * Upload a file with a token generated from `createSignedUploadUrl`.
@@ -69375,9 +69375,9 @@ var StorageFileApi = class extends BaseApiClient {
   * }
   * ```
   */
-  async uploadToSignedUrl(path3, token, fileBody, fileOptions) {
+  async uploadToSignedUrl(path4, token, fileBody, fileOptions) {
     var _this3 = this;
-    const cleanPath = _this3._removeEmptyFolders(path3);
+    const cleanPath = _this3._removeEmptyFolders(path4);
     const _path = _this3._getFinalPath(cleanPath);
     const url = new URL(_this3.url + `/object/upload/sign/${_path}`);
     url.searchParams.set("token", token);
@@ -69433,10 +69433,10 @@ var StorageFileApi = class extends BaseApiClient {
   * }
   * ```
   */
-  async createSignedUploadUrl(path3, options) {
+  async createSignedUploadUrl(path4, options) {
     var _this4 = this;
     return _this4.handleOperation(async () => {
-      let _path = _this4._getFinalPath(path3);
+      let _path = _this4._getFinalPath(path4);
       const headers = _objectSpread22({}, _this4.headers);
       if (options === null || options === void 0 ? void 0 : options.upsert) headers["x-upsert"] = "true";
       const data = await post(_this4.fetch, `${_this4.url}/object/upload/sign/${_path}`, {}, { headers });
@@ -69445,7 +69445,7 @@ var StorageFileApi = class extends BaseApiClient {
       if (!token) throw new StorageError("No token returned by API");
       return {
         signedUrl: url.toString(),
-        path: path3,
+        path: path4,
         token
       };
     });
@@ -69494,8 +69494,8 @@ var StorageFileApi = class extends BaseApiClient {
   *   })
   * ```
   */
-  async update(path3, fileBody, fileOptions) {
-    return this.uploadOrUpdate("PUT", path3, fileBody, fileOptions);
+  async update(path4, fileBody, fileOptions) {
+    return this.uploadOrUpdate("PUT", path4, fileBody, fileOptions);
   }
   /**
   * Moves an existing file to a new path in the same bucket.
@@ -69624,10 +69624,10 @@ var StorageFileApi = class extends BaseApiClient {
   *   })
   * ```
   */
-  async createSignedUrl(path3, expiresIn, options) {
+  async createSignedUrl(path4, expiresIn, options) {
     var _this8 = this;
     return _this8.handleOperation(async () => {
-      let _path = _this8._getFinalPath(path3);
+      let _path = _this8._getFinalPath(path4);
       let data = await post(_this8.fetch, `${_this8.url}/object/sign/${_path}`, _objectSpread22({ expiresIn }, (options === null || options === void 0 ? void 0 : options.transform) ? { transform: options.transform } : {}), { headers: _this8.headers });
       const downloadQueryParam = (options === null || options === void 0 ? void 0 : options.download) ? `&download=${options.download === true ? "" : options.download}` : "";
       return { signedUrl: encodeURI(`${_this8.url}${data.signedURL}${downloadQueryParam}`) };
@@ -69740,11 +69740,11 @@ var StorageFileApi = class extends BaseApiClient {
   *   .download('folder/avatar1.png', {}, { signal: controller.signal })
   * ```
   */
-  download(path3, options, parameters) {
+  download(path4, options, parameters) {
     const renderPath = typeof (options === null || options === void 0 ? void 0 : options.transform) !== "undefined" ? "render/image/authenticated" : "object";
     const transformationQuery = this.transformOptsToQueryString((options === null || options === void 0 ? void 0 : options.transform) || {});
     const queryString = transformationQuery ? `?${transformationQuery}` : "";
-    const _path = this._getFinalPath(path3);
+    const _path = this._getFinalPath(path4);
     const downloadFn = /* @__PURE__ */ __name(() => get(this.fetch, `${this.url}/${renderPath}/${_path}${queryString}`, {
       headers: this.headers,
       noResolveJson: true
@@ -69766,9 +69766,9 @@ var StorageFileApi = class extends BaseApiClient {
   *   .info('folder/avatar1.png')
   * ```
   */
-  async info(path3) {
+  async info(path4) {
     var _this10 = this;
-    const _path = _this10._getFinalPath(path3);
+    const _path = _this10._getFinalPath(path4);
     return _this10.handleOperation(async () => {
       return recursiveToCamel(await get(_this10.fetch, `${_this10.url}/object/info/${_path}`, { headers: _this10.headers }));
     });
@@ -69788,9 +69788,9 @@ var StorageFileApi = class extends BaseApiClient {
   *   .exists('folder/avatar1.png')
   * ```
   */
-  async exists(path3) {
+  async exists(path4) {
     var _this11 = this;
-    const _path = _this11._getFinalPath(path3);
+    const _path = _this11._getFinalPath(path4);
     try {
       await head(_this11.fetch, `${_this11.url}/object/${_path}`, { headers: _this11.headers });
       return {
@@ -69859,8 +69859,8 @@ var StorageFileApi = class extends BaseApiClient {
   *   })
   * ```
   */
-  getPublicUrl(path3, options) {
-    const _path = this._getFinalPath(path3);
+  getPublicUrl(path4, options) {
+    const _path = this._getFinalPath(path4);
     const _queryString = [];
     const downloadQueryParam = (options === null || options === void 0 ? void 0 : options.download) ? `download=${options.download === true ? "" : options.download}` : "";
     if (downloadQueryParam !== "") _queryString.push(downloadQueryParam);
@@ -69968,10 +69968,10 @@ var StorageFileApi = class extends BaseApiClient {
   *   })
   * ```
   */
-  async list(path3, options, parameters) {
+  async list(path4, options, parameters) {
     var _this13 = this;
     return _this13.handleOperation(async () => {
-      const body = _objectSpread22(_objectSpread22(_objectSpread22({}, DEFAULT_SEARCH_OPTIONS), options), {}, { prefix: path3 || "" });
+      const body = _objectSpread22(_objectSpread22(_objectSpread22({}, DEFAULT_SEARCH_OPTIONS), options), {}, { prefix: path4 || "" });
       return await post(_this13.fetch, `${_this13.url}/object/list/${_this13.bucketId}`, body, { headers: _this13.headers }, parameters);
     });
   }
@@ -69996,11 +69996,11 @@ var StorageFileApi = class extends BaseApiClient {
     if (typeof Buffer !== "undefined") return Buffer.from(data).toString("base64");
     return btoa(data);
   }
-  _getFinalPath(path3) {
-    return `${this.bucketId}/${path3.replace(/^\/+/, "")}`;
+  _getFinalPath(path4) {
+    return `${this.bucketId}/${path4.replace(/^\/+/, "")}`;
   }
-  _removeEmptyFolders(path3) {
-    return path3.replace(/^\/|\/$/g, "").replace(/\/+/g, "/");
+  _removeEmptyFolders(path4) {
+    return path4.replace(/^\/|\/$/g, "").replace(/\/+/g, "/");
   }
   transformOptsToQueryString(transform2) {
     const params = [];
@@ -71643,16 +71643,77 @@ if (shouldShowDeprecationWarning()) console.warn("\u26A0\uFE0F  Node.js 18 and b
 
 // dist/lib/supabase.js
 var import_dotenv = __toESM(require_main(), 1);
+
+// dist/lib/credentials.js
+var import_fs = __toESM(require("fs"), 1);
+var import_path = __toESM(require("path"), 1);
+var import_os = __toESM(require("os"), 1);
+var CREDENTIALS_DIR = import_path.default.join(import_os.default.homedir(), ".mnemos");
+var CREDENTIALS_FILE = import_path.default.join(CREDENTIALS_DIR, "credentials.json");
+function loadCredentials() {
+  try {
+    if (!import_fs.default.existsSync(CREDENTIALS_FILE)) {
+      return null;
+    }
+    const raw = import_fs.default.readFileSync(CREDENTIALS_FILE, "utf-8");
+    const creds = JSON.parse(raw);
+    if (!creds.userId || !creds.accessToken || !creds.refreshToken) {
+      console.error("[Auth] Credentials incompletes, suppression");
+      clearCredentials();
+      return null;
+    }
+    return creds;
+  } catch (err) {
+    console.error("[Auth] Erreur lecture credentials:", err);
+    return null;
+  }
+}
+__name(loadCredentials, "loadCredentials");
+function saveCredentials(creds) {
+  try {
+    if (!import_fs.default.existsSync(CREDENTIALS_DIR)) {
+      import_fs.default.mkdirSync(CREDENTIALS_DIR, { recursive: true, mode: 448 });
+    }
+    import_fs.default.writeFileSync(CREDENTIALS_FILE, JSON.stringify(creds, null, 2), {
+      encoding: "utf-8",
+      mode: 384
+      // lecture/ecriture uniquement pour le proprietaire
+    });
+    console.error("[Auth] Credentials sauvegardees dans " + CREDENTIALS_FILE);
+  } catch (err) {
+    console.error("[Auth] Erreur sauvegarde credentials:", err);
+    throw new Error("Impossible de sauvegarder les credentials: " + String(err));
+  }
+}
+__name(saveCredentials, "saveCredentials");
+function clearCredentials() {
+  try {
+    if (import_fs.default.existsSync(CREDENTIALS_FILE)) {
+      import_fs.default.unlinkSync(CREDENTIALS_FILE);
+      console.error("[Auth] Credentials supprimees");
+    }
+  } catch (err) {
+    console.error("[Auth] Erreur suppression credentials:", err);
+  }
+}
+__name(clearCredentials, "clearCredentials");
+function isTokenExpired(creds) {
+  const MARGIN_MS = 5 * 60 * 1e3;
+  return Date.now() > creds.expiresAt - MARGIN_MS;
+}
+__name(isTokenExpired, "isTokenExpired");
+
+// dist/lib/supabase.js
 import_dotenv.default.config();
 var SUPABASE_URL = process.env.SUPABASE_URL;
 var SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-var supabaseClient = null;
+var adminClient = null;
 function getSupabaseClient() {
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-    throw new Error("SUPABASE_URL et SUPABASE_SERVICE_ROLE_KEY doivent \xEAtre d\xE9finis dans le .env");
+    throw new Error("SUPABASE_URL et SUPABASE_SERVICE_ROLE_KEY doivent etre definis dans le .env");
   }
-  if (!supabaseClient) {
-    supabaseClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+  if (!adminClient) {
+    adminClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
       auth: {
         autoRefreshToken: false,
         persistSession: false
@@ -71662,7 +71723,7 @@ function getSupabaseClient() {
       }
     });
   }
-  return supabaseClient;
+  return adminClient;
 }
 __name(getSupabaseClient, "getSupabaseClient");
 
@@ -72161,13 +72222,13 @@ var MultipartBody = class {
 // node_modules/@anthropic-ai/sdk/_shims/node-runtime.mjs
 var import_web = require("node:stream/web");
 var fileFromPathWarned = false;
-async function fileFromPath3(path3, ...args) {
+async function fileFromPath3(path4, ...args) {
   const { fileFromPath: _fileFromPath } = await Promise.resolve().then(() => (init_fileFromPath(), fileFromPath_exports));
   if (!fileFromPathWarned) {
-    console.warn(`fileFromPath is deprecated; use fs.createReadStream(${JSON.stringify(path3)}) instead`);
+    console.warn(`fileFromPath is deprecated; use fs.createReadStream(${JSON.stringify(path4)}) instead`);
     fileFromPathWarned = true;
   }
-  return await _fileFromPath(path3, ...args);
+  return await _fileFromPath(path4, ...args);
 }
 __name(fileFromPath3, "fileFromPath");
 var defaultHttpAgent = new import_agentkeepalive.default({ keepAlive: true, timeout: 5 * 60 * 1e3 });
@@ -72797,29 +72858,29 @@ var APIClient = class {
   defaultIdempotencyKey() {
     return `stainless-node-retry-${uuid4()}`;
   }
-  get(path3, opts) {
-    return this.methodRequest("get", path3, opts);
+  get(path4, opts) {
+    return this.methodRequest("get", path4, opts);
   }
-  post(path3, opts) {
-    return this.methodRequest("post", path3, opts);
+  post(path4, opts) {
+    return this.methodRequest("post", path4, opts);
   }
-  patch(path3, opts) {
-    return this.methodRequest("patch", path3, opts);
+  patch(path4, opts) {
+    return this.methodRequest("patch", path4, opts);
   }
-  put(path3, opts) {
-    return this.methodRequest("put", path3, opts);
+  put(path4, opts) {
+    return this.methodRequest("put", path4, opts);
   }
-  delete(path3, opts) {
-    return this.methodRequest("delete", path3, opts);
+  delete(path4, opts) {
+    return this.methodRequest("delete", path4, opts);
   }
-  methodRequest(method, path3, opts) {
+  methodRequest(method, path4, opts) {
     return this.request(Promise.resolve(opts).then(async (opts2) => {
       const body = opts2 && isBlobLike(opts2?.body) ? new DataView(await opts2.body.arrayBuffer()) : opts2?.body instanceof DataView ? opts2.body : opts2?.body instanceof ArrayBuffer ? new DataView(opts2.body) : opts2 && ArrayBuffer.isView(opts2?.body) ? new DataView(opts2.body.buffer) : opts2?.body;
-      return { method, path: path3, ...opts2, body };
+      return { method, path: path4, ...opts2, body };
     }));
   }
-  getAPIList(path3, Page2, opts) {
-    return this.requestAPIList(Page2, { method: "get", path: path3, ...opts });
+  getAPIList(path4, Page2, opts) {
+    return this.requestAPIList(Page2, { method: "get", path: path4, ...opts });
   }
   calculateContentLength(body) {
     if (typeof body === "string") {
@@ -72837,10 +72898,10 @@ var APIClient = class {
     return null;
   }
   buildRequest(options, { retryCount = 0 } = {}) {
-    const { method, path: path3, query, headers = {} } = options;
+    const { method, path: path4, query, headers = {} } = options;
     const body = ArrayBuffer.isView(options.body) || options.__binaryRequest && typeof options.body === "string" ? options.body : isMultipartBody(options.body) ? options.body.body : options.body ? JSON.stringify(options.body, null, 2) : null;
     const contentLength = this.calculateContentLength(body);
-    const url = this.buildURL(path3, query);
+    const url = this.buildURL(path4, query);
     if ("timeout" in options)
       validatePositiveInteger("timeout", options.timeout);
     const timeout = options.timeout ?? this.timeout;
@@ -72953,8 +73014,8 @@ var APIClient = class {
     const request = this.makeRequest(options, null);
     return new PagePromise(this, request, Page2);
   }
-  buildURL(path3, query) {
-    const url = isAbsoluteURL(path3) ? new URL(path3) : new URL(this.baseURL + (this.baseURL.endsWith("/") && path3.startsWith("/") ? path3.slice(1) : path3));
+  buildURL(path4, query) {
+    const url = isAbsoluteURL(path4) ? new URL(path4) : new URL(this.baseURL + (this.baseURL.endsWith("/") && path4.startsWith("/") ? path4.slice(1) : path4));
     const defaultQuery = this.defaultQuery();
     if (!isEmptyObj(defaultQuery)) {
       query = { ...defaultQuery, ...query };
@@ -76776,10 +76837,10 @@ async function expandViaGraph(topAtomIds, existingAtomIds, userId) {
     for (const atom of newAtoms) {
       const paths = pathsToAtom.get(atom.id) || [];
       let graphScore = 0;
-      for (const path3 of paths) {
-        const hopWeight = path3.hop === 1 ? 1 : 0.5;
-        const typeMultiplier = CONNECTION_TYPE_MULTIPLIERS[path3.type] || 0.8;
-        const pathScore = hopWeight * typeMultiplier * path3.strength;
+      for (const path4 of paths) {
+        const hopWeight = path4.hop === 1 ? 1 : 0.5;
+        const typeMultiplier = CONNECTION_TYPE_MULTIPLIERS[path4.type] || 0.8;
+        const pathScore = hopWeight * typeMultiplier * path4.strength;
         graphScore += pathScore;
       }
       graphScore = graphScore * Math.min(1, Math.log(paths.length + 1) / Math.log(5));
@@ -79321,6 +79382,179 @@ ${adjustments.prompt_additions.map((a2) => `- ${a2}`).join("\n")}
 }
 __name(getCalibration, "getCalibration");
 
+// dist/tools/auth.js
+var SUPABASE_URL2 = process.env.SUPABASE_URL || "https://hpbsowihyydzdnxuzoxs.supabase.co";
+var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwYnNvd2loeXlkemRueHV6b3hzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyODEyODksImV4cCI6MjA4Nzg1NzI4OX0.bz_mlQb6NEYOYMM5AKZKyak8mgLZQiHgEZyFf3EX91c";
+function getAuthClient() {
+  return createClient(SUPABASE_URL2, SUPABASE_ANON_KEY, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  });
+}
+__name(getAuthClient, "getAuthClient");
+var loginSchema = external_exports.object({
+  email: external_exports.string().email(),
+  password: external_exports.string().min(6)
+});
+var signupSchema = external_exports.object({
+  email: external_exports.string().email(),
+  password: external_exports.string().min(6),
+  displayName: external_exports.string().optional()
+});
+async function login(params) {
+  const { email: email2, password } = params;
+  const authClient = getAuthClient();
+  console.error("[Auth] Tentative de connexion pour:", email2);
+  const { data, error: error2 } = await authClient.auth.signInWithPassword({
+    email: email2,
+    password
+  });
+  if (error2) {
+    console.error("[Auth] Erreur login:", error2.message);
+    return {
+      success: false,
+      error: error2.message === "Invalid login credentials" ? "Email ou mot de passe incorrect. Verifiez vos identifiants ou creez un compte avec /mnemos:start signup." : error2.message
+    };
+  }
+  if (!data.session || !data.user) {
+    return { success: false, error: "Session non creee. Contactez le support." };
+  }
+  const creds = {
+    userId: data.user.id,
+    email: data.user.email || email2,
+    accessToken: data.session.access_token,
+    refreshToken: data.session.refresh_token,
+    expiresAt: Date.now() + (data.session.expires_in || 3600) * 1e3
+  };
+  saveCredentials(creds);
+  return {
+    success: true,
+    userId: data.user.id,
+    email: creds.email,
+    message: "Connecte ! Votre memoire Mnemos est prete. Tapez /mnemos pour demarrer.",
+    dashboard: "https://mnemos-dashboard.vercel.app"
+  };
+}
+__name(login, "login");
+async function signup(params) {
+  const { email: email2, password, displayName } = params;
+  const authClient = getAuthClient();
+  console.error("[Auth] Tentative d'inscription pour:", email2);
+  const { data, error: error2 } = await authClient.auth.signUp({
+    email: email2,
+    password,
+    options: {
+      data: {
+        display_name: displayName || email2.split("@")[0]
+      }
+    }
+  });
+  if (error2) {
+    console.error("[Auth] Erreur signup:", error2.message);
+    return {
+      success: false,
+      error: error2.message === "User already registered" ? "Cet email est deja utilise. Connectez-vous avec /mnemos:start login." : error2.message
+    };
+  }
+  if (!data.user) {
+    return { success: false, error: "Erreur lors de la creation du compte." };
+  }
+  if (data.session) {
+    const creds = {
+      userId: data.user.id,
+      email: data.user.email || email2,
+      accessToken: data.session.access_token,
+      refreshToken: data.session.refresh_token,
+      expiresAt: Date.now() + (data.session.expires_in || 3600) * 1e3
+    };
+    saveCredentials(creds);
+    return {
+      success: true,
+      userId: data.user.id,
+      email: creds.email,
+      message: "Compte cree et connecte ! Votre memoire Mnemos est prete. Tapez /mnemos pour demarrer.",
+      dashboard: "https://mnemos-dashboard.vercel.app"
+    };
+  }
+  return {
+    success: true,
+    needsConfirmation: true,
+    email: email2,
+    message: "Compte cree ! Verifiez votre email pour confirmer, puis connectez-vous avec /mnemos:start login."
+  };
+}
+__name(signup, "signup");
+async function logout() {
+  clearCredentials();
+  return {
+    success: true,
+    message: "Deconnecte. Vos donnees restent en securite dans Mnemos."
+  };
+}
+__name(logout, "logout");
+async function whoami() {
+  const creds = loadCredentials();
+  if (!creds) {
+    return {
+      authenticated: false,
+      message: "Non connecte. Utilisez /mnemos:start login ou /mnemos:start signup."
+    };
+  }
+  const expired = isTokenExpired(creds);
+  if (expired) {
+    const refreshed = await refreshToken(creds);
+    if (!refreshed) {
+      return {
+        authenticated: false,
+        message: "Session expiree. Reconnectez-vous avec /mnemos:start login."
+      };
+    }
+    return {
+      authenticated: true,
+      userId: refreshed.userId,
+      email: refreshed.email,
+      message: "Connecte (session rafraichie)."
+    };
+  }
+  return {
+    authenticated: true,
+    userId: creds.userId,
+    email: creds.email,
+    message: "Connecte en tant que " + creds.email
+  };
+}
+__name(whoami, "whoami");
+async function refreshToken(creds) {
+  const authClient = getAuthClient();
+  try {
+    const { data, error: error2 } = await authClient.auth.refreshSession({
+      refresh_token: creds.refreshToken
+    });
+    if (error2 || !data.session) {
+      console.error("[Auth] Erreur refresh token:", error2?.message);
+      clearCredentials();
+      return null;
+    }
+    const newCreds = {
+      userId: data.user.id,
+      email: data.user.email || creds.email,
+      accessToken: data.session.access_token,
+      refreshToken: data.session.refresh_token,
+      expiresAt: Date.now() + (data.session.expires_in || 3600) * 1e3
+    };
+    saveCredentials(newCreds);
+    console.error("[Auth] Token rafraichi pour:", newCreds.email);
+    return newCreds;
+  } catch (err) {
+    console.error("[Auth] Erreur refresh:", err);
+    clearCredentials();
+    return null;
+  }
+}
+__name(refreshToken, "refreshToken");
+
 // dist/index.js
 var import_meta2 = {};
 import_dotenv4.default.config();
@@ -79849,6 +80083,48 @@ var TOOLS = [
       },
       required: ["userId", "targetType"]
     }
+  },
+  // AUTH (4 tools - SaaS onboarding)
+  {
+    name: "mnemos_login",
+    description: "Se connecter a Mnemos avec email/mot de passe. Stocke le JWT localement dans ~/.mnemos/credentials.json.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        email: { type: "string", description: "Adresse email" },
+        password: { type: "string", description: "Mot de passe (min 6 caracteres)" }
+      },
+      required: ["email", "password"]
+    }
+  },
+  {
+    name: "mnemos_signup",
+    description: "Creer un compte Mnemos. Inscription gratuite, stocke le JWT localement.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        email: { type: "string", description: "Adresse email" },
+        password: { type: "string", description: "Mot de passe (min 6 caracteres)" },
+        displayName: { type: "string", description: "Nom affiche (optionnel)" }
+      },
+      required: ["email", "password"]
+    }
+  },
+  {
+    name: "mnemos_logout",
+    description: "Se deconnecter de Mnemos. Supprime les credentials locales.",
+    inputSchema: {
+      type: "object",
+      properties: {}
+    }
+  },
+  {
+    name: "mnemos_whoami",
+    description: "Verifier le statut de connexion Mnemos. Retourne userId et email si connecte.",
+    inputSchema: {
+      type: "object",
+      properties: {}
+    }
   }
 ];
 server.setRequestHandler(ListToolsRequestSchema, async () => {
@@ -79857,10 +80133,10 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
   };
 });
 function logFunctionRun(params) {
-  const SUPABASE_URL2 = process.env.SUPABASE_URL;
+  const SUPABASE_URL3 = process.env.SUPABASE_URL;
   const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const USER_ID = process.env.MNEMOS_USER_ID;
-  if (!SUPABASE_URL2 || !SUPABASE_KEY || !USER_ID)
+  if (!SUPABASE_URL3 || !SUPABASE_KEY || !USER_ID)
     return;
   const body = JSON.stringify({
     user_id: USER_ID,
@@ -79872,7 +80148,7 @@ function logFunctionRun(params) {
     error_message: params.errorMessage?.slice(0, 1e3) || null,
     metadata: { runtime: "mcp-stdio", node_version: process.version }
   });
-  fetch(`${SUPABASE_URL2}/rest/v1/function_runs`, {
+  fetch(`${SUPABASE_URL3}/rest/v1/function_runs`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -80146,6 +80422,33 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             content: [{ type: "text", text: JSON.stringify(result2, null, 2) }]
           };
         }
+        // AUTH
+        case "mnemos_login": {
+          const validated = loginSchema.parse(args);
+          const result2 = await login(validated);
+          return {
+            content: [{ type: "text", text: JSON.stringify(result2, null, 2) }]
+          };
+        }
+        case "mnemos_signup": {
+          const validated = signupSchema.parse(args);
+          const result2 = await signup(validated);
+          return {
+            content: [{ type: "text", text: JSON.stringify(result2, null, 2) }]
+          };
+        }
+        case "mnemos_logout": {
+          const result2 = await logout();
+          return {
+            content: [{ type: "text", text: JSON.stringify(result2, null, 2) }]
+          };
+        }
+        case "mnemos_whoami": {
+          const result2 = await whoami();
+          return {
+            content: [{ type: "text", text: JSON.stringify(result2, null, 2) }]
+          };
+        }
         default:
           throw new Error(`Unknown tool: ${name}`);
       }
@@ -80183,16 +80486,14 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 });
 async function main() {
   console.error("[Mnemos] Starting MCP server...");
-  const requiredEnvVars = [
-    "SUPABASE_URL",
-    "SUPABASE_SERVICE_ROLE_KEY",
-    "VOYAGE_API_KEY",
-    "ANTHROPIC_API_KEY"
-  ];
-  for (const envVar of requiredEnvVars) {
+  if (!process.env.SUPABASE_URL) {
+    console.error("[Mnemos] ERROR: Missing SUPABASE_URL");
+    process.exit(1);
+  }
+  const optionalVars = ["SUPABASE_SERVICE_ROLE_KEY", "VOYAGE_API_KEY", "ANTHROPIC_API_KEY"];
+  for (const envVar of optionalVars) {
     if (!process.env[envVar]) {
-      console.error(`[Mnemos] ERROR: Missing environment variable: ${envVar}`);
-      process.exit(1);
+      console.error(`[Mnemos] WARNING: ${envVar} not set. Some features may be limited.`);
     }
   }
   const transport = new StdioServerTransport();
@@ -80217,6 +80518,7 @@ async function main() {
   console.error("  - Garbage Collector: 1 tool (garbage_collect - archive, deduplicate, consolidate)");
   console.error("  - Feedback Loop: 2 tools (submit_feedback + get_calibration)");
   console.error("  - Contacts: 2 tools (upsert + search)");
+  console.error("  - Auth: 4 tools (login, signup, logout, whoami)");
   console.error("  - Source Events: 3 tools (ingest + process + sync_status)");
   if (process.env.MNEMOS_USER_ID) {
     console.error(`  - Default userId: ${process.env.MNEMOS_USER_ID.slice(0, 8)}...`);
@@ -80226,8 +80528,8 @@ __name(main, "main");
 function startDashboard() {
   const DASHBOARD_PORT = 3001;
   const currentFile = typeof import_meta2 !== "undefined" && import_meta2.url ? (0, import_url.fileURLToPath)(import_meta2.url) : typeof __filename !== "undefined" ? __filename : process.argv[1] || "";
-  const currentDir = import_path3.default.dirname(currentFile);
-  const dashboardDist = import_path3.default.resolve(currentDir, "../../dashboard/dist");
+  const currentDir = import_path4.default.dirname(currentFile);
+  const dashboardDist = import_path4.default.resolve(currentDir, "../../dashboard/dist");
   try {
     try {
       (0, import_child_process.execSync)(`lsof -ti:${DASHBOARD_PORT} | xargs kill -9 2>/dev/null`, { stdio: "ignore" });
