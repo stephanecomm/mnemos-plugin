@@ -71777,7 +71777,7 @@ var deleteSpaceSchema = external_exports.object({
 });
 async function createSpace(params) {
   const { userId, name, description, status, priority } = params;
-  const supabase2 = getSupabaseClient();
+  const supabase = getSupabaseClient();
   console.error(`[Spaces] Cr\xE9ation espace "${name}" pour user ${userId}`);
   const newSpace = {
     user_id: userId,
@@ -71788,7 +71788,7 @@ async function createSpace(params) {
     is_system: false,
     created_by: "user"
   };
-  const { data, error: error2 } = await supabase2.from("spaces").insert(newSpace).select().single();
+  const { data, error: error2 } = await supabase.from("spaces").insert(newSpace).select().single();
   if (error2) {
     console.error("[Spaces] Erreur cr\xE9ation:", error2);
     throw new Error(`\xC9chec cr\xE9ation espace: ${error2.message}`);
@@ -71799,9 +71799,9 @@ async function createSpace(params) {
 __name(createSpace, "createSpace");
 async function listSpaces(params) {
   const { userId, status } = params;
-  const supabase2 = getSupabaseClient();
+  const supabase = getSupabaseClient();
   console.error(`[Spaces] Liste espaces pour user ${userId}${status ? ` (status: ${status})` : ""}`);
-  let query = supabase2.from("spaces").select("id, user_id, name, description, status, priority, is_system, created_by, last_activity, created_at, updated_at").eq("user_id", userId).order("last_activity", { ascending: false });
+  let query = supabase.from("spaces").select("id, user_id, name, description, status, priority, is_system, created_by, last_activity, created_at, updated_at").eq("user_id", userId).order("last_activity", { ascending: false });
   if (status) {
     query = query.eq("status", status);
   }
@@ -71816,14 +71816,14 @@ async function listSpaces(params) {
 __name(listSpaces, "listSpaces");
 async function updateSpace(params) {
   const { userId, spaceId, ...updates } = params;
-  const supabase2 = getSupabaseClient();
+  const supabase = getSupabaseClient();
   console.error(`[Spaces] Mise \xE0 jour espace ${spaceId}`);
-  const { data: existing, error: fetchError } = await supabase2.from("spaces").select("id").eq("id", spaceId).eq("user_id", userId).single();
+  const { data: existing, error: fetchError } = await supabase.from("spaces").select("id").eq("id", spaceId).eq("user_id", userId).single();
   if (fetchError || !existing) {
     throw new Error("Espace non trouv\xE9 ou acc\xE8s refus\xE9");
   }
   const spaceUpdates = updates;
-  const { data, error: error2 } = await supabase2.from("spaces").update(spaceUpdates).eq("id", spaceId).eq("user_id", userId).select().single();
+  const { data, error: error2 } = await supabase.from("spaces").update(spaceUpdates).eq("id", spaceId).eq("user_id", userId).select().single();
   if (error2) {
     console.error("[Spaces] Erreur update:", error2);
     throw new Error(`\xC9chec mise \xE0 jour espace: ${error2.message}`);
@@ -75311,14 +75311,14 @@ var MIN_SIMILARITY = 0.7;
 var MAX_CONNECTIONS = 5;
 var CONNECTION_TYPE = "concerne";
 async function autoConnect(atomId, embedding, userId) {
-  const supabase2 = getSupabaseClient();
+  const supabase = getSupabaseClient();
   console.error(`[AutoConnect] D\xE9marrage pour atom ${atomId.slice(0, 8)}...`);
   const result = {
     connectionsCreated: 0,
     skipped: 0
   };
   try {
-    const { data: nearestAtoms, error: rpcError } = await supabase2.rpc("find_nearest_atoms", {
+    const { data: nearestAtoms, error: rpcError } = await supabase.rpc("find_nearest_atoms", {
       p_atom_id: atomId,
       p_embedding: embedding,
       p_user_id: userId,
@@ -75339,7 +75339,7 @@ async function autoConnect(atomId, embedding, userId) {
     }
     console.error(`[AutoConnect] ${nearest.length} voisins trouv\xE9s`);
     for (const neighbor of nearest) {
-      const { data: existing, error: checkError } = await supabase2.from("connections").select("id").or(`and(source_atom_id.eq.${atomId},target_atom_id.eq.${neighbor.id}),and(source_atom_id.eq.${neighbor.id},target_atom_id.eq.${atomId})`).limit(1);
+      const { data: existing, error: checkError } = await supabase.from("connections").select("id").or(`and(source_atom_id.eq.${atomId},target_atom_id.eq.${neighbor.id}),and(source_atom_id.eq.${neighbor.id},target_atom_id.eq.${atomId})`).limit(1);
       if (checkError) {
         console.error(`[AutoConnect] Erreur v\xE9rification connexion existante:`, checkError);
         continue;
@@ -75355,7 +75355,7 @@ async function autoConnect(atomId, embedding, userId) {
         type: CONNECTION_TYPE,
         strength: neighbor.similarity
       };
-      const { error: insertError } = await supabase2.from("connections").insert(newConnection);
+      const { error: insertError } = await supabase.from("connections").insert(newConnection);
       if (insertError) {
         console.error(`[AutoConnect] Erreur cr\xE9ation connexion:`, insertError);
         continue;
@@ -75445,11 +75445,11 @@ async function extractAtoms(params) {
       return [];
     }
     console.error(`[Extract] ${candidates.length} atomes candidats extraits`);
-    const supabase2 = getSupabaseClient();
+    const supabase = getSupabaseClient();
     const extractedAtoms = [];
     let targetSpaceId = spaceId;
     if (!targetSpaceId) {
-      const { data: inboxSpace } = await supabase2.from("spaces").select("id").eq("user_id", userId).eq("is_system", true).eq("name", "Non affect\xE9").single();
+      const { data: inboxSpace } = await supabase.from("spaces").select("id").eq("user_id", userId).eq("is_system", true).eq("name", "Non affect\xE9").single();
       targetSpaceId = inboxSpace?.id || null;
     }
     for (const candidate of candidates) {
@@ -75469,7 +75469,7 @@ async function extractAtoms(params) {
         embedding,
         active: true
       };
-      const { data: atom, error: error2 } = await supabase2.from("memory_atoms").insert(newAtom).select().single();
+      const { data: atom, error: error2 } = await supabase.from("memory_atoms").insert(newAtom).select().single();
       if (error2) {
         console.error("[Extract] Erreur insertion atome:", error2);
         continue;
@@ -75505,7 +75505,7 @@ async function extractAtoms(params) {
 }
 __name(extractAtoms, "extractAtoms");
 async function generateConnections(newAtoms, existingAtoms) {
-  const supabase2 = getSupabaseClient();
+  const supabase = getSupabaseClient();
   for (const newAtom of newAtoms) {
     for (const existingAtom of existingAtoms.slice(0, 5)) {
       const newWords = new Set(newAtom.content.toLowerCase().split(/\s+/));
@@ -75531,7 +75531,7 @@ async function generateConnections(newAtoms, existingAtoms) {
           strength: Math.min(1, commonWords / 5),
           auto_generated: true
         };
-        await supabase2.from("connections").insert(newConnection).select();
+        await supabase.from("connections").insert(newConnection).select();
         console.error(`[Extract] Connexion cr\xE9\xE9e: ${newAtom.id} -> ${existingAtom.id} (${connectionType})`);
       }
     }
@@ -75586,14 +75586,14 @@ Extrais les atomes m\xE9morisables (JSON uniquement) :`;
 __name(buildBufferExtractionPrompt, "buildBufferExtractionPrompt");
 async function extractAtomsFromBuffer(userId, exchanges, spaceId, sessionId) {
   console.error(`[Extract-B2] Extraction buffer: ${exchanges.length} \xE9changes, ${exchanges.reduce((s2, e2) => s2 + e2.user.length + e2.assistant.length, 0)} chars`);
-  const supabase2 = getSupabaseClient();
+  const supabase = getSupabaseClient();
   try {
     let existingAtoms = [];
     const lastUserMsg = exchanges[exchanges.length - 1]?.user || "";
     if (lastUserMsg.length > 10) {
       const queryEmbedding = await embedText(lastUserMsg);
       if (queryEmbedding && queryEmbedding.length > 0) {
-        let query = supabase2.from("memory_atoms").select("*").eq("user_id", userId).eq("active", true).not("embedding", "is", null).limit(10);
+        let query = supabase.from("memory_atoms").select("*").eq("user_id", userId).eq("active", true).not("embedding", "is", null).limit(10);
         if (spaceId) {
           query = query.eq("space_id", spaceId);
         }
@@ -75623,7 +75623,7 @@ async function extractAtomsFromBuffer(userId, exchanges, spaceId, sessionId) {
     console.error(`[Extract-B2] ${candidates.length} atomes candidats`);
     let targetSpaceId = spaceId;
     if (!targetSpaceId) {
-      const { data: inboxSpace } = await supabase2.from("spaces").select("id").eq("user_id", userId).eq("is_system", true).eq("name", "Non affect\xE9").single();
+      const { data: inboxSpace } = await supabase.from("spaces").select("id").eq("user_id", userId).eq("is_system", true).eq("name", "Non affect\xE9").single();
       targetSpaceId = inboxSpace?.id || null;
     }
     const extractedAtoms = [];
@@ -75643,7 +75643,7 @@ async function extractAtomsFromBuffer(userId, exchanges, spaceId, sessionId) {
         embedding,
         active: true
       };
-      const { data: atom, error: error2 } = await supabase2.from("memory_atoms").insert(newAtom).select().single();
+      const { data: atom, error: error2 } = await supabase.from("memory_atoms").insert(newAtom).select().single();
       if (error2) {
         console.error("[Extract-B2] Erreur insertion:", error2);
         continue;
@@ -75684,8 +75684,8 @@ async function resolveSpaceId(spaceId, userId) {
     return void 0;
   if (UUID_REGEX.test(spaceId))
     return spaceId;
-  const supabase2 = getSupabaseClient();
-  const { data: space, error: error2 } = await supabase2.from("spaces").select("id").eq("user_id", userId).ilike("name", spaceId).limit(1).single();
+  const supabase = getSupabaseClient();
+  const { data: space, error: error2 } = await supabase.from("spaces").select("id").eq("user_id", userId).ilike("name", spaceId).limit(1).single();
   if (error2 || !space) {
     const msg = '[ResolveSpace] Espace non trouve pour nom "' + spaceId + '"';
     console.error(msg);
@@ -75766,13 +75766,13 @@ var createAtomManualSchema = external_exports.object({
 });
 async function extractAtomsFromConversation(params) {
   const { userId, userMessage, assistantResponse, spaceId, conversationId } = params;
-  const supabase2 = getSupabaseClient();
+  const supabase = getSupabaseClient();
   console.error(`[Memory] extract_atoms pour conversation ${conversationId}`);
   let existingAtoms = [];
   if (userMessage.length > 10) {
     const queryEmbedding = await embedText(userMessage);
     if (queryEmbedding && queryEmbedding.length > 0) {
-      let query = supabase2.from("memory_atoms").select("*").eq("user_id", userId).eq("active", true).not("embedding", "is", null).limit(10);
+      let query = supabase.from("memory_atoms").select("*").eq("user_id", userId).eq("active", true).not("embedding", "is", null).limit(10);
       if (spaceId) {
         query = query.eq("space_id", spaceId);
       }
@@ -75797,14 +75797,14 @@ async function extractAtomsFromConversation(params) {
 __name(extractAtomsFromConversation, "extractAtomsFromConversation");
 async function togglePinAtom(params) {
   const { userId, atomId, isPinned } = params;
-  const supabase2 = getSupabaseClient();
+  const supabase = getSupabaseClient();
   console.error(`[Memory] toggle_pin_atom: ${atomId} \u2192 ${isPinned}`);
-  const { data: existing, error: fetchError } = await supabase2.from("memory_atoms").select("id").eq("id", atomId).eq("user_id", userId).single();
+  const { data: existing, error: fetchError } = await supabase.from("memory_atoms").select("id").eq("id", atomId).eq("user_id", userId).single();
   if (fetchError || !existing) {
     throw new Error("Atome non trouv\xE9 ou acc\xE8s refus\xE9");
   }
   const atomUpdate = { is_pinned: isPinned };
-  const { error: error2 } = await supabase2.from("memory_atoms").update(atomUpdate).eq("id", atomId).eq("user_id", userId);
+  const { error: error2 } = await supabase.from("memory_atoms").update(atomUpdate).eq("id", atomId).eq("user_id", userId);
   if (error2) {
     console.error("[Memory] Erreur toggle_pin:", error2);
     throw new Error(`\xC9chec toggle pin: ${error2.message}`);
@@ -75815,9 +75815,9 @@ async function togglePinAtom(params) {
 __name(togglePinAtom, "togglePinAtom");
 async function updateAtom(params) {
   const { userId, atomId, content, type, priority, active } = params;
-  const supabase2 = getSupabaseClient();
+  const supabase = getSupabaseClient();
   console.error(`[Memory] update_atom: ${atomId}`);
-  const { data: existing, error: fetchError } = await supabase2.from("memory_atoms").select("id").eq("id", atomId).eq("user_id", userId).single();
+  const { data: existing, error: fetchError } = await supabase.from("memory_atoms").select("id").eq("id", atomId).eq("user_id", userId).single();
   if (fetchError || !existing) {
     throw new Error("Atome non trouv\xE9 ou acc\xE8s refus\xE9");
   }
@@ -75837,14 +75837,14 @@ async function updateAtom(params) {
   if (Object.keys(atomUpdate).length === 0) {
     return { success: true };
   }
-  const { error: error2 } = await supabase2.from("memory_atoms").update(atomUpdate).eq("id", atomId).eq("user_id", userId);
+  const { error: error2 } = await supabase.from("memory_atoms").update(atomUpdate).eq("id", atomId).eq("user_id", userId);
   if (error2) {
     console.error("[Memory] Erreur update:", error2);
     throw new Error(`\xC9chec update atome: ${error2.message}`);
   }
   console.error(`[Memory] Atome mis \xE0 jour: ${atomId}`);
   if (active === false) {
-    const { error: deleteError, count } = await supabase2.from("connections").delete({ count: "exact" }).or(`source_atom_id.eq.${atomId},target_atom_id.eq.${atomId}`);
+    const { error: deleteError, count } = await supabase.from("connections").delete({ count: "exact" }).or(`source_atom_id.eq.${atomId},target_atom_id.eq.${atomId}`);
     if (deleteError) {
       console.warn(`[Memory] Erreur suppression connexions lors archivage: ${deleteError.message}`);
     } else {
@@ -75852,7 +75852,7 @@ async function updateAtom(params) {
     }
   }
   if (newEmbedding && newEmbedding.length > 0) {
-    await supabase2.from("connections").delete().or(`source_atom_id.eq.${atomId},target_atom_id.eq.${atomId}`).eq("type", "concerne").gte("strength", 0.7);
+    await supabase.from("connections").delete().or(`source_atom_id.eq.${atomId},target_atom_id.eq.${atomId}`).eq("type", "concerne").gte("strength", 0.7);
     autoConnectAsync(atomId, newEmbedding, userId);
   }
   return { success: true };
@@ -75860,12 +75860,12 @@ async function updateAtom(params) {
 __name(updateAtom, "updateAtom");
 async function searchAtoms(params) {
   const { userId, query, spaceId, types, limit } = params;
-  const supabase2 = getSupabaseClient();
+  const supabase = getSupabaseClient();
   console.error(`[Memory] search_atoms: "${query.slice(0, 50)}..."`);
   const queryEmbedding = await embedText(query, "query");
   if (!queryEmbedding || queryEmbedding.length === 0) {
     console.warn("[Memory] Pas d'embedding, fallback texte simple");
-    let queryBuilder2 = supabase2.from("memory_atoms").select("*").eq("user_id", userId).eq("active", true).ilike("content", `%${query}%`).order("created_at", { ascending: false }).limit(limit);
+    let queryBuilder2 = supabase.from("memory_atoms").select("*").eq("user_id", userId).eq("active", true).ilike("content", `%${query}%`).order("created_at", { ascending: false }).limit(limit);
     if (spaceId) {
       queryBuilder2 = queryBuilder2.eq("space_id", spaceId);
     }
@@ -75882,7 +75882,7 @@ async function searchAtoms(params) {
     };
   }
   try {
-    const { data: hybridData, error: hybridError } = await supabase2.rpc("hybrid_search_atoms", {
+    const { data: hybridData, error: hybridError } = await supabase.rpc("hybrid_search_atoms", {
       p_user_id: userId,
       p_query_text: query,
       p_query_embedding: queryEmbedding,
@@ -75914,7 +75914,7 @@ async function searchAtoms(params) {
     console.error("[Memory] Erreur hybrid search, fallback mode ancien:", err);
   }
   console.error("[Memory] Fallback mode ancien (fetch + cosine JS)");
-  let queryBuilder = supabase2.from("memory_atoms").select("*").eq("user_id", userId).eq("active", true).not("embedding", "is", null);
+  let queryBuilder = supabase.from("memory_atoms").select("*").eq("user_id", userId).eq("active", true).not("embedding", "is", null);
   if (spaceId) {
     queryBuilder = queryBuilder.eq("space_id", spaceId);
   }
@@ -75944,9 +75944,9 @@ async function searchAtoms(params) {
 __name(searchAtoms, "searchAtoms");
 async function getStats(params) {
   const { userId, spaceId } = params;
-  const supabase2 = getSupabaseClient();
+  const supabase = getSupabaseClient();
   console.error(`[Memory] get_stats pour user ${userId}`);
-  let queryBuilder = supabase2.from("memory_atoms").select("type, active, is_pinned").eq("user_id", userId);
+  let queryBuilder = supabase.from("memory_atoms").select("type, active, is_pinned").eq("user_id", userId);
   if (spaceId) {
     queryBuilder = queryBuilder.eq("space_id", spaceId);
   }
@@ -75979,11 +75979,11 @@ async function createAtomManual(params) {
   const resolvedSpaceId = await resolveSpaceId(params.spaceId, params.userId);
   const { userId, type, content, priority, isPinned } = params;
   const spaceId = resolvedSpaceId;
-  const supabase2 = getSupabaseClient();
+  const supabase = getSupabaseClient();
   console.error(`[Memory] create_atom_manual: type=${type}`);
   let targetSpaceId = spaceId;
   if (!targetSpaceId) {
-    const { data: inboxSpace } = await supabase2.from("spaces").select("id").eq("user_id", userId).eq("is_system", true).eq("name", "Non affect\xE9").single();
+    const { data: inboxSpace } = await supabase.from("spaces").select("id").eq("user_id", userId).eq("is_system", true).eq("name", "Non affect\xE9").single();
     targetSpaceId = inboxSpace?.id || null;
   }
   const embedding = await embedText(content);
@@ -76001,7 +76001,7 @@ async function createAtomManual(params) {
     embedding,
     active: true
   };
-  const { data: atom, error: error2 } = await supabase2.from("memory_atoms").insert(newAtom).select().single();
+  const { data: atom, error: error2 } = await supabase.from("memory_atoms").insert(newAtom).select().single();
   if (error2) {
     console.error("[Memory] Erreur cr\xE9ation atome manuel:", error2);
     throw new Error(`\xC9chec cr\xE9ation atome: ${error2.message}`);
@@ -76015,9 +76015,9 @@ async function createAtomManual(params) {
 __name(createAtomManual, "createAtomManual");
 async function triageAtoms(params) {
   const { userId, spaceId, autoAssign, limit } = params;
-  const supabase2 = getSupabaseClient();
+  const supabase = getSupabaseClient();
   console.error(`[Memory] triage_atoms: autoAssign=${autoAssign}, limit=${limit}`);
-  const { data: rawSpaces } = await supabase2.from("spaces").select("id, name, description, is_system").eq("user_id", userId).eq("status", "actif");
+  const { data: rawSpaces } = await supabase.from("spaces").select("id, name, description, is_system").eq("user_id", userId).eq("status", "actif");
   const allSpaces = rawSpaces || [];
   if (allSpaces.length === 0) {
     return { suggestions: [], message: "Aucun espace disponible" };
@@ -76028,7 +76028,7 @@ async function triageAtoms(params) {
     return { suggestions: [], message: 'Espace "Non affect\xE9" introuvable' };
   }
   const targetSpaces = allSpaces.filter((s2) => s2.id !== sourceSpaceId);
-  const { data: rawAtoms } = await supabase2.from("memory_atoms").select("id, content, type, embedding, created_at").eq("user_id", userId).eq("active", true).eq("space_id", sourceSpaceId).not("embedding", "is", null).order("created_at", { ascending: false }).limit(limit);
+  const { data: rawAtoms } = await supabase.from("memory_atoms").select("id, content, type, embedding, created_at").eq("user_id", userId).eq("active", true).eq("space_id", sourceSpaceId).not("embedding", "is", null).order("created_at", { ascending: false }).limit(limit);
   const atoms = rawAtoms || [];
   if (atoms.length === 0) {
     return { suggestions: [], message: "Aucun atome \xE0 trier" };
@@ -76075,7 +76075,7 @@ async function triageAtoms(params) {
     let moved = false;
     if (autoAssign && bestScore > 0.35) {
       const atomUpdate = { space_id: bestSpaceId };
-      const { error: error2 } = await supabase2.from("memory_atoms").update(atomUpdate).eq("id", atom.id).eq("user_id", userId);
+      const { error: error2 } = await supabase.from("memory_atoms").update(atomUpdate).eq("id", atom.id).eq("user_id", userId);
       if (!error2) {
         moved = true;
         console.error(`[Memory] Atome ${atom.id.slice(0, 8)} \u2192 ${bestSpaceName} (${bestScore.toFixed(2)})`);
@@ -76103,16 +76103,16 @@ async function triageAtoms(params) {
 __name(triageAtoms, "triageAtoms");
 async function suggestSpaces(params) {
   const { userId, minClusterSize } = params;
-  const supabase2 = getSupabaseClient();
+  const supabase = getSupabaseClient();
   console.error(`[Memory] suggest_spaces: minClusterSize=${minClusterSize}`);
-  const { data: rawSpaces } = await supabase2.from("spaces").select("id, name, description, is_system").eq("user_id", userId).eq("status", "actif");
+  const { data: rawSpaces } = await supabase.from("spaces").select("id, name, description, is_system").eq("user_id", userId).eq("status", "actif");
   const allSpaces = rawSpaces || [];
   const nonAffecte = allSpaces.find((s2) => s2.name === "Non affect\xE9" && s2.is_system === true);
   if (!nonAffecte) {
     return { suggestions: [], existingMatches: [], message: 'Espace "Non affect\xE9" introuvable' };
   }
   const userSpaces = allSpaces.filter((s2) => !s2.is_system);
-  const { data: rawAtoms } = await supabase2.from("memory_atoms").select("id, content, type, embedding, created_at").eq("user_id", userId).eq("active", true).eq("space_id", nonAffecte.id).not("embedding", "is", null).order("created_at", { ascending: false }).limit(100);
+  const { data: rawAtoms } = await supabase.from("memory_atoms").select("id, content, type, embedding, created_at").eq("user_id", userId).eq("active", true).eq("space_id", nonAffecte.id).not("embedding", "is", null).order("created_at", { ascending: false }).limit(100);
   const atoms = rawAtoms || [];
   if (atoms.length === 0) {
     return { suggestions: [], existingMatches: [], message: 'Aucun atome dans "Non affect\xE9"' };
@@ -76281,11 +76281,11 @@ var readMemorySchema = external_exports.object({
   type: external_exports.enum(["codex", "handover", "index", "all"])
 });
 async function resolveSpace(spaceIdOrName, userId) {
-  const supabase2 = getSupabaseClient();
+  const supabase = getSupabaseClient();
   const resolvedId = await resolveSpaceId(spaceIdOrName, userId);
   if (!resolvedId)
     throw new Error(`Impossible de r\xE9soudre l'espace: ${spaceIdOrName}`);
-  const { data: space } = await supabase2.from("spaces").select("name").eq("id", resolvedId).single();
+  const { data: space } = await supabase.from("spaces").select("name").eq("id", resolvedId).single();
   if (!space)
     throw new Error(`Espace introuvable: ${spaceIdOrName}`);
   const name = space.name;
@@ -76293,7 +76293,7 @@ async function resolveSpace(spaceIdOrName, userId) {
 }
 __name(resolveSpace, "resolveSpace");
 async function writeMemory(params) {
-  const supabase2 = getSupabaseClient();
+  const supabase = getSupabaseClient();
   const space = await resolveSpace(params.spaceId, params.userId);
   const sessionId = `session-${(/* @__PURE__ */ new Date()).toISOString().split("T")[0]}-${space.slug}`;
   const header = `---
@@ -76307,7 +76307,7 @@ session: ${sessionId}
   const fullContent = header + params.content;
   let supabaseOk = false;
   try {
-    const { error: error2 } = await supabase2.from("spaces").update({ codex: fullContent, updated_at: (/* @__PURE__ */ new Date()).toISOString() }).eq("id", space.id);
+    const { error: error2 } = await supabase.from("spaces").update({ codex: fullContent, updated_at: (/* @__PURE__ */ new Date()).toISOString() }).eq("id", space.id);
     if (error2)
       throw error2;
     supabaseOk = true;
@@ -76325,7 +76325,7 @@ session: ${sessionId}
 }
 __name(writeMemory, "writeMemory");
 async function readMemory(params) {
-  const supabase2 = getSupabaseClient();
+  const supabase = getSupabaseClient();
   if (params.type === "index") {
     const index = await readIndex();
     return { type: "index", index };
@@ -76336,7 +76336,7 @@ async function readMemory(params) {
   const space = await resolveSpace(params.spaceId, params.userId);
   async function loadCodex() {
     try {
-      const { data } = await supabase2.from("spaces").select("codex").eq("id", space.id).single();
+      const { data } = await supabase.from("spaces").select("codex").eq("id", space.id).single();
       if (data?.codex) {
         console.error(`[MemoryFiles] Codex lu depuis Supabase pour ${space.name}`);
         return data.codex;
@@ -76357,7 +76357,7 @@ async function readMemory(params) {
   __name(loadCodex, "loadCodex");
   async function loadHandovers() {
     try {
-      const { data } = await supabase2.from("handovers").select("summary, session_id, created_at, decisions_made, pending_tasks").eq("space_id", space.id).order("created_at", { ascending: false }).limit(3);
+      const { data } = await supabase.from("handovers").select("summary, session_id, created_at, decisions_made, pending_tasks").eq("space_id", space.id).order("created_at", { ascending: false }).limit(3);
       if (data && data.length > 0) {
         console.error(`[MemoryFiles] ${data.length} handovers lus depuis Supabase`);
         return data.map((h2, i2) => ({
@@ -76480,19 +76480,19 @@ Extrais les atomes memorisables (JSON uniquement) :`;
 }
 __name(buildDocumentExtractionPrompt, "buildDocumentExtractionPrompt");
 async function processDocument(documentId, userId) {
-  const supabase2 = getSupabaseClient();
+  const supabase = getSupabaseClient();
   console.error(`[Documents] processDocument: demarrage pour ${documentId}`);
   try {
-    const { data: doc, error: docError } = await supabase2.from("documents").select("*").eq("id", documentId).single();
+    const { data: doc, error: docError } = await supabase.from("documents").select("*").eq("id", documentId).single();
     if (docError || !doc) {
       console.error("[Documents] Document non trouve:", docError);
       return;
     }
-    await supabase2.from("documents").update({ status: "processing" }).eq("id", documentId);
-    const { data: fileBlob, error: dlError } = await supabase2.storage.from("documents").download(doc.file_path);
+    await supabase.from("documents").update({ status: "processing" }).eq("id", documentId);
+    const { data: fileBlob, error: dlError } = await supabase.storage.from("documents").download(doc.file_path);
     if (dlError || !fileBlob) {
       console.error("[Documents] Echec telechargement:", dlError);
-      await supabase2.from("documents").update({ status: "error" }).eq("id", documentId);
+      await supabase.from("documents").update({ status: "error" }).eq("id", documentId);
       return;
     }
     let textContent;
@@ -76500,19 +76500,19 @@ async function processDocument(documentId, userId) {
       textContent = await extractTextFromFile(fileBlob, doc.file_type);
     } catch (extractError) {
       console.error("[Documents] Echec extraction texte:", extractError);
-      await supabase2.from("documents").update({ status: "error" }).eq("id", documentId);
+      await supabase.from("documents").update({ status: "error" }).eq("id", documentId);
       return;
     }
     if (!textContent || textContent.trim().length < 10) {
       console.error("[Documents] Texte trop court ou vide");
-      await supabase2.from("documents").update({ status: "error" }).eq("id", documentId);
+      await supabase.from("documents").update({ status: "error" }).eq("id", documentId);
       return;
     }
     console.error(`[Documents] Texte extrait: ${textContent.length} chars`);
     let existingAtoms = [];
     const spaceId = doc.space_id;
     if (spaceId) {
-      const { data } = await supabase2.from("memory_atoms").select("*").eq("user_id", userId).eq("space_id", spaceId).eq("active", true).order("created_at", { ascending: false }).limit(10);
+      const { data } = await supabase.from("memory_atoms").select("*").eq("user_id", userId).eq("space_id", spaceId).eq("active", true).order("created_at", { ascending: false }).limit(10);
       existingAtoms = data || [];
     }
     const { system, user } = buildDocumentExtractionPrompt(textContent, doc.filename, existingAtoms);
@@ -76528,12 +76528,12 @@ async function processDocument(documentId, userId) {
     } catch (parseError) {
       console.error("[Documents] Erreur parsing Haiku:", parseError);
       console.error("[Documents] Reponse Haiku:", haikuResponse.slice(0, 300));
-      await supabase2.from("documents").update({ status: "error" }).eq("id", documentId);
+      await supabase.from("documents").update({ status: "error" }).eq("id", documentId);
       return;
     }
     if (!Array.isArray(candidates) || candidates.length === 0) {
       console.error("[Documents] Aucun atome extrait du document");
-      await supabase2.from("documents").update({ status: "done" }).eq("id", documentId);
+      await supabase.from("documents").update({ status: "done" }).eq("id", documentId);
       return;
     }
     console.error(`[Documents] ${candidates.length} atomes candidats extraits`);
@@ -76553,7 +76553,7 @@ async function processDocument(documentId, userId) {
         embedding,
         active: true
       };
-      const { data: atom, error: atomError } = await supabase2.from("memory_atoms").insert(newAtom).select().single();
+      const { data: atom, error: atomError } = await supabase.from("memory_atoms").insert(newAtom).select().single();
       if (atomError) {
         console.error("[Documents] Erreur insertion atome:", atomError);
         continue;
@@ -76564,12 +76564,12 @@ async function processDocument(documentId, userId) {
         autoConnectAsync(atom.id, embedding, userId);
       }
     }
-    await supabase2.from("documents").update({ status: "done" }).eq("id", documentId);
+    await supabase.from("documents").update({ status: "done" }).eq("id", documentId);
     console.error(`[Documents] processDocument termine: ${atomCount} atomes crees pour ${documentId}`);
   } catch (error2) {
     console.error("[Documents] Erreur processDocument (non bloquante):", error2);
     try {
-      await supabase2.from("documents").update({ status: "error" }).eq("id", documentId);
+      await supabase.from("documents").update({ status: "error" }).eq("id", documentId);
     } catch (_2) {
     }
   }
@@ -76577,9 +76577,9 @@ async function processDocument(documentId, userId) {
 __name(processDocument, "processDocument");
 async function ingestDocument(params) {
   const { userId, spaceId, filename, fileType, filePath, sizeBytes } = params;
-  const supabase2 = getSupabaseClient();
+  const supabase = getSupabaseClient();
   console.error(`[Documents] ingest_document: ${filename} (${fileType})`);
-  const { data: space, error: spaceError } = await supabase2.from("spaces").select("id").eq("id", spaceId).eq("user_id", userId).single();
+  const { data: space, error: spaceError } = await supabase.from("spaces").select("id").eq("id", spaceId).eq("user_id", userId).single();
   if (spaceError || !space) {
     throw new Error("Espace non trouve ou acces refuse");
   }
@@ -76592,7 +76592,7 @@ async function ingestDocument(params) {
     file_size: sizeBytes,
     status: "pending"
   };
-  const { data: document2, error: error2 } = await supabase2.from("documents").insert(newDocument).select().single();
+  const { data: document2, error: error2 } = await supabase.from("documents").insert(newDocument).select().single();
   if (error2) {
     console.error("[Documents] Erreur creation document:", error2);
     throw new Error(`Echec creation document: ${error2.message}`);
@@ -76607,9 +76607,9 @@ async function ingestDocument(params) {
 __name(ingestDocument, "ingestDocument");
 async function listDocuments(params) {
   const { userId, spaceId, status, limit } = params;
-  const supabase2 = getSupabaseClient();
+  const supabase = getSupabaseClient();
   console.error(`[Documents] list_documents pour user ${userId}${spaceId ? ` (space: ${spaceId})` : ""}`);
-  let queryBuilder = supabase2.from("documents").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(limit);
+  let queryBuilder = supabase.from("documents").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(limit);
   if (spaceId) {
     queryBuilder = queryBuilder.eq("space_id", spaceId);
   }
@@ -76647,17 +76647,17 @@ var deleteConnectionSchema = external_exports.object({
 });
 async function createConnection(params) {
   const { userId, sourceAtomId, targetAtomId, type, strength } = params;
-  const supabase2 = getSupabaseClient();
+  const supabase = getSupabaseClient();
   console.error(`[Connections] create_connection: ${sourceAtomId} -> ${targetAtomId} (${type})`);
-  const { data: sourceAtom, error: sourceError } = await supabase2.from("memory_atoms").select("id").eq("id", sourceAtomId).eq("user_id", userId).single();
+  const { data: sourceAtom, error: sourceError } = await supabase.from("memory_atoms").select("id").eq("id", sourceAtomId).eq("user_id", userId).single();
   if (sourceError || !sourceAtom) {
     throw new Error("Atome source non trouv\xE9 ou acc\xE8s refus\xE9");
   }
-  const { data: targetAtom, error: targetError } = await supabase2.from("memory_atoms").select("id").eq("id", targetAtomId).eq("user_id", userId).single();
+  const { data: targetAtom, error: targetError } = await supabase.from("memory_atoms").select("id").eq("id", targetAtomId).eq("user_id", userId).single();
   if (targetError || !targetAtom) {
     throw new Error("Atome cible non trouv\xE9 ou acc\xE8s refus\xE9");
   }
-  const { data: existing } = await supabase2.from("connections").select("id").eq("source_atom_id", sourceAtomId).eq("target_atom_id", targetAtomId).eq("type", type).single();
+  const { data: existing } = await supabase.from("connections").select("id").eq("source_atom_id", sourceAtomId).eq("target_atom_id", targetAtomId).eq("type", type).single();
   if (existing) {
     throw new Error("Cette connexion existe d\xE9j\xE0");
   }
@@ -76668,7 +76668,7 @@ async function createConnection(params) {
     strength,
     auto_generated: false
   };
-  const { data: connection, error: error2 } = await supabase2.from("connections").insert(newConnection).select().single();
+  const { data: connection, error: error2 } = await supabase.from("connections").insert(newConnection).select().single();
   if (error2) {
     console.error("[Connections] Erreur cr\xE9ation:", error2);
     throw new Error(`\xC9chec cr\xE9ation connexion: ${error2.message}`);
@@ -76773,9 +76773,9 @@ function calculateSessionScore(atomId, workingMemory) {
 }
 __name(calculateSessionScore, "calculateSessionScore");
 async function hybridSearch(userId, query, queryEmbedding, spaceId, limit) {
-  const supabase2 = getSupabaseClient();
+  const supabase = getSupabaseClient();
   try {
-    const { data, error: error2 } = await supabase2.rpc("hybrid_search_atoms", {
+    const { data, error: error2 } = await supabase.rpc("hybrid_search_atoms", {
       p_user_id: userId,
       p_query_text: query,
       p_query_embedding: queryEmbedding,
@@ -76799,7 +76799,7 @@ async function hybridSearch(userId, query, queryEmbedding, spaceId, limit) {
 }
 __name(hybridSearch, "hybridSearch");
 async function expandViaGraph(topAtomIds, existingAtomIds, userId) {
-  const supabase2 = getSupabaseClient();
+  const supabase = getSupabaseClient();
   const result = {
     atoms: [],
     graphScores: /* @__PURE__ */ new Map()
@@ -76808,7 +76808,7 @@ async function expandViaGraph(topAtomIds, existingAtomIds, userId) {
     return result;
   }
   try {
-    const { data: neighborhood, error: rpcError } = await supabase2.rpc("get_atom_neighborhood", {
+    const { data: neighborhood, error: rpcError } = await supabase.rpc("get_atom_neighborhood", {
       p_atom_ids: topAtomIds,
       p_max_hops: 2
     });
@@ -76846,7 +76846,7 @@ async function expandViaGraph(topAtomIds, existingAtomIds, userId) {
       return result;
     }
     console.error(`[Recall] ${newAtomIds.size} nouveaux atoms d\xE9couverts par le graphe`);
-    const { data: newAtoms, error: fetchError } = await supabase2.from("memory_atoms").select("*").in("id", Array.from(newAtomIds)).eq("user_id", userId).eq("active", true);
+    const { data: newAtoms, error: fetchError } = await supabase.from("memory_atoms").select("*").in("id", Array.from(newAtomIds)).eq("user_id", userId).eq("active", true);
     if (fetchError) {
       console.error("[Recall] Erreur fetch atoms graphe:", fetchError);
       return result;
@@ -76883,7 +76883,7 @@ __name(expandViaGraph, "expandViaGraph");
 async function recallContext(params) {
   const { userId, query, spaceId, crossSpace = false, sessionId, limit = 20 } = params;
   console.error(`[Recall] Query: "${query.slice(0, 50)}..." pour user ${userId} (space: ${spaceId || "all"}, crossSpace: ${crossSpace})`);
-  const supabase2 = getSupabaseClient();
+  const supabase = getSupabaseClient();
   const workingMemory = getWorkingMemory(sessionId, userId);
   const queryEmbedding = await embedText(query, "query");
   let candidateAtoms = [];
@@ -76894,7 +76894,7 @@ async function recallContext(params) {
       candidateAtoms = hybridResults;
       console.error(`[Recall] Hybrid search: ${candidateAtoms.length} atomes retourn\xE9s`);
       if (spaceId) {
-        const { data: pinnedGlobal } = await supabase2.from("memory_atoms").select("*").eq("user_id", userId).eq("active", true).eq("is_pinned", true).neq("space_id", spaceId).not("embedding", "is", null).limit(20);
+        const { data: pinnedGlobal } = await supabase.from("memory_atoms").select("*").eq("user_id", userId).eq("active", true).eq("is_pinned", true).neq("space_id", spaceId).not("embedding", "is", null).limit(20);
         if (pinnedGlobal && pinnedGlobal.length > 0) {
           candidateAtoms = [...candidateAtoms, ...pinnedGlobal];
           console.error(`[Recall] Pass 2 (pinned cross-space): +${pinnedGlobal.length} atomes \xE9pingl\xE9s`);
@@ -76913,29 +76913,29 @@ async function recallContext(params) {
     } else {
       console.error("[Recall] Fallback mode ancien (pas de hybrid search)");
       if (spaceId) {
-        const { data: scopedAtoms } = await supabase2.from("memory_atoms").select("*").eq("user_id", userId).eq("active", true).eq("space_id", spaceId).not("embedding", "is", null).limit(100);
+        const { data: scopedAtoms } = await supabase.from("memory_atoms").select("*").eq("user_id", userId).eq("active", true).eq("space_id", spaceId).not("embedding", "is", null).limit(100);
         candidateAtoms = scopedAtoms || [];
         console.error(`[Recall] Pass 1 (scoped): ${candidateAtoms.length} atomes dans l'espace`);
-        const { data: pinnedGlobal } = await supabase2.from("memory_atoms").select("*").eq("user_id", userId).eq("active", true).eq("is_pinned", true).neq("space_id", spaceId).not("embedding", "is", null).limit(20);
+        const { data: pinnedGlobal } = await supabase.from("memory_atoms").select("*").eq("user_id", userId).eq("active", true).eq("is_pinned", true).neq("space_id", spaceId).not("embedding", "is", null).limit(20);
         if (pinnedGlobal && pinnedGlobal.length > 0) {
           candidateAtoms = [...candidateAtoms, ...pinnedGlobal];
           console.error(`[Recall] Pass 2 (pinned cross-space): +${pinnedGlobal.length} atomes \xE9pingl\xE9s`);
         }
         if (crossSpace) {
-          const { data: crossAtoms } = await supabase2.from("memory_atoms").select("*").eq("user_id", userId).eq("active", true).neq("space_id", spaceId).eq("is_pinned", false).not("embedding", "is", null).order("created_at", { ascending: false }).limit(30);
+          const { data: crossAtoms } = await supabase.from("memory_atoms").select("*").eq("user_id", userId).eq("active", true).neq("space_id", spaceId).eq("is_pinned", false).not("embedding", "is", null).order("created_at", { ascending: false }).limit(30);
           if (crossAtoms && crossAtoms.length > 0) {
             candidateAtoms = [...candidateAtoms, ...crossAtoms];
             console.error(`[Recall] Pass 3 (crossSpace): +${crossAtoms.length} atomes hors espace`);
           }
         }
       } else {
-        const { data: data2 } = await supabase2.from("memory_atoms").select("*").eq("user_id", userId).eq("active", true).not("embedding", "is", null).limit(100);
+        const { data: data2 } = await supabase.from("memory_atoms").select("*").eq("user_id", userId).eq("active", true).not("embedding", "is", null).limit(100);
         candidateAtoms = data2 || [];
       }
     }
   } else {
     console.warn("[Recall] Pas d'embedding, fallback r\xE9cence");
-    let queryBuilder = supabase2.from("memory_atoms").select("*").eq("user_id", userId).eq("active", true).order("created_at", { ascending: false }).limit(100);
+    let queryBuilder = supabase.from("memory_atoms").select("*").eq("user_id", userId).eq("active", true).order("created_at", { ascending: false }).limit(100);
     if (spaceId) {
       queryBuilder = queryBuilder.eq("space_id", spaceId);
     }
@@ -76953,7 +76953,7 @@ async function recallContext(params) {
     }
   }
   const atomIds = candidateAtoms.map((a2) => a2.id);
-  const { data } = atomIds.length > 0 ? await supabase2.from("connections").select("id, source_atom_id, target_atom_id, type, strength").or(`source_atom_id.in.(${atomIds.join(",")}),target_atom_id.in.(${atomIds.join(",")})`) : { data: [] };
+  const { data } = atomIds.length > 0 ? await supabase.from("connections").select("id, source_atom_id, target_atom_id, type, strength").or(`source_atom_id.in.(${atomIds.join(",")}),target_atom_id.in.(${atomIds.join(",")})`) : { data: [] };
   const connections = data || [];
   const connectionMap = /* @__PURE__ */ new Map();
   connections.forEach((conn) => {
@@ -77070,7 +77070,7 @@ async function recallContext(params) {
   const topAtoms = finalAtoms.slice(0, limit);
   let scoredChunks = [];
   if (queryEmbedding && queryEmbedding.length > 0) {
-    let chunksQuery = supabase2.from("document_chunks").select("*, document:documents!inner(*)").not("embedding", "is", null).limit(20);
+    let chunksQuery = supabase.from("document_chunks").select("*, document:documents!inner(*)").not("embedding", "is", null).limit(20);
     const { data: chunks } = await chunksQuery;
     if (chunks) {
       const filteredChunks = chunks.filter((chunk) => {
@@ -77149,13 +77149,13 @@ var updateProfileSchema = external_exports.object({
   behavioralInstructions: external_exports.string().optional()
 });
 async function getProfile(params) {
-  const supabase2 = getSupabaseClient();
-  const { data: existing } = await supabase2.from("user_profiles").select("*").eq("user_id", params.userId).single();
+  const supabase = getSupabaseClient();
+  const { data: existing } = await supabase.from("user_profiles").select("*").eq("user_id", params.userId).single();
   if (existing) {
     return { profile: existing, isNew: false };
   }
   console.error(`[Profile] Cr\xE9ation profil pour user ${params.userId.slice(0, 8)}...`);
-  const { data: created, error: createError } = await supabase2.from("user_profiles").insert({
+  const { data: created, error: createError } = await supabase.from("user_profiles").insert({
     user_id: params.userId,
     preferences: {},
     principles: []
@@ -77167,7 +77167,7 @@ async function getProfile(params) {
 }
 __name(getProfile, "getProfile");
 async function updateProfile(params) {
-  const supabase2 = getSupabaseClient();
+  const supabase = getSupabaseClient();
   await getProfile({ userId: params.userId });
   const updates = {};
   const updatedFields = [];
@@ -77211,7 +77211,7 @@ async function updateProfile(params) {
     const { profile } = await getProfile({ userId: params.userId });
     return { profile, updated: [] };
   }
-  const { data, error: error2 } = await supabase2.from("user_profiles").update(updates).eq("user_id", params.userId).select().single();
+  const { data, error: error2 } = await supabase.from("user_profiles").update(updates).eq("user_id", params.userId).select().single();
   if (error2 || !data) {
     throw new Error(`Erreur mise \xE0 jour profil: ${error2?.message}`);
   }
@@ -77220,8 +77220,8 @@ async function updateProfile(params) {
 }
 __name(updateProfile, "updateProfile");
 async function loadProfileForRecall(userId) {
-  const supabase2 = getSupabaseClient();
-  const { data } = await supabase2.from("user_profiles").select("display_name, company, role, sector, principles, portrait, behavioral_instructions, preferences").eq("user_id", userId).single();
+  const supabase = getSupabaseClient();
+  const { data } = await supabase.from("user_profiles").select("display_name, company, role, sector, principles, portrait, behavioral_instructions, preferences").eq("user_id", userId).single();
   if (!data)
     return null;
   const parts = [];
@@ -77404,13 +77404,13 @@ async function getContext(params) {
   console.error(`[Session] Post-process: ${result.atoms.length} -> ${processedAtoms.length} atomes (sort: ${config2.atomSort}, boost: ${config2.atomTypeBoost?.join(",") || "none"})`);
   let pendingInsights = [];
   if (config2.includeInsights) {
-    const supabase2 = getSupabaseClient();
+    const supabase = getSupabaseClient();
     try {
-      const { data: unreadInsights } = await supabase2.from("insights").select("id, insight_type, content, importance, created_at").eq("user_id", userId).eq("read", false).eq("dismissed", false).order("created_at", { ascending: false }).limit(config2.insightLimit);
+      const { data: unreadInsights } = await supabase.from("insights").select("id, insight_type, content, importance, created_at").eq("user_id", userId).eq("read", false).eq("dismissed", false).order("created_at", { ascending: false }).limit(config2.insightLimit);
       if (unreadInsights && unreadInsights.length > 0) {
         pendingInsights = unreadInsights;
         const ids = unreadInsights.map((i2) => i2.id);
-        await supabase2.from("insights").update({ read: true }).in("id", ids);
+        await supabase.from("insights").update({ read: true }).in("id", ids);
         console.error(`[Session] ${pendingInsights.length} insights surfac\xE9s (mode: ${mode})`);
       }
     } catch (insightError) {
@@ -77809,8 +77809,8 @@ function avgIntraClusterSimilarity(atoms, indices) {
 }
 __name(avgIntraClusterSimilarity, "avgIntraClusterSimilarity");
 async function analyzeSpace(input) {
-  const supabase2 = getSupabaseClient();
-  const { data: atoms, error: error2 } = await supabase2.from("memory_atoms").select("id, content, type, is_pinned, priority, embedding").eq("user_id", input.userId).eq("space_id", input.spaceId).eq("active", true);
+  const supabase = getSupabaseClient();
+  const { data: atoms, error: error2 } = await supabase.from("memory_atoms").select("id, content, type, is_pinned, priority, embedding").eq("user_id", input.userId).eq("space_id", input.spaceId).eq("active", true);
   if (error2) {
     throw new Error(`Erreur Supabase: ${error2.message}`);
   }
@@ -77998,8 +77998,8 @@ Produis ton diagnostic global.`;
 }
 __name(diagnoseGlobal, "diagnoseGlobal");
 async function crossInsights(input) {
-  const supabase2 = getSupabaseClient();
-  let spacesQuery = supabase2.from("spaces").select("id, name").eq("user_id", input.userId).eq("status", "actif");
+  const supabase = getSupabaseClient();
+  let spacesQuery = supabase.from("spaces").select("id, name").eq("user_id", input.userId).eq("status", "actif");
   if (input.spaceIds) {
     spacesQuery = spacesQuery.in("id", input.spaceIds);
   }
@@ -78011,7 +78011,7 @@ async function crossInsights(input) {
   }
   const spaceMap = new Map(spaces.map((s2) => [s2.id, s2.name]));
   const strongTypes = ["position", "decision", "intention"];
-  const { data: atoms, error: atomsError } = await supabase2.from("memory_atoms").select("id, content, type, space_id, is_pinned, embedding").eq("user_id", input.userId).eq("active", true).in("type", strongTypes).in("space_id", spaces.map((s2) => s2.id));
+  const { data: atoms, error: atomsError } = await supabase.from("memory_atoms").select("id, content, type, space_id, is_pinned, embedding").eq("user_id", input.userId).eq("active", true).in("type", strongTypes).in("space_id", spaces.map((s2) => s2.id));
   if (atomsError)
     throw new Error(`Erreur atomes: ${atomsError.message}`);
   if (!atoms || atoms.length === 0) {
@@ -78099,7 +78099,7 @@ async function crossInsights(input) {
   console.error(`[Insights v2] Diagnostic: ${meta.tensions}T ${meta.convergences}C ${meta.evolutions}E`);
   const sevenDaysAgo = /* @__PURE__ */ new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-  const { data: existingInsights } = await supabase2.from("insights").select("source_atom_ids").eq("user_id", input.userId).eq("dismissed", false).gte("created_at", sevenDaysAgo.toISOString());
+  const { data: existingInsights } = await supabase.from("insights").select("source_atom_ids").eq("user_id", input.userId).eq("dismissed", false).gte("created_at", sevenDaysAgo.toISOString());
   const existingSignatures = /* @__PURE__ */ new Set();
   for (const ei of existingInsights || []) {
     if (ei.source_atom_ids && Array.isArray(ei.source_atom_ids)) {
@@ -78116,7 +78116,7 @@ async function crossInsights(input) {
     const synthAtomIds = insights.flatMap((i2) => i2.atoms.map((a2) => a2.id)).slice(0, 20);
     const synthSignature = [...synthAtomIds].sort().join(",");
     if (diagnosis.synthesis && !existingSignatures.has(synthSignature)) {
-      await supabase2.from("insights").insert({
+      await supabase.from("insights").insert({
         user_id: input.userId,
         insight_type: "synthesis",
         content: diagnosis.synthesis,
@@ -78152,7 +78152,7 @@ async function crossInsights(input) {
       };
     }).filter(Boolean);
     if (insightRows.length > 0) {
-      await supabase2.from("insights").insert(insightRows);
+      await supabase.from("insights").insert(insightRows);
       insertedCount += insightRows.length;
     }
     const skipped = insights.length + 1 - insertedCount;
@@ -78187,21 +78187,21 @@ var sessionEndSchema = external_exports.object({
   workSummary: external_exports.string().min(1)
 });
 async function sessionStart(params) {
-  const supabase2 = getSupabaseClient();
+  const supabase = getSupabaseClient();
   const resolvedSpaceId = await resolveSpaceId(params.spaceId, params.userId);
   params = { ...params, spaceId: resolvedSpaceId };
   const profile = await loadProfileForRecall(params.userId);
   let spaceName = null;
   if (params.spaceId) {
-    const { data: space } = await supabase2.from("spaces").select("name").eq("id", params.spaceId).single();
+    const { data: space } = await supabase.from("spaces").select("name").eq("id", params.spaceId).single();
     spaceName = space?.name || null;
   }
   let handoversList = [];
   if (params.spaceId) {
-    const { data } = await supabase2.from("handovers").select("*").eq("user_id", params.userId).eq("space_id", params.spaceId).order("created_at", { ascending: false }).limit(3);
+    const { data } = await supabase.from("handovers").select("*").eq("user_id", params.userId).eq("space_id", params.spaceId).order("created_at", { ascending: false }).limit(3);
     handoversList = data || [];
   } else {
-    const { data } = await supabase2.from("handovers").select("*").eq("user_id", params.userId).order("created_at", { ascending: false }).limit(3);
+    const { data } = await supabase.from("handovers").select("*").eq("user_id", params.userId).order("created_at", { ascending: false }).limit(3);
     handoversList = data || [];
   }
   if (handoversList.length === 0 && params.spaceId && spaceName) {
@@ -78236,13 +78236,13 @@ async function sessionStart(params) {
     }
   }
   const lastHandover = handoversList.length > 0 ? handoversList[0] : null;
-  let recentAtomsQuery = supabase2.from("memory_atoms").select("type, content, priority, created_at").eq("user_id", params.userId).eq("active", true).order("created_at", { ascending: false }).limit(10);
+  let recentAtomsQuery = supabase.from("memory_atoms").select("type, content, priority, created_at").eq("user_id", params.userId).eq("active", true).order("created_at", { ascending: false }).limit(10);
   if (params.spaceId) {
     recentAtomsQuery = recentAtomsQuery.eq("space_id", params.spaceId);
   }
   const { data: recentAtoms } = await recentAtomsQuery;
   const recent = recentAtoms || [];
-  let pinnedQuery = supabase2.from("memory_atoms").select("type, content, space_id").eq("user_id", params.userId).eq("active", true).eq("is_pinned", true).limit(15);
+  let pinnedQuery = supabase.from("memory_atoms").select("type, content, space_id").eq("user_id", params.userId).eq("active", true).eq("is_pinned", true).limit(15);
   if (params.spaceId) {
     pinnedQuery = pinnedQuery.neq("space_id", params.spaceId);
   }
@@ -78252,7 +78252,7 @@ async function sessionStart(params) {
     const spaceIds = [...new Set(pinnedAtoms.map((a2) => a2.space_id).filter(Boolean))];
     const spaceNames = /* @__PURE__ */ new Map();
     if (spaceIds.length > 0) {
-      const { data: spaces2 } = await supabase2.from("spaces").select("id, name").in("id", spaceIds);
+      const { data: spaces2 } = await supabase.from("spaces").select("id, name").in("id", spaceIds);
       spaces2?.forEach((s2) => spaceNames.set(s2.id, s2.name));
     }
     pinnedWithNames = pinnedAtoms.map((a2) => ({
@@ -78263,7 +78263,7 @@ async function sessionStart(params) {
   }
   let recentInsights = [];
   try {
-    const { data: insights } = await supabase2.from("insights").select("id, content, insight_type, importance, space_ids, created_at").eq("dismissed", false).order("created_at", { ascending: false }).limit(3);
+    const { data: insights } = await supabase.from("insights").select("id, content, insight_type, importance, space_ids, created_at").eq("dismissed", false).order("created_at", { ascending: false }).limit(3);
     recentInsights = insights || [];
     if (recentInsights.length > 0) {
       console.error(`[Handover] ${recentInsights.length} insights charg\xE9s pour session_start`);
@@ -78271,11 +78271,11 @@ async function sessionStart(params) {
   } catch (insightError) {
     console.error("[Handover] Erreur lecture insights (non bloquante):", insightError);
   }
-  const { data: spaces } = await supabase2.from("spaces").select("id, name, status, last_activity").eq("user_id", params.userId).eq("status", "actif").order("last_activity", { ascending: false }).limit(10);
+  const { data: spaces } = await supabase.from("spaces").select("id, name, status, last_activity").eq("user_id", params.userId).eq("status", "actif").order("last_activity", { ascending: false }).limit(10);
   const activeSpaces = spaces || [];
   let pendingTasks = [];
   try {
-    const { data: tasks } = await supabase2.from("task_queue").select("id, task_name, due_at, status").eq("status", "pending").order("due_at", { ascending: false }).limit(50);
+    const { data: tasks } = await supabase.from("task_queue").select("id, task_name, due_at, status").eq("status", "pending").order("due_at", { ascending: false }).limit(50);
     pendingTasks = tasks || [];
     if (pendingTasks.length > 0) {
       console.error(`[Handover] ${pendingTasks.length} t\xE2ches pending dans task_queue`);
@@ -78285,7 +78285,7 @@ async function sessionStart(params) {
   }
   let coherenceWarning = null;
   if (params.spaceId && handoversList.length > 0) {
-    const { data: lastSession } = await supabase2.from("handovers").select("session_id, created_at").eq("space_id", params.spaceId).order("created_at", { ascending: false }).limit(1).single();
+    const { data: lastSession } = await supabase.from("handovers").select("session_id, created_at").eq("space_id", params.spaceId).order("created_at", { ascending: false }).limit(1).single();
     if (lastSession && lastHandover && lastSession.session_id !== lastHandover.session_id) {
       coherenceWarning = "\u26A0\uFE0F ATTENTION: Une session plus r\xE9cente a travaill\xE9 sur cet espace depuis le dernier handover local.";
     }
@@ -78298,7 +78298,7 @@ async function sessionStart(params) {
   }
   const MEMOIRE_GENERALE_ID = "fc2d506a-74d0-439c-9b38-3c5961a71f37";
   try {
-    const { data: mgSpace } = await supabase2.from("spaces").select("codex").eq("id", MEMOIRE_GENERALE_ID).single();
+    const { data: mgSpace } = await supabase.from("spaces").select("codex").eq("id", MEMOIRE_GENERALE_ID).single();
     const mgCodex = mgSpace?.codex;
     if (mgCodex && mgCodex.length > 10) {
       const mgContent = mgCodex.replace(/^---\n[\s\S]*?\n---\n\n?/, "");
@@ -78390,7 +78390,7 @@ async function sessionStart(params) {
 }
 __name(sessionStart, "sessionStart");
 async function sessionEnd(params) {
-  const supabase2 = getSupabaseClient();
+  const supabase = getSupabaseClient();
   const resolvedSpaceId = await resolveSpaceId(params.spaceId, params.userId);
   params = { ...params, spaceId: resolvedSpaceId };
   if (params.workSummary && params.workSummary.length > 50) {
@@ -78409,11 +78409,11 @@ ${params.workSummary}`,
       console.error("[Handover] Erreur extraction workSummary (non bloquante):", extractError);
     }
   }
-  const { data: sessionAtoms } = await supabase2.from("memory_atoms").select("type, content, priority").eq("user_id", params.userId).eq("source_ref", params.sessionId).eq("active", true).order("created_at", { ascending: true });
+  const { data: sessionAtoms } = await supabase.from("memory_atoms").select("type, content, priority").eq("user_id", params.userId).eq("source_ref", params.sessionId).eq("active", true).order("created_at", { ascending: true });
   const atoms = sessionAtoms || [];
   let spaceName = "Global";
   if (params.spaceId) {
-    const { data: space } = await supabase2.from("spaces").select("name").eq("id", params.spaceId).single();
+    const { data: space } = await supabase.from("spaces").select("name").eq("id", params.spaceId).single();
     spaceName = space?.name || "Inconnu";
   }
   const atomsSummary = atoms.length > 0 ? atoms.map((a2) => `[${a2.type}${a2.priority !== "normal" ? ` ${a2.priority}` : ""}] ${a2.content}`).join("\n") : "Aucun atome extrait automatiquement.";
@@ -78452,7 +78452,7 @@ R\xC8GLES:
     };
     console.warn("[Handover] Parsing Haiku echoue, fallback workSummary brut");
   }
-  const { data: handover, error: error2 } = await supabase2.from("handovers").insert({
+  const { data: handover, error: error2 } = await supabase.from("handovers").insert({
     user_id: params.userId,
     space_id: params.spaceId || null,
     session_id: params.sessionId,
@@ -78497,10 +78497,10 @@ ${parsed.pending_tasks.map((t2) => `- ${t2}`).join("\n") || "(aucune)"}
   }
   if (params.spaceId) {
     try {
-      const { data: allHandovers } = await supabase2.from("handovers").select("id").eq("space_id", params.spaceId).order("created_at", { ascending: false });
+      const { data: allHandovers } = await supabase.from("handovers").select("id").eq("space_id", params.spaceId).order("created_at", { ascending: false });
       if (allHandovers && allHandovers.length > 3) {
         const toDelete = allHandovers.slice(3).map((h2) => h2.id);
-        const { error: delError } = await supabase2.from("handovers").delete().in("id", toDelete);
+        const { error: delError } = await supabase.from("handovers").delete().in("id", toDelete);
         if (!delError) {
           console.error(`[Handover] Purge: ${toDelete.length} anciens handovers supprim\xE9s pour ${spaceName}`);
         }
@@ -78511,7 +78511,7 @@ ${parsed.pending_tasks.map((t2) => `- ${t2}`).join("\n") || "(aucune)"}
   }
   if (params.spaceId) {
     try {
-      const { data: spaceData } = await supabase2.from("spaces").select("codex").eq("id", params.spaceId).single();
+      const { data: spaceData } = await supabase.from("spaces").select("codex").eq("id", params.spaceId).single();
       const currentCodex = spaceData?.codex || "(aucun codex existant)";
       const codexPrompt = `Tu es Mnemos, assistant m\xE9moire. Mets \xE0 jour le codex (document vivant) de ce projet.
 
@@ -78551,7 +78551,7 @@ session: ${params.sessionId}
 
 `;
         const fullCodex = header + updatedCodex;
-        await supabase2.from("spaces").update({ codex: fullCodex, updated_at: (/* @__PURE__ */ new Date()).toISOString() }).eq("id", params.spaceId);
+        await supabase.from("spaces").update({ codex: fullCodex, updated_at: (/* @__PURE__ */ new Date()).toISOString() }).eq("id", params.spaceId);
         try {
           const spaceSlugCodex = slugify(spaceName);
           const { writeMemoryFile: writeMemoryFile2 } = await Promise.resolve().then(() => (init_memory_files(), memory_files_exports));
@@ -78567,19 +78567,19 @@ session: ${params.sessionId}
   }
   try {
     const MEMOIRE_GENERALE_ID = "fc2d506a-74d0-439c-9b38-3c5961a71f37";
-    const { data: activeSpaces } = await supabase2.from("spaces").select("id, name, description, status, last_activity").eq("user_id", params.userId).eq("status", "actif").neq("is_system", true).order("last_activity", { ascending: false }).limit(10);
-    const { data: crossInsights2 } = await supabase2.from("insights").select("content, insight_type, importance, created_at").eq("dismissed", false).order("created_at", { ascending: false }).limit(5);
-    const { data: pinnedAtoms } = await supabase2.from("memory_atoms").select("type, content, space_id, priority").eq("user_id", params.userId).eq("active", true).eq("is_pinned", true).in("priority", ["urgent", "high"]).limit(10);
+    const { data: activeSpaces } = await supabase.from("spaces").select("id, name, description, status, last_activity").eq("user_id", params.userId).eq("status", "actif").neq("is_system", true).order("last_activity", { ascending: false }).limit(10);
+    const { data: crossInsights2 } = await supabase.from("insights").select("content, insight_type, importance, created_at").eq("dismissed", false).order("created_at", { ascending: false }).limit(5);
+    const { data: pinnedAtoms } = await supabase.from("memory_atoms").select("type, content, space_id, priority").eq("user_id", params.userId).eq("active", true).eq("is_pinned", true).in("priority", ["urgent", "high"]).limit(10);
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1e3).toISOString();
-    const { data: recentDecisions } = await supabase2.from("memory_atoms").select("content, space_id, created_at").eq("user_id", params.userId).eq("active", true).eq("type", "decision").gte("created_at", sevenDaysAgo).order("created_at", { ascending: false }).limit(8);
-    const { data: recentEvents } = await supabase2.from("memory_atoms").select("content, space_id, created_at").eq("user_id", params.userId).eq("active", true).eq("type", "event").gte("created_at", sevenDaysAgo).order("created_at", { ascending: false }).limit(5);
+    const { data: recentDecisions } = await supabase.from("memory_atoms").select("content, space_id, created_at").eq("user_id", params.userId).eq("active", true).eq("type", "decision").gte("created_at", sevenDaysAgo).order("created_at", { ascending: false }).limit(8);
+    const { data: recentEvents } = await supabase.from("memory_atoms").select("content, space_id, created_at").eq("user_id", params.userId).eq("active", true).eq("type", "event").gte("created_at", sevenDaysAgo).order("created_at", { ascending: false }).limit(5);
     const allSpaceIds = /* @__PURE__ */ new Set();
     (pinnedAtoms || []).forEach((a2) => a2.space_id && allSpaceIds.add(a2.space_id));
     (recentDecisions || []).forEach((a2) => a2.space_id && allSpaceIds.add(a2.space_id));
     (recentEvents || []).forEach((a2) => a2.space_id && allSpaceIds.add(a2.space_id));
     const mgSpaceNames = /* @__PURE__ */ new Map();
     if (allSpaceIds.size > 0) {
-      const { data: spNames } = await supabase2.from("spaces").select("id, name").in("id", [...allSpaceIds]);
+      const { data: spNames } = await supabase.from("spaces").select("id, name").in("id", [...allSpaceIds]);
       (spNames || []).forEach((s2) => mgSpaceNames.set(s2.id, s2.name));
     }
     const spacesBlock = (activeSpaces || []).map((s2) => {
@@ -78660,7 +78660,7 @@ session: ${params.sessionId}
 
 `;
       const fullMg = mgHeader + mgCodex;
-      await supabase2.from("spaces").update({ codex: fullMg, updated_at: (/* @__PURE__ */ new Date()).toISOString() }).eq("id", MEMOIRE_GENERALE_ID);
+      await supabase.from("spaces").update({ codex: fullMg, updated_at: (/* @__PURE__ */ new Date()).toISOString() }).eq("id", MEMOIRE_GENERALE_ID);
       console.error(`[Handover] Codex M\xE9moire g\xE9n\xE9rale mis \xE0 jour (${mgCodex.split(/\s+/).length} mots)`);
     }
   } catch (mgError) {
@@ -78676,14 +78676,14 @@ var quickBootSchema = external_exports.object({
   userId: external_exports.string().min(1)
 });
 async function quickBoot(params) {
-  const supabase2 = getSupabaseClient();
+  const supabase = getSupabaseClient();
   const [profileResult, spacesResult, pinnedResult] = await Promise.all([
     // 1. Profil compact (reutilise loadProfileForRecall)
     loadProfileForRecall(params.userId),
     // 2. Espaces actifs (5 max, tries par derniere activite)
-    supabase2.from("spaces").select("id, name, status, last_activity, codex").eq("user_id", params.userId).eq("status", "actif").order("last_activity", { ascending: false }).limit(5),
+    supabase.from("spaces").select("id, name, status, last_activity, codex").eq("user_id", params.userId).eq("status", "actif").order("last_activity", { ascending: false }).limit(5),
     // 3. Atomes epingles cross-space (8 max)
-    supabase2.from("memory_atoms").select("type, content, space_id").eq("user_id", params.userId).eq("active", true).eq("is_pinned", true).order("created_at", { ascending: false }).limit(8)
+    supabase.from("memory_atoms").select("type, content, space_id").eq("user_id", params.userId).eq("active", true).eq("is_pinned", true).order("created_at", { ascending: false }).limit(8)
   ]);
   const profile = profileResult;
   const activeSpaces = spacesResult.data || [];
@@ -78692,7 +78692,7 @@ async function quickBoot(params) {
   let lastSpaceName = null;
   if (activeSpaces.length > 0) {
     lastSpaceName = activeSpaces[0].name;
-    const { data } = await supabase2.from("handovers").select("summary, decisions_made, pending_tasks, created_at, session_id").eq("user_id", params.userId).eq("space_id", activeSpaces[0].id).order("created_at", { ascending: false }).limit(1).single();
+    const { data } = await supabase.from("handovers").select("summary, decisions_made, pending_tasks, created_at, session_id").eq("user_id", params.userId).eq("space_id", activeSpaces[0].id).order("created_at", { ascending: false }).limit(1).single();
     lastHandover = data;
   }
   let pinnedFormatted = [];
@@ -78702,7 +78702,7 @@ async function quickBoot(params) {
     activeSpaces.forEach((s2) => spaceNames.set(s2.id, s2.name));
     const missingIds = spaceIds.filter((id) => !spaceNames.has(id));
     if (missingIds.length > 0) {
-      const { data: extraSpaces } = await supabase2.from("spaces").select("id, name").in("id", missingIds);
+      const { data: extraSpaces } = await supabase.from("spaces").select("id, name").in("id", missingIds);
       extraSpaces?.forEach((s2) => spaceNames.set(s2.id, s2.name));
     }
     pinnedFormatted = pinnedAtoms.map((a2) => {
@@ -78783,14 +78783,14 @@ var searchContactsSchema = external_exports.object({
   limit: external_exports.number().default(20)
 });
 async function upsertContact(params) {
-  const supabase2 = getSupabaseClient();
+  const supabase = getSupabaseClient();
   let existing = null;
   if (params.email) {
-    const { data: data2 } = await supabase2.from("contacts").select("*").eq("user_id", params.userId).eq("email", params.email).single();
+    const { data: data2 } = await supabase.from("contacts").select("*").eq("user_id", params.userId).eq("email", params.email).single();
     existing = data2;
   }
   if (!existing) {
-    const { data: data2 } = await supabase2.from("contacts").select("*").eq("user_id", params.userId).eq("name", params.name).single();
+    const { data: data2 } = await supabase.from("contacts").select("*").eq("user_id", params.userId).eq("name", params.name).single();
     existing = data2;
   }
   if (existing) {
@@ -78813,14 +78813,14 @@ async function upsertContact(params) {
       updates.metadata = params.metadata;
     if (params.spaceId !== void 0)
       updates.space_id = params.spaceId;
-    const { data: data2, error: error3 } = await supabase2.from("contacts").update(updates).eq("id", existing.id).select().single();
+    const { data: data2, error: error3 } = await supabase.from("contacts").update(updates).eq("id", existing.id).select().single();
     if (error3 || !data2) {
       throw new Error(`Erreur update contact: ${error3?.message}`);
     }
     console.error(`[Contacts] Contact mis \xE0 jour: ${data2.name}`);
     return { contact: data2, action: "updated" };
   }
-  const { data, error: error2 } = await supabase2.from("contacts").insert({
+  const { data, error: error2 } = await supabase.from("contacts").insert({
     user_id: params.userId,
     name: params.name,
     email: params.email || null,
@@ -78840,9 +78840,9 @@ async function upsertContact(params) {
 }
 __name(upsertContact, "upsertContact");
 async function searchContacts(params) {
-  const supabase2 = getSupabaseClient();
+  const supabase = getSupabaseClient();
   const searchPattern = `%${params.query}%`;
-  let query = supabase2.from("contacts").select("*").eq("user_id", params.userId).or(`name.ilike.${searchPattern},organization.ilike.${searchPattern},role.ilike.${searchPattern},email.ilike.${searchPattern},notes.ilike.${searchPattern}`).order("updated_at", { ascending: false }).limit(params.limit);
+  let query = supabase.from("contacts").select("*").eq("user_id", params.userId).or(`name.ilike.${searchPattern},organization.ilike.${searchPattern},role.ilike.${searchPattern},email.ilike.${searchPattern},notes.ilike.${searchPattern}`).order("updated_at", { ascending: false }).limit(params.limit);
   if (params.spaceId) {
     query = query.eq("space_id", params.spaceId);
   }
@@ -78855,8 +78855,8 @@ async function searchContacts(params) {
 __name(searchContacts, "searchContacts");
 
 // dist/tools/source-events.js
-var supabase = getSupabaseClient();
 async function ingestEvents(userId, events) {
+  const supabase = getSupabaseClient();
   let inserted = 0;
   let duplicates = 0;
   let errors = 0;
@@ -78896,6 +78896,7 @@ async function ingestEvents(userId, events) {
 }
 __name(ingestEvents, "ingestEvents");
 async function processEvents(userId, limit = 20) {
+  const supabase = getSupabaseClient();
   const { data: pendingEvents, error: fetchError } = await supabase.from("source_events").select("*").eq("user_id", userId).eq("status", "pending").order("event_timestamp", { ascending: true }).limit(limit);
   if (fetchError || !pendingEvents || pendingEvents.length === 0) {
     return { processed: 0, atoms_created: 0, skipped: 0, errors: 0 };
@@ -78926,6 +78927,7 @@ async function processEvents(userId, limit = 20) {
 }
 __name(processEvents, "processEvents");
 async function processBatch(userId, events, spacesList) {
+  const supabase = getSupabaseClient();
   const eventsDescription = events.map((e2, idx) => {
     const parts = [`[${idx}] Type: ${e2.event_type}, Sujet: "${e2.subject || "sans sujet"}"`];
     if (e2.participants?.length)
@@ -79015,6 +79017,7 @@ Uniquement le JSON, rien d'autre.`;
 }
 __name(processBatch, "processBatch");
 async function getSyncStatus(userId) {
+  const supabase = getSupabaseClient();
   const { data: allEvents } = await supabase.from("source_events").select("status, source").eq("user_id", userId);
   const stats = {};
   for (const e2 of allEvents || []) {
@@ -79066,7 +79069,7 @@ function cosineSimilarity5(a2, b2) {
 __name(cosineSimilarity5, "cosineSimilarity");
 async function garbageCollect(params) {
   const { userId, dryRun, archiveThresholds, deduplicateCertainThreshold, deduplicateProbableThreshold, consolidateThreshold } = params;
-  const supabase2 = getSupabaseClient();
+  const supabase = getSupabaseClient();
   const thresholds = archiveThresholds || {
     eventDays: 90,
     factDays: 180,
@@ -79087,28 +79090,28 @@ async function garbageCollect(params) {
   console.error(`[GC] Starting garbage collection (dryRun=${dryRun})`);
   const insightDismissCutoff = /* @__PURE__ */ new Date();
   insightDismissCutoff.setDate(insightDismissCutoff.getDate() - thresholds.insightDismissDays);
-  const { data: oldInsights } = await supabase2.from("insights").select("id").eq("user_id", userId).eq("dismissed", false).lt("created_at", insightDismissCutoff.toISOString());
+  const { data: oldInsights } = await supabase.from("insights").select("id").eq("user_id", userId).eq("dismissed", false).lt("created_at", insightDismissCutoff.toISOString());
   const insightsDismissed = oldInsights?.length || 0;
   if (!dryRun && insightsDismissed > 0) {
     const idsToDisimiss = (oldInsights || []).map((i2) => i2.id);
-    await supabase2.from("insights").update({ dismissed: true }).in("id", idsToDisimiss);
+    await supabase.from("insights").update({ dismissed: true }).in("id", idsToDisimiss);
     console.error(`[GC] Dismissed ${insightsDismissed} insights > ${thresholds.insightDismissDays} jours`);
   }
   const insightDeleteCutoff = /* @__PURE__ */ new Date();
   insightDeleteCutoff.setDate(insightDeleteCutoff.getDate() - thresholds.insightDeleteDays);
-  const { data: dismissedOldInsights } = await supabase2.from("insights").select("id").eq("user_id", userId).eq("dismissed", true).lt("created_at", insightDeleteCutoff.toISOString());
+  const { data: dismissedOldInsights } = await supabase.from("insights").select("id").eq("user_id", userId).eq("dismissed", true).lt("created_at", insightDeleteCutoff.toISOString());
   const insightsDeleted = dismissedOldInsights?.length || 0;
   if (!dryRun && insightsDeleted > 0) {
     const idsToDelete = (dismissedOldInsights || []).map((i2) => i2.id);
-    await supabase2.from("insights").delete().in("id", idsToDelete);
+    await supabase.from("insights").delete().in("id", idsToDelete);
     console.error(`[GC] Deleted ${insightsDeleted} insights dismissed > ${thresholds.insightDeleteDays} jours`);
   }
   console.error(`[GC] Insights: ${insightsDismissed} a dismiss, ${insightsDeleted} a supprimer${dryRun ? " (DRY RUN)" : ""}`);
   const eventCutoff = /* @__PURE__ */ new Date();
   eventCutoff.setDate(eventCutoff.getDate() - thresholds.eventDays);
-  const { data: obsoleteEvents } = await supabase2.from("memory_atoms").select("id, type, content, created_at").eq("user_id", userId).eq("active", true).eq("is_pinned", false).eq("type", "event").lt("created_at", eventCutoff.toISOString());
+  const { data: obsoleteEvents } = await supabase.from("memory_atoms").select("id, type, content, created_at").eq("user_id", userId).eq("active", true).eq("is_pinned", false).eq("type", "event").lt("created_at", eventCutoff.toISOString());
   for (const atom of obsoleteEvents || []) {
-    const { data: conns } = await supabase2.from("connections").select("id").or(`source_atom_id.eq.${atom.id},target_atom_id.eq.${atom.id}`).limit(1);
+    const { data: conns } = await supabase.from("connections").select("id").or(`source_atom_id.eq.${atom.id},target_atom_id.eq.${atom.id}`).limit(1);
     if (!conns || conns.length === 0) {
       result.archived.atoms.push({
         id: atom.id,
@@ -79120,14 +79123,14 @@ async function garbageCollect(params) {
   }
   const factCutoff = /* @__PURE__ */ new Date();
   factCutoff.setDate(factCutoff.getDate() - thresholds.factDays);
-  const { data: obsoleteFacts } = await supabase2.from("memory_atoms").select("id, type, content, created_at, space_id").eq("user_id", userId).eq("active", true).eq("is_pinned", false).in("type", ["fact", "decision"]).lt("created_at", factCutoff.toISOString());
+  const { data: obsoleteFacts } = await supabase.from("memory_atoms").select("id, type, content, created_at, space_id").eq("user_id", userId).eq("active", true).eq("is_pinned", false).in("type", ["fact", "decision"]).lt("created_at", factCutoff.toISOString());
   for (const atom of obsoleteFacts || []) {
     if (atom.space_id) {
-      const { data: space } = await supabase2.from("spaces").select("status").eq("id", atom.space_id).single();
+      const { data: space } = await supabase.from("spaces").select("status").eq("id", atom.space_id).single();
       if (space?.status !== "clos")
         continue;
     }
-    const { data: conns } = await supabase2.from("connections").select("id").or(`source_atom_id.eq.${atom.id},target_atom_id.eq.${atom.id}`).limit(1);
+    const { data: conns } = await supabase.from("connections").select("id").or(`source_atom_id.eq.${atom.id},target_atom_id.eq.${atom.id}`).limit(1);
     if (!conns || conns.length === 0) {
       result.archived.atoms.push({
         id: atom.id,
@@ -79139,7 +79142,7 @@ async function garbageCollect(params) {
   }
   const signalCutoff = /* @__PURE__ */ new Date();
   signalCutoff.setDate(signalCutoff.getDate() - thresholds.signalDays);
-  const { data: obsoleteSignals } = await supabase2.from("memory_atoms").select("id, type, content, created_at").eq("user_id", userId).eq("active", true).eq("type", "signal_externe").lt("created_at", signalCutoff.toISOString());
+  const { data: obsoleteSignals } = await supabase.from("memory_atoms").select("id, type, content, created_at").eq("user_id", userId).eq("active", true).eq("type", "signal_externe").lt("created_at", signalCutoff.toISOString());
   for (const atom of obsoleteSignals || []) {
     if (!atom.content.startsWith("FEEDBACK")) {
       result.archived.atoms.push({
@@ -79153,10 +79156,10 @@ async function garbageCollect(params) {
   result.archived.count = result.archived.atoms.length;
   if (!dryRun && result.archived.count > 0) {
     const idsToArchive = result.archived.atoms.map((a2) => a2.id);
-    await supabase2.from("memory_atoms").update({ active: false }).in("id", idsToArchive);
+    await supabase.from("memory_atoms").update({ active: false }).in("id", idsToArchive);
     console.error(`[GC] Archived ${result.archived.count} atoms`);
   }
-  const { data: activeAtoms } = await supabase2.from("memory_atoms").select("id, content, embedding, is_pinned, created_at").eq("user_id", userId).eq("active", true).not("embedding", "is", null);
+  const { data: activeAtoms } = await supabase.from("memory_atoms").select("id, content, embedding, is_pinned, created_at").eq("user_id", userId).eq("active", true).not("embedding", "is", null);
   if (activeAtoms && activeAtoms.length > 1) {
     for (let i2 = 0; i2 < activeAtoms.length; i2++) {
       for (let j2 = i2 + 1; j2 < activeAtoms.length; j2++) {
@@ -79185,9 +79188,9 @@ async function garbageCollect(params) {
             archived
           });
           if (!dryRun) {
-            await supabase2.from("connections").update({ source_atom_id: kept }).eq("source_atom_id", archived);
-            await supabase2.from("connections").update({ target_atom_id: kept }).eq("target_atom_id", archived);
-            await supabase2.from("memory_atoms").update({ active: false }).eq("id", archived);
+            await supabase.from("connections").update({ source_atom_id: kept }).eq("source_atom_id", archived);
+            await supabase.from("connections").update({ target_atom_id: kept }).eq("target_atom_id", archived);
+            await supabase.from("memory_atoms").update({ active: false }).eq("id", archived);
             console.error(`[GC] Merged duplicates: ${archived} \u2192 ${kept} (similarity: ${similarity.toFixed(3)})`);
           }
         } else if (similarity >= deduplicateProbableThreshold && similarity < deduplicateCertainThreshold) {
@@ -79204,10 +79207,10 @@ async function garbageCollect(params) {
   }
   result.deduplicated.certain.count = result.deduplicated.certain.pairs.length;
   result.deduplicated.probable.count = result.deduplicated.probable.pairs.length;
-  const { data: isolatedAtoms } = await supabase2.from("memory_atoms").select("id, content, space_id, embedding").eq("user_id", userId).eq("active", true).not("space_id", "is", null).not("embedding", "is", null);
+  const { data: isolatedAtoms } = await supabase.from("memory_atoms").select("id, content, space_id, embedding").eq("user_id", userId).eq("active", true).not("space_id", "is", null).not("embedding", "is", null);
   const bySpace = {};
   for (const atom of isolatedAtoms || []) {
-    const { data: conns } = await supabase2.from("connections").select("id").or(`source_atom_id.eq.${atom.id},target_atom_id.eq.${atom.id}`).limit(1);
+    const { data: conns } = await supabase.from("connections").select("id").or(`source_atom_id.eq.${atom.id},target_atom_id.eq.${atom.id}`).limit(1);
     if (!conns || conns.length === 0) {
       if (!bySpace[atom.space_id])
         bySpace[atom.space_id] = [];
@@ -79217,7 +79220,7 @@ async function garbageCollect(params) {
   for (const [spaceId, atoms] of Object.entries(bySpace)) {
     if (atoms.length < 2)
       continue;
-    const { data: space } = await supabase2.from("spaces").select("name").eq("id", spaceId).single();
+    const { data: space } = await supabase.from("spaces").select("name").eq("id", spaceId).single();
     const clusters = [];
     for (let i2 = 0; i2 < atoms.length; i2++) {
       for (let j2 = i2 + 1; j2 < atoms.length; j2++) {
@@ -79251,7 +79254,7 @@ Consolidation suggestions: ${result.consolidated.count} clusters`;
   console.error(`[GC] ${result.summary}`);
   if (!dryRun) {
     const logContent = `GARBAGE_COLLECT: ${result.archived.count} archiv\xE9s, ${result.deduplicated.certain.count} fusionn\xE9s (palier 1), ${result.deduplicated.probable.count} doublons probables signal\xE9s (palier 2), ${result.consolidated.count} regroupements propos\xE9s`;
-    await supabase2.from("memory_atoms").insert({
+    await supabase.from("memory_atoms").insert({
       user_id: userId,
       type: "signal_externe",
       content: logContent,
@@ -79273,9 +79276,9 @@ var submitFeedbackSchema = external_exports.object({
 });
 async function submitFeedback(params) {
   const { userId, targetType, targetId, verdict, comment } = params;
-  const supabase2 = getSupabaseClient();
+  const supabase = getSupabaseClient();
   console.error(`[FEEDBACK] Submitting feedback: ${verdict} for ${targetType}`);
-  const { data: feedback, error: error2 } = await supabase2.from("feedbacks").insert({
+  const { data: feedback, error: error2 } = await supabase.from("feedbacks").insert({
     user_id: userId,
     target_type: targetType,
     target_id: targetId,
@@ -79286,7 +79289,7 @@ async function submitFeedback(params) {
     console.error("[FEEDBACK] Insert error:", error2);
     throw new Error(`Failed to submit feedback: ${error2.message}`);
   }
-  const { data: allFeedbacks } = await supabase2.from("feedbacks").select("verdict").eq("user_id", userId).eq("target_type", targetType).order("created_at", { ascending: false }).limit(50);
+  const { data: allFeedbacks } = await supabase.from("feedbacks").select("verdict").eq("user_id", userId).eq("target_type", targetType).order("created_at", { ascending: false }).limit(50);
   const total = allFeedbacks?.length || 0;
   const positiveCount = allFeedbacks?.filter((f2) => f2.verdict === "utile" || f2.verdict === "actionnable" || f2.verdict === "interessant").length || 0;
   const negativeCount = allFeedbacks?.filter((f2) => f2.verdict === "bruit" || f2.verdict === "pas_pertinent").length || 0;
@@ -79313,9 +79316,9 @@ var getCalibrationSchema = external_exports.object({
 });
 async function getCalibration(params) {
   const { userId, targetType } = params;
-  const supabase2 = getSupabaseClient();
+  const supabase = getSupabaseClient();
   console.error(`[CALIBRATION] Fetching calibration for ${targetType}`);
-  const { data: feedbacks } = await supabase2.from("feedbacks").select("verdict, comment, created_at").eq("user_id", userId).eq("target_type", targetType).order("created_at", { ascending: false }).limit(20);
+  const { data: feedbacks } = await supabase.from("feedbacks").select("verdict, comment, created_at").eq("user_id", userId).eq("target_type", targetType).order("created_at", { ascending: false }).limit(20);
   if (!feedbacks || feedbacks.length === 0) {
     console.error(`[CALIBRATION] No feedbacks found for ${targetType}`);
     return {
