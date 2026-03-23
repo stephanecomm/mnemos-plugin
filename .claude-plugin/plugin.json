@@ -1,10 +1,34 @@
 {
   "name": "mnemos",
-  "version": "0.3.0",
-  "description": "Mémoire persistante intelligente pour Claude. 36 outils MCP : sessions, atomes, espaces, profils, documents, contacts, calibration, authentification.",
+  "version": "0.4.0",
+  "description": "Mémoire persistante intelligente pour Claude. 37 outils MCP : graphe de connaissances (atomes, espaces, connexions), rappel contextuel automatique, neurone cross-insights, quick_boot, extraction continue avec déduplication, auth (login/signup/logout), quotas par plan (Free/Pro/Max). Multi-tenant Supabase + Stripe.",
   "author": {
     "name": "Stéphane Commenge — EvidencAI"
   },
-  "homepage": "https://mnemos-dashboard.vercel.app",
-  "keywords": ["memory", "persistence", "knowledge-graph", "supabase", "saas"]
+  "keywords": [
+    "memory",
+    "knowledge-graph",
+    "recall",
+    "atoms",
+    "spaces",
+    "quick-boot",
+    "cross-insights",
+    "quotas",
+    "saas"
+  ],
+  "mcpServers": {
+    "mnemos": {
+      "command": "node",
+      "args": [
+        "~/mnemos-mcp/index.cjs"
+      ],
+      "env": {
+        "SUPABASE_URL": "YOUR_SUPABASE_URL",
+        "SUPABASE_SERVICE_ROLE_KEY": "YOUR_SUPABASE_SERVICE_ROLE_KEY",
+        "ANTHROPIC_API_KEY": "YOUR_ANTHROPIC_API_KEY",
+        "VOYAGE_API_KEY": "YOUR_VOYAGE_API_KEY",
+        "MNEMOS_USER_ID": "YOUR_USER_ID"
+      }
+    }
+  }
 }

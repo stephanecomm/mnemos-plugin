@@ -3499,8 +3499,8 @@ var require_utils = __commonJS({
       return ind;
     }
     __name(findToken, "findToken");
-    function removeDotSegments(path4) {
-      let input = path4;
+    function removeDotSegments(path5) {
+      let input = path5;
       const output = [];
       let nextSlash = -1;
       let len = 0;
@@ -3707,8 +3707,8 @@ var require_schemes = __commonJS({
         wsComponent.secure = void 0;
       }
       if (wsComponent.resourceName) {
-        const [path4, query] = wsComponent.resourceName.split("?");
-        wsComponent.path = path4 && path4 !== "/" ? path4 : void 0;
+        const [path5, query] = wsComponent.resourceName.split("?");
+        wsComponent.path = path5 && path5 !== "/" ? path5 : void 0;
         wsComponent.query = query;
         wsComponent.resourceName = void 0;
       }
@@ -7185,12 +7185,12 @@ var require_dist = __commonJS({
         throw new Error(`Unknown format "${name}"`);
       return f2;
     };
-    function addFormats(ajv, list, fs4, exportName) {
+    function addFormats(ajv, list, fs5, exportName) {
       var _a2;
       var _b;
       (_a2 = (_b = ajv.opts.code).formats) !== null && _a2 !== void 0 ? _a2 : _b.formats = (0, codegen_1._)`require("ajv-formats/dist/formats").${exportName}`;
       for (const f2 of list)
-        ajv.addFormat(f2, fs4[f2]);
+        ajv.addFormat(f2, fs5[f2]);
     }
     __name(addFormats, "addFormats");
     module2.exports = exports2 = formatsPlugin;
@@ -7270,9 +7270,9 @@ var require_package = __commonJS({
 // node_modules/dotenv/lib/main.js
 var require_main = __commonJS({
   "node_modules/dotenv/lib/main.js"(exports2, module2) {
-    var fs4 = require("fs");
-    var path4 = require("path");
-    var os2 = require("os");
+    var fs5 = require("fs");
+    var path5 = require("path");
+    var os3 = require("os");
     var crypto2 = require("crypto");
     var packageJson = require_package();
     var version5 = packageJson.version;
@@ -7386,7 +7386,7 @@ var require_main = __commonJS({
       if (options && options.path && options.path.length > 0) {
         if (Array.isArray(options.path)) {
           for (const filepath of options.path) {
-            if (fs4.existsSync(filepath)) {
+            if (fs5.existsSync(filepath)) {
               possibleVaultPath = filepath.endsWith(".vault") ? filepath : `${filepath}.vault`;
             }
           }
@@ -7394,16 +7394,16 @@ var require_main = __commonJS({
           possibleVaultPath = options.path.endsWith(".vault") ? options.path : `${options.path}.vault`;
         }
       } else {
-        possibleVaultPath = path4.resolve(process.cwd(), ".env.vault");
+        possibleVaultPath = path5.resolve(process.cwd(), ".env.vault");
       }
-      if (fs4.existsSync(possibleVaultPath)) {
+      if (fs5.existsSync(possibleVaultPath)) {
         return possibleVaultPath;
       }
       return null;
     }
     __name(_vaultPath, "_vaultPath");
     function _resolveHome(envPath) {
-      return envPath[0] === "~" ? path4.join(os2.homedir(), envPath.slice(1)) : envPath;
+      return envPath[0] === "~" ? path5.join(os3.homedir(), envPath.slice(1)) : envPath;
     }
     __name(_resolveHome, "_resolveHome");
     function _configVault(options) {
@@ -7422,7 +7422,7 @@ var require_main = __commonJS({
     }
     __name(_configVault, "_configVault");
     function configDotenv(options) {
-      const dotenvPath = path4.resolve(process.cwd(), ".env");
+      const dotenvPath = path5.resolve(process.cwd(), ".env");
       let encoding = "utf8";
       const debug2 = Boolean(options && options.debug);
       const quiet = options && "quiet" in options ? options.quiet : true;
@@ -7446,13 +7446,13 @@ var require_main = __commonJS({
       }
       let lastError;
       const parsedAll = {};
-      for (const path5 of optionPaths) {
+      for (const path6 of optionPaths) {
         try {
-          const parsed = DotenvModule.parse(fs4.readFileSync(path5, { encoding }));
+          const parsed = DotenvModule.parse(fs5.readFileSync(path6, { encoding }));
           DotenvModule.populate(parsedAll, parsed, options);
         } catch (e2) {
           if (debug2) {
-            _debug(`Failed to load ${path5} ${e2.message}`);
+            _debug(`Failed to load ${path6} ${e2.message}`);
           }
           lastError = e2;
         }
@@ -7467,7 +7467,7 @@ var require_main = __commonJS({
         const shortPaths = [];
         for (const filePath of optionPaths) {
           try {
-            const relative = path4.relative(process.cwd(), filePath);
+            const relative = path5.relative(process.cwd(), filePath);
             shortPaths.push(relative);
           } catch (e2) {
             if (debug2) {
@@ -8020,13 +8020,13 @@ function __disposeResources(env) {
   __name(next, "next");
   return next();
 }
-function __rewriteRelativeImportExtension(path4, preserveJsx) {
-  if (typeof path4 === "string" && /^\.\.?\//.test(path4)) {
-    return path4.replace(/\.(tsx)$|((?:\.d)?)((?:\.[^./]+?)?)\.([cm]?)ts$/i, function(m2, tsx, d2, ext, cm) {
+function __rewriteRelativeImportExtension(path5, preserveJsx) {
+  if (typeof path5 === "string" && /^\.\.?\//.test(path5)) {
+    return path5.replace(/\.(tsx)$|((?:\.d)?)((?:\.[^./]+?)?)\.([cm]?)ts$/i, function(m2, tsx, d2, ext, cm) {
       return tsx ? preserveJsx ? ".jsx" : ".js" : d2 && (!ext || !cm) ? m2 : d2 + ext + "." + cm.toLowerCase() + "js";
     });
   }
-  return path4;
+  return path5;
 }
 var extendStatics, __assign, __createBinding, __setModuleDefault, ownKeys, _SuppressedError, tslib_es6_default;
 var init_tslib_es6 = __esm({
@@ -15867,6 +15867,71 @@ var require_main4 = __commonJS({
   }
 });
 
+// dist/lib/credentials.js
+function loadCredentials() {
+  try {
+    if (!import_fs.default.existsSync(CREDENTIALS_FILE)) {
+      return null;
+    }
+    const raw = import_fs.default.readFileSync(CREDENTIALS_FILE, "utf-8");
+    const creds = JSON.parse(raw);
+    if (!creds.userId || !creds.accessToken || !creds.refreshToken) {
+      console.error("[Auth] Credentials incompletes, suppression");
+      clearCredentials();
+      return null;
+    }
+    return creds;
+  } catch (err) {
+    console.error("[Auth] Erreur lecture credentials:", err);
+    return null;
+  }
+}
+function saveCredentials(creds) {
+  try {
+    if (!import_fs.default.existsSync(CREDENTIALS_DIR)) {
+      import_fs.default.mkdirSync(CREDENTIALS_DIR, { recursive: true, mode: 448 });
+    }
+    import_fs.default.writeFileSync(CREDENTIALS_FILE, JSON.stringify(creds, null, 2), {
+      encoding: "utf-8",
+      mode: 384
+      // lecture/ecriture uniquement pour le proprietaire
+    });
+    console.error("[Auth] Credentials sauvegardees dans " + CREDENTIALS_FILE);
+  } catch (err) {
+    console.error("[Auth] Erreur sauvegarde credentials:", err);
+    throw new Error("Impossible de sauvegarder les credentials: " + String(err));
+  }
+}
+function clearCredentials() {
+  try {
+    if (import_fs.default.existsSync(CREDENTIALS_FILE)) {
+      import_fs.default.unlinkSync(CREDENTIALS_FILE);
+      console.error("[Auth] Credentials supprimees");
+    }
+  } catch (err) {
+    console.error("[Auth] Erreur suppression credentials:", err);
+  }
+}
+function isTokenExpired(creds) {
+  const MARGIN_MS = 5 * 60 * 1e3;
+  return Date.now() > creds.expiresAt - MARGIN_MS;
+}
+var import_fs, import_path, import_os, CREDENTIALS_DIR, CREDENTIALS_FILE;
+var init_credentials = __esm({
+  "dist/lib/credentials.js"() {
+    "use strict";
+    import_fs = __toESM(require("fs"), 1);
+    import_path = __toESM(require("path"), 1);
+    import_os = __toESM(require("os"), 1);
+    CREDENTIALS_DIR = import_path.default.join(import_os.default.homedir(), ".mnemos");
+    CREDENTIALS_FILE = import_path.default.join(CREDENTIALS_DIR, "credentials.json");
+    __name(loadCredentials, "loadCredentials");
+    __name(saveCredentials, "saveCredentials");
+    __name(clearCredentials, "clearCredentials");
+    __name(isTokenExpired, "isTokenExpired");
+  }
+});
+
 // node_modules/webidl-conversions/lib/index.js
 var require_lib = __commonJS({
   "node_modules/webidl-conversions/lib/index.js"(exports2, module2) {
@@ -16642,14 +16707,14 @@ var require_url_state_machine = __commonJS({
     }
     __name(trimTabAndNewline, "trimTabAndNewline");
     function shortenPath(url) {
-      const path4 = url.path;
-      if (path4.length === 0) {
+      const path5 = url.path;
+      if (path5.length === 0) {
         return;
       }
-      if (url.scheme === "file" && path4.length === 1 && isNormalizedWindowsDriveLetter(path4[0])) {
+      if (url.scheme === "file" && path5.length === 1 && isNormalizedWindowsDriveLetter(path5[0])) {
         return;
       }
-      path4.pop();
+      path5.pop();
     }
     __name(shortenPath, "shortenPath");
     function includesCredentials(url) {
@@ -22572,14 +22637,14 @@ __export(fileFromPath_exports, {
   fileFromPathSync: () => fileFromPathSync,
   isFile: () => isFile
 });
-function createFileFromPath(path4, { mtimeMs, size }, filenameOrOptions, options = {}) {
+function createFileFromPath(path5, { mtimeMs, size }, filenameOrOptions, options = {}) {
   let filename;
   if (isPlainObject_default2(filenameOrOptions)) {
     [options, filename] = [filenameOrOptions, void 0];
   } else {
     filename = filenameOrOptions;
   }
-  const file = new FileFromPath({ path: path4, size, lastModified: mtimeMs });
+  const file = new FileFromPath({ path: path5, size, lastModified: mtimeMs });
   if (!filename) {
     filename = file.name;
   }
@@ -22588,13 +22653,13 @@ function createFileFromPath(path4, { mtimeMs, size }, filenameOrOptions, options
     lastModified: file.lastModified
   });
 }
-function fileFromPathSync(path4, filenameOrOptions, options = {}) {
-  const stats = (0, import_fs2.statSync)(path4);
-  return createFileFromPath(path4, stats, filenameOrOptions, options);
+function fileFromPathSync(path5, filenameOrOptions, options = {}) {
+  const stats = (0, import_fs2.statSync)(path5);
+  return createFileFromPath(path5, stats, filenameOrOptions, options);
 }
-async function fileFromPath2(path4, filenameOrOptions, options) {
-  const stats = await import_fs2.promises.stat(path4);
-  return createFileFromPath(path4, stats, filenameOrOptions, options);
+async function fileFromPath2(path5, filenameOrOptions, options) {
+  const stats = await import_fs2.promises.stat(path5);
+  return createFileFromPath(path5, stats, filenameOrOptions, options);
 }
 var import_fs2, import_path2, import_node_domexception, __classPrivateFieldSet5, __classPrivateFieldGet6, _FileFromPath_path, _FileFromPath_start, MESSAGE, FileFromPath;
 var init_fileFromPath = __esm({
@@ -22657,6 +22722,122 @@ var init_fileFromPath = __esm({
     __name(createFileFromPath, "createFileFromPath");
     __name(fileFromPathSync, "fileFromPathSync");
     __name(fileFromPath2, "fileFromPath");
+  }
+});
+
+// dist/lib/embeddings.js
+var embeddings_exports = {};
+__export(embeddings_exports, {
+  embedText: () => embedText,
+  embedTexts: () => embedTexts,
+  isVoyageConfigured: () => isVoyageConfigured
+});
+function getEmbedMode() {
+  if (VOYAGE_API_KEY && VOYAGE_API_KEY !== "")
+    return "direct";
+  if (SUPABASE_URL3) {
+    const creds = loadCredentials();
+    if (creds && !isTokenExpired(creds))
+      return "edge";
+  }
+  return "none";
+}
+async function embedViaDirectCall(texts, inputType) {
+  const response = await fetch(VOYAGE_API_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${VOYAGE_API_KEY}`
+    },
+    body: JSON.stringify({
+      input: texts,
+      model: MODEL,
+      input_type: inputType
+    })
+  });
+  if (!response.ok) {
+    const error2 = await response.text();
+    console.error("[Voyage/direct] Erreur API:", response.status, error2);
+    throw new Error(`Voyage API error: ${response.status}`);
+  }
+  const data = await response.json();
+  return data.data.map((item) => item.embedding);
+}
+async function embedViaEdgeFunction(texts, inputType) {
+  const creds = loadCredentials();
+  if (!creds || isTokenExpired(creds)) {
+    throw new Error("Mnemos: session expir\xE9e. Utilisez mnemos_login pour vous reconnecter.");
+  }
+  const edgeUrl = `${SUPABASE_URL3}/functions/v1/mnemos-embed`;
+  const response = await fetch(edgeUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${creds.accessToken}`
+    },
+    body: JSON.stringify({
+      input: texts,
+      input_type: inputType
+    })
+  });
+  if (!response.ok) {
+    const errBody = await response.text();
+    console.error("[Voyage/edge] Erreur:", response.status, errBody);
+    if (response.status === 401) {
+      throw new Error("Mnemos: session expir\xE9e. Utilisez mnemos_login pour vous reconnecter.");
+    }
+    throw new Error(`Edge Function mnemos-embed error: ${response.status}`);
+  }
+  const data = await response.json();
+  return data.embeddings;
+}
+async function embedText(text, inputType = "document") {
+  const mode = getEmbedMode();
+  if (mode === "none") {
+    throw new Error("Mnemos: impossible de vectoriser. Configurez VOYAGE_API_KEY ou connectez-vous avec mnemos_login.");
+  }
+  try {
+    const results = mode === "direct" ? await embedViaDirectCall([text], inputType) : await embedViaEdgeFunction([text], inputType);
+    return results[0];
+  } catch (error2) {
+    console.error(`[Voyage/${mode}] Erreur lors de la vectorisation:`, error2);
+    throw error2;
+  }
+}
+async function embedTexts(texts, inputType = "document") {
+  if (texts.length === 0)
+    return [];
+  const mode = getEmbedMode();
+  if (mode === "none") {
+    throw new Error("Mnemos: impossible de vectoriser. Configurez VOYAGE_API_KEY ou connectez-vous avec mnemos_login.");
+  }
+  try {
+    return mode === "direct" ? await embedViaDirectCall(texts, inputType) : await embedViaEdgeFunction(texts, inputType);
+  } catch (error2) {
+    console.error(`[Voyage/${mode}] Erreur batch:`, error2);
+    throw error2;
+  }
+}
+function isVoyageConfigured() {
+  return getEmbedMode() !== "none";
+}
+var import_dotenv3, VOYAGE_API_KEY, VOYAGE_API_URL, SUPABASE_URL3, MODEL;
+var init_embeddings = __esm({
+  "dist/lib/embeddings.js"() {
+    "use strict";
+    import_dotenv3 = __toESM(require_main(), 1);
+    init_credentials();
+    import_dotenv3.default.config();
+    VOYAGE_API_KEY = process.env.VOYAGE_API_KEY;
+    VOYAGE_API_URL = "https://api.voyageai.com/v1/embeddings";
+    SUPABASE_URL3 = process.env.SUPABASE_URL;
+    MODEL = "voyage-3-lite";
+    __name(getEmbedMode, "getEmbedMode");
+    __name(embedViaDirectCall, "embedViaDirectCall");
+    __name(embedViaEdgeFunction, "embedViaEdgeFunction");
+    __name(embedText, "embedText");
+    __name(embedTexts, "embedTexts");
+    __name(isVoyageConfigured, "isVoyageConfigured");
   }
 });
 
@@ -23519,8 +23700,8 @@ function wrapReason(ex) {
   return new UnknownErrorException(ex.message, ex.toString());
 }
 async function node_utils_fetchData(url) {
-  const fs4 = process.getBuiltinModule("fs");
-  const data = await fs4.promises.readFile(url);
+  const fs5 = process.getBuiltinModule("fs");
+  const data = await fs5.promises.readFile(url);
   return new Uint8Array(data);
 }
 function expandBBox(array2, index, minX, minY, maxX, maxY) {
@@ -35615,11 +35796,11 @@ var init_pdf = __esm({
         } catch (ex) {
           warn(`getPathGenerator - ignoring character: "${ex}".`);
         }
-        const path4 = new Path2D(cmds || "");
+        const path5 = new Path2D(cmds || "");
         if (!this.fontExtraProperties) {
           objs.delete(objId);
         }
-        return this.compiledGlyphs[character] = path4;
+        return this.compiledGlyphs[character] = path5;
       }
       get black() {
         return this.#fontData.black;
@@ -38267,47 +38448,47 @@ var init_pdf = __esm({
         this._cachedGetSinglePixelWidth = null;
       }
       constructPath(opIdx, op, data, minMax) {
-        let [path4] = data;
+        let [path5] = data;
         if (!minMax) {
-          path4 ||= data[0] = new Path2D();
-          this[op](opIdx, path4);
+          path5 ||= data[0] = new Path2D();
+          this[op](opIdx, path5);
           return;
         }
         if (this.dependencyTracker !== null) {
           const outerExtraSize = op === OPS.stroke ? this.current.lineWidth / 2 : 0;
           this.dependencyTracker.resetBBox(opIdx).recordBBox(opIdx, this.ctx, minMax[0] - outerExtraSize, minMax[2] + outerExtraSize, minMax[1] - outerExtraSize, minMax[3] + outerExtraSize).recordDependencies(opIdx, ["transform"]);
         }
-        if (!(path4 instanceof Path2D)) {
+        if (!(path5 instanceof Path2D)) {
           const path2d = data[0] = new Path2D();
-          for (let i2 = 0, ii = path4.length; i2 < ii; ) {
-            switch (path4[i2++]) {
+          for (let i2 = 0, ii = path5.length; i2 < ii; ) {
+            switch (path5[i2++]) {
               case DrawOPS.moveTo:
-                path2d.moveTo(path4[i2++], path4[i2++]);
+                path2d.moveTo(path5[i2++], path5[i2++]);
                 break;
               case DrawOPS.lineTo:
-                path2d.lineTo(path4[i2++], path4[i2++]);
+                path2d.lineTo(path5[i2++], path5[i2++]);
                 break;
               case DrawOPS.curveTo:
-                path2d.bezierCurveTo(path4[i2++], path4[i2++], path4[i2++], path4[i2++], path4[i2++], path4[i2++]);
+                path2d.bezierCurveTo(path5[i2++], path5[i2++], path5[i2++], path5[i2++], path5[i2++], path5[i2++]);
                 break;
               case DrawOPS.closePath:
                 path2d.closePath();
                 break;
               default:
-                warn(`Unrecognized drawing path operator: ${path4[i2 - 1]}`);
+                warn(`Unrecognized drawing path operator: ${path5[i2 - 1]}`);
                 break;
             }
           }
-          path4 = path2d;
+          path5 = path2d;
         }
         Util.axialAlignedBoundingBox(minMax, getCurrentTransform(this.ctx), this.current.minMax);
-        this[op](opIdx, path4);
+        this[op](opIdx, path5);
         this._pathStartIdx = opIdx;
       }
       closePath(opIdx) {
         this.ctx.closePath();
       }
-      stroke(opIdx, path4, consumePath = true) {
+      stroke(opIdx, path5, consumePath = true) {
         const ctx = this.ctx;
         const strokeColor = this.current.strokeColor;
         ctx.globalAlpha = this.current.strokeAlpha;
@@ -38318,25 +38499,25 @@ var init_pdf = __esm({
             ctx.strokeStyle = strokeColor.getPattern(ctx, this, getCurrentTransformInverse(ctx), PathType.STROKE, opIdx);
             if (baseTransform) {
               const newPath = new Path2D();
-              newPath.addPath(path4, ctx.getTransform().invertSelf().multiplySelf(baseTransform));
-              path4 = newPath;
+              newPath.addPath(path5, ctx.getTransform().invertSelf().multiplySelf(baseTransform));
+              path5 = newPath;
             }
-            this.rescaleAndStroke(path4, false);
+            this.rescaleAndStroke(path5, false);
             ctx.restore();
           } else {
-            this.rescaleAndStroke(path4, true);
+            this.rescaleAndStroke(path5, true);
           }
         }
         this.dependencyTracker?.recordDependencies(opIdx, Dependencies.stroke);
         if (consumePath) {
-          this.consumePath(opIdx, path4, this.current.getClippedPathBoundingBox(PathType.STROKE, getCurrentTransform(this.ctx)));
+          this.consumePath(opIdx, path5, this.current.getClippedPathBoundingBox(PathType.STROKE, getCurrentTransform(this.ctx)));
         }
         ctx.globalAlpha = this.current.fillAlpha;
       }
-      closeStroke(opIdx, path4) {
-        this.stroke(opIdx, path4);
+      closeStroke(opIdx, path5) {
+        this.stroke(opIdx, path5);
       }
-      fill(opIdx, path4, consumePath = true) {
+      fill(opIdx, path5, consumePath = true) {
         const ctx = this.ctx;
         const fillColor = this.current.fillColor;
         const isPatternFill = this.current.patternFill;
@@ -38348,18 +38529,18 @@ var init_pdf = __esm({
           ctx.fillStyle = fillColor.getPattern(ctx, this, getCurrentTransformInverse(ctx), PathType.FILL, opIdx);
           if (baseTransform) {
             const newPath = new Path2D();
-            newPath.addPath(path4, ctx.getTransform().invertSelf().multiplySelf(baseTransform));
-            path4 = newPath;
+            newPath.addPath(path5, ctx.getTransform().invertSelf().multiplySelf(baseTransform));
+            path5 = newPath;
           }
           needRestore = true;
         }
         const intersect = this.current.getClippedPathBoundingBox();
         if (this.contentVisible && intersect !== null) {
           if (this.pendingEOFill) {
-            ctx.fill(path4, "evenodd");
+            ctx.fill(path5, "evenodd");
             this.pendingEOFill = false;
           } else {
-            ctx.fill(path4);
+            ctx.fill(path5);
           }
         }
         this.dependencyTracker?.recordDependencies(opIdx, Dependencies.fill);
@@ -38368,34 +38549,34 @@ var init_pdf = __esm({
           this.dependencyTracker?.restore(opIdx);
         }
         if (consumePath) {
-          this.consumePath(opIdx, path4, intersect);
+          this.consumePath(opIdx, path5, intersect);
         }
       }
-      eoFill(opIdx, path4) {
+      eoFill(opIdx, path5) {
         this.pendingEOFill = true;
-        this.fill(opIdx, path4);
+        this.fill(opIdx, path5);
       }
-      fillStroke(opIdx, path4) {
-        this.fill(opIdx, path4, false);
-        this.stroke(opIdx, path4, false);
-        this.consumePath(opIdx, path4);
+      fillStroke(opIdx, path5) {
+        this.fill(opIdx, path5, false);
+        this.stroke(opIdx, path5, false);
+        this.consumePath(opIdx, path5);
       }
-      eoFillStroke(opIdx, path4) {
+      eoFillStroke(opIdx, path5) {
         this.pendingEOFill = true;
-        this.fillStroke(opIdx, path4);
+        this.fillStroke(opIdx, path5);
       }
-      closeFillStroke(opIdx, path4) {
-        this.fillStroke(opIdx, path4);
+      closeFillStroke(opIdx, path5) {
+        this.fillStroke(opIdx, path5);
       }
-      closeEOFillStroke(opIdx, path4) {
+      closeEOFillStroke(opIdx, path5) {
         this.pendingEOFill = true;
-        this.fillStroke(opIdx, path4);
+        this.fillStroke(opIdx, path5);
       }
-      endPath(opIdx, path4) {
-        this.consumePath(opIdx, path4);
+      endPath(opIdx, path5) {
+        this.consumePath(opIdx, path5);
       }
-      rawFillPath(opIdx, path4) {
-        this.ctx.fill(path4);
+      rawFillPath(opIdx, path5) {
+        this.ctx.fill(path5);
         this.dependencyTracker?.recordDependencies(opIdx, Dependencies.rawFillPath).recordOperation(opIdx);
       }
       clip(opIdx) {
@@ -38433,12 +38614,12 @@ var init_pdf = __esm({
             x: x2,
             y: y2,
             fontSize,
-            path: path4
+            path: path5
           } of paths) {
-            if (!path4) {
+            if (!path5) {
               continue;
             }
-            newPath.addPath(path4, new DOMMatrix(transform2).preMultiplySelf(invTransf).translate(x2, y2).scale(fontSize, -fontSize));
+            newPath.addPath(path5, new DOMMatrix(transform2).preMultiplySelf(invTransf).translate(x2, y2).scale(fontSize, -fontSize));
           }
           ctx.clip(newPath);
         }
@@ -38531,9 +38712,9 @@ var init_pdf = __esm({
         this.moveText(opIdx, 0, this.current.leading);
         this.dependencyTracker?.recordIncrementalData("moveText", this.dependencyTracker.getSimpleIndex("leading") ?? opIdx);
       }
-      #getScaledPath(path4, currentTransform, transform2) {
+      #getScaledPath(path5, currentTransform, transform2) {
         const newPath = new Path2D();
-        newPath.addPath(path4, new DOMMatrix(transform2).invertSelf().multiplySelf(currentTransform));
+        newPath.addPath(path5, new DOMMatrix(transform2).invertSelf().multiplySelf(currentTransform));
         return newPath;
       }
       paintChar(opIdx, character, x2, y2, patternFillTransform, patternStrokeTransform) {
@@ -38546,11 +38727,11 @@ var init_pdf = __esm({
         const isAddToPathSet = !!(textRenderingMode & TextRenderingMode.ADD_TO_PATH_FLAG);
         const patternFill = current.patternFill && !font.missingFile;
         const patternStroke = current.patternStroke && !font.missingFile;
-        let path4;
+        let path5;
         if ((font.disableFontFace || isAddToPathSet || patternFill || patternStroke) && !font.missingFile) {
-          path4 = font.getPathGenerator(this.commonObjs, character);
+          path5 = font.getPathGenerator(this.commonObjs, character);
         }
-        if (path4 && (font.disableFontFace || patternFill || patternStroke)) {
+        if (path5 && (font.disableFontFace || patternFill || patternStroke)) {
           ctx.save();
           ctx.translate(x2, y2);
           ctx.scale(fontSize, -fontSize);
@@ -38560,10 +38741,10 @@ var init_pdf = __esm({
             if (patternFillTransform) {
               currentTransform = ctx.getTransform();
               ctx.setTransform(...patternFillTransform);
-              const scaledPath = this.#getScaledPath(path4, currentTransform, patternFillTransform);
+              const scaledPath = this.#getScaledPath(path5, currentTransform, patternFillTransform);
               ctx.fill(scaledPath);
             } else {
-              ctx.fill(path4);
+              ctx.fill(path5);
             }
           }
           if (fillStrokeMode === TextRenderingMode.STROKE || fillStrokeMode === TextRenderingMode.FILL_STROKE) {
@@ -38580,10 +38761,10 @@ var init_pdf = __esm({
               const transf = Util.transform([a2, b2, c2, d2, 0, 0], invPatternTransform);
               Util.singularValueDecompose2dScale(transf, XY);
               ctx.lineWidth *= Math.max(XY[0], XY[1]) / fontSize;
-              ctx.stroke(this.#getScaledPath(path4, currentTransform, patternStrokeTransform));
+              ctx.stroke(this.#getScaledPath(path5, currentTransform, patternStrokeTransform));
             } else {
               ctx.lineWidth /= fontSize;
-              ctx.stroke(path4);
+              ctx.stroke(path5);
             }
           }
           ctx.restore();
@@ -38606,7 +38787,7 @@ var init_pdf = __esm({
             x: x2,
             y: y2,
             fontSize,
-            path: path4
+            path: path5
           });
           this.dependencyTracker?.recordCharacterBBox(opIdx, ctx, font, fontSize, x2, y2);
         }
@@ -39012,9 +39193,9 @@ var init_pdf = __esm({
         const [x0, y0, x1, y1] = group.bbox;
         clip.rect(x0, y0, x1 - x0, y1 - y0);
         if (group.matrix) {
-          const path4 = new Path2D();
-          path4.addPath(clip, new DOMMatrix(group.matrix));
-          clip = path4;
+          const path5 = new Path2D();
+          path5.addPath(clip, new DOMMatrix(group.matrix));
+          clip = path5;
         }
         groupCtx.clip(clip);
         if (group.smask) {
@@ -39358,7 +39539,7 @@ var init_pdf = __esm({
       }
       endCompat(opIdx) {
       }
-      consumePath(opIdx, path4, clipBox) {
+      consumePath(opIdx, path5, clipBox) {
         const isEmpty = this.current.isEmptyClip();
         if (this.pendingClip) {
           this.current.updateClipFromPath();
@@ -39370,9 +39551,9 @@ var init_pdf = __esm({
         if (this.pendingClip) {
           if (!isEmpty) {
             if (this.pendingClip === EO_CLIP) {
-              ctx.clip(path4, "evenodd");
+              ctx.clip(path5, "evenodd");
             } else {
-              ctx.clip(path4);
+              ctx.clip(path5);
             }
           }
           this.pendingClip = null;
@@ -39445,7 +39626,7 @@ var init_pdf = __esm({
         }
         return this._cachedScaleForStroking;
       }
-      rescaleAndStroke(path4, saveRestore) {
+      rescaleAndStroke(path5, saveRestore) {
         const {
           ctx,
           current: {
@@ -39455,7 +39636,7 @@ var init_pdf = __esm({
         const [scaleX, scaleY] = this.getScaleForStroking();
         if (scaleX === scaleY) {
           ctx.lineWidth = (lineWidth || 1) * scaleX;
-          ctx.stroke(path4);
+          ctx.stroke(path5);
           return;
         }
         const dashes = ctx.getLineDash();
@@ -39466,7 +39647,7 @@ var init_pdf = __esm({
         SCALE_MATRIX.a = 1 / scaleX;
         SCALE_MATRIX.d = 1 / scaleY;
         const newPath = new Path2D();
-        newPath.addPath(path4, SCALE_MATRIX);
+        newPath.addPath(path5, SCALE_MATRIX);
         if (dashes.length > 0) {
           const scale = Math.max(scaleX, scaleY);
           ctx.setLineDash(dashes.map((x2) => x2 / scale));
@@ -41194,10 +41375,10 @@ var init_pdf = __esm({
         this._readableStream = null;
         this._readCapability = Promise.withResolvers();
         this._headersCapability = Promise.withResolvers();
-        const fs4 = process.getBuiltinModule("fs");
-        fs4.promises.lstat(this._url).then((stat) => {
+        const fs5 = process.getBuiltinModule("fs");
+        fs5.promises.lstat(this._url).then((stat) => {
           this._contentLength = stat.size;
-          this._setReadableStream(fs4.createReadStream(this._url));
+          this._setReadableStream(fs5.createReadStream(this._url));
           this._headersCapability.resolve();
         }, (error2) => {
           if (error2.code === "ENOENT") {
@@ -41295,8 +41476,8 @@ var init_pdf = __esm({
         this._readCapability = Promise.withResolvers();
         const source = stream.source;
         this._isStreamingSupported = !source.disableStream;
-        const fs4 = process.getBuiltinModule("fs");
-        this._setReadableStream(fs4.createReadStream(this._url, {
+        const fs5 = process.getBuiltinModule("fs");
+        this._setReadableStream(fs5.createReadStream(this._url, {
           start,
           end: end - 1
         }));
@@ -50863,11 +51044,11 @@ var init_pdf = __esm({
         __name(this, "ContourDrawOutline");
       }
       toSVGPath() {
-        let path4 = super.toSVGPath();
-        if (!path4.endsWith("Z")) {
-          path4 += "Z";
+        let path5 = super.toSVGPath();
+        if (!path5.endsWith("Z")) {
+          path5 += "Z";
         }
-        return path4;
+        return path5;
       }
     };
     BASE_HEADER_LENGTH = 8;
@@ -53364,13 +53545,13 @@ var init_pdf = __esm({
         const root = this.#createSVG();
         const defs = _DrawLayer._svgFactory.createElement("defs");
         root.append(defs);
-        const path4 = _DrawLayer._svgFactory.createElement("path");
-        defs.append(path4);
+        const path5 = _DrawLayer._svgFactory.createElement("path");
+        defs.append(path5);
         const pathId = `path_p${this.pageIndex}_${id}`;
-        path4.setAttribute("id", pathId);
-        path4.setAttribute("vector-effect", "non-scaling-stroke");
+        path5.setAttribute("id", pathId);
+        path5.setAttribute("vector-effect", "non-scaling-stroke");
         if (isPathUpdatable) {
-          this.#toUpdate.set(id, path4);
+          this.#toUpdate.set(id, path5);
         }
         const clipPathId = hasClip ? this.#createClipPath(defs, pathId) : null;
         const use = _DrawLayer._svgFactory.createElement("use");
@@ -53388,11 +53569,11 @@ var init_pdf = __esm({
         const root = this.#createSVG();
         const defs = _DrawLayer._svgFactory.createElement("defs");
         root.append(defs);
-        const path4 = _DrawLayer._svgFactory.createElement("path");
-        defs.append(path4);
+        const path5 = _DrawLayer._svgFactory.createElement("path");
+        defs.append(path5);
         const pathId = `path_p${this.pageIndex}_${id}`;
-        path4.setAttribute("id", pathId);
-        path4.setAttribute("vector-effect", "non-scaling-stroke");
+        path5.setAttribute("id", pathId);
+        path5.setAttribute("vector-effect", "non-scaling-stroke");
         let maskId;
         if (mustRemoveSelfIntersections) {
           const mask = _DrawLayer._svgFactory.createElement("mask");
@@ -53439,7 +53620,7 @@ var init_pdf = __esm({
           root,
           bbox,
           rootClass,
-          path: path4
+          path: path5
         } = properties;
         const element = typeof elementOrId === "number" ? this.#mapping.get(elementOrId) : elementOrId;
         if (!element) {
@@ -53459,10 +53640,10 @@ var init_pdf = __esm({
             classList.toggle(className, value);
           }
         }
-        if (path4) {
+        if (path5) {
           const defs = element.firstChild;
           const pathElement = defs.firstChild;
-          this.#updateProperties(pathElement, path4);
+          this.#updateProperties(pathElement, path5);
         }
       }
       updateParent(id, layer) {
@@ -55993,8 +56174,8 @@ __name(getErrorMap, "getErrorMap");
 
 // node_modules/zod/v3/helpers/parseUtil.js
 var makeIssue = /* @__PURE__ */ __name((params) => {
-  const { data, path: path4, errorMaps, issueData } = params;
-  const fullPath = [...path4, ...issueData.path || []];
+  const { data, path: path5, errorMaps, issueData } = params;
+  const fullPath = [...path5, ...issueData.path || []];
   const fullIssue = {
     ...issueData,
     path: fullPath
@@ -56117,11 +56298,11 @@ var ParseInputLazyPath = class {
   static {
     __name(this, "ParseInputLazyPath");
   }
-  constructor(parent, value, path4, key) {
+  constructor(parent, value, path5, key) {
     this._cachedPath = [];
     this.parent = parent;
     this.data = value;
-    this._path = path4;
+    this._path = path5;
     this._key = key;
   }
   get path() {
@@ -59910,10 +60091,10 @@ function assignProp(target, prop, value) {
   });
 }
 __name(assignProp, "assignProp");
-function getElementAtPath(obj, path4) {
-  if (!path4)
+function getElementAtPath(obj, path5) {
+  if (!path5)
     return obj;
-  return path4.reduce((acc, key) => acc?.[key], obj);
+  return path5.reduce((acc, key) => acc?.[key], obj);
 }
 __name(getElementAtPath, "getElementAtPath");
 function promiseAllObject(promisesObj) {
@@ -60253,11 +60434,11 @@ function aborted(x2, startIndex = 0) {
   return false;
 }
 __name(aborted, "aborted");
-function prefixIssues(path4, issues) {
+function prefixIssues(path5, issues) {
   return issues.map((iss) => {
     var _a2;
     (_a2 = iss).path ?? (_a2.path = []);
-    iss.path.unshift(path4);
+    iss.path.unshift(path5);
     return iss;
   });
 }
@@ -65699,8 +65880,8 @@ var Protocol = class {
           yield { type: "result", result };
           return;
         }
-        const pollInterval = task2.pollInterval ?? this._options?.defaultTaskPollInterval ?? 1e3;
-        await new Promise((resolve) => setTimeout(resolve, pollInterval));
+        const pollInterval2 = task2.pollInterval ?? this._options?.defaultTaskPollInterval ?? 1e3;
+        await new Promise((resolve) => setTimeout(resolve, pollInterval2));
         options?.signal?.throwIfAborted();
       }
     } catch (error2) {
@@ -66967,7 +67148,7 @@ var StdioServerTransport = class {
 // dist/index.js
 var import_dotenv4 = __toESM(require_main(), 1);
 var import_child_process = require("child_process");
-var import_path4 = __toESM(require("path"), 1);
+var import_path5 = __toESM(require("path"), 1);
 var import_url = require("url");
 
 // node_modules/@supabase/supabase-js/dist/index.mjs
@@ -68356,8 +68537,8 @@ var IcebergError = class extends Error {
     return this.status === 419;
   }
 };
-function buildUrl(baseUrl, path4, query) {
-  const url = new URL(path4, baseUrl);
+function buildUrl(baseUrl, path5, query) {
+  const url = new URL(path5, baseUrl);
   if (query) {
     for (const [key, value] of Object.entries(query)) {
       if (value !== void 0) {
@@ -68389,12 +68570,12 @@ function createFetchClient(options) {
   return {
     async request({
       method,
-      path: path4,
+      path: path5,
       query,
       body,
       headers
     }) {
-      const url = buildUrl(options.baseUrl, path4, query);
+      const url = buildUrl(options.baseUrl, path5, query);
       const authHeaders = await buildAuthHeaders(options.auth);
       const res = await fetchFn(url, {
         method,
@@ -69263,7 +69444,7 @@ var StorageFileApi = class extends BaseApiClient {
   * @param path The relative file path. Should be of the format `folder/subfolder/filename.png`. The bucket must already exist before attempting to upload.
   * @param fileBody The body of the file to be stored in the bucket.
   */
-  async uploadOrUpdate(method, path4, fileBody, fileOptions) {
+  async uploadOrUpdate(method, path5, fileBody, fileOptions) {
     var _this = this;
     return _this.handleOperation(async () => {
       let body;
@@ -69287,7 +69468,7 @@ var StorageFileApi = class extends BaseApiClient {
         if ((typeof ReadableStream !== "undefined" && body instanceof ReadableStream || body && typeof body === "object" && "pipe" in body && typeof body.pipe === "function") && !options.duplex) options.duplex = "half";
       }
       if (fileOptions === null || fileOptions === void 0 ? void 0 : fileOptions.headers) headers = _objectSpread22(_objectSpread22({}, headers), fileOptions.headers);
-      const cleanPath = _this._removeEmptyFolders(path4);
+      const cleanPath = _this._removeEmptyFolders(path5);
       const _path = _this._getFinalPath(cleanPath);
       const data = await (method == "PUT" ? put : post)(_this.fetch, `${_this.url}/object/${_path}`, body, _objectSpread22({ headers }, (options === null || options === void 0 ? void 0 : options.duplex) ? { duplex: options.duplex } : {}));
       return {
@@ -69341,8 +69522,8 @@ var StorageFileApi = class extends BaseApiClient {
   *   })
   * ```
   */
-  async upload(path4, fileBody, fileOptions) {
-    return this.uploadOrUpdate("POST", path4, fileBody, fileOptions);
+  async upload(path5, fileBody, fileOptions) {
+    return this.uploadOrUpdate("POST", path5, fileBody, fileOptions);
   }
   /**
   * Upload a file with a token generated from `createSignedUploadUrl`.
@@ -69375,9 +69556,9 @@ var StorageFileApi = class extends BaseApiClient {
   * }
   * ```
   */
-  async uploadToSignedUrl(path4, token, fileBody, fileOptions) {
+  async uploadToSignedUrl(path5, token, fileBody, fileOptions) {
     var _this3 = this;
-    const cleanPath = _this3._removeEmptyFolders(path4);
+    const cleanPath = _this3._removeEmptyFolders(path5);
     const _path = _this3._getFinalPath(cleanPath);
     const url = new URL(_this3.url + `/object/upload/sign/${_path}`);
     url.searchParams.set("token", token);
@@ -69433,10 +69614,10 @@ var StorageFileApi = class extends BaseApiClient {
   * }
   * ```
   */
-  async createSignedUploadUrl(path4, options) {
+  async createSignedUploadUrl(path5, options) {
     var _this4 = this;
     return _this4.handleOperation(async () => {
-      let _path = _this4._getFinalPath(path4);
+      let _path = _this4._getFinalPath(path5);
       const headers = _objectSpread22({}, _this4.headers);
       if (options === null || options === void 0 ? void 0 : options.upsert) headers["x-upsert"] = "true";
       const data = await post(_this4.fetch, `${_this4.url}/object/upload/sign/${_path}`, {}, { headers });
@@ -69445,7 +69626,7 @@ var StorageFileApi = class extends BaseApiClient {
       if (!token) throw new StorageError("No token returned by API");
       return {
         signedUrl: url.toString(),
-        path: path4,
+        path: path5,
         token
       };
     });
@@ -69494,8 +69675,8 @@ var StorageFileApi = class extends BaseApiClient {
   *   })
   * ```
   */
-  async update(path4, fileBody, fileOptions) {
-    return this.uploadOrUpdate("PUT", path4, fileBody, fileOptions);
+  async update(path5, fileBody, fileOptions) {
+    return this.uploadOrUpdate("PUT", path5, fileBody, fileOptions);
   }
   /**
   * Moves an existing file to a new path in the same bucket.
@@ -69624,10 +69805,10 @@ var StorageFileApi = class extends BaseApiClient {
   *   })
   * ```
   */
-  async createSignedUrl(path4, expiresIn, options) {
+  async createSignedUrl(path5, expiresIn, options) {
     var _this8 = this;
     return _this8.handleOperation(async () => {
-      let _path = _this8._getFinalPath(path4);
+      let _path = _this8._getFinalPath(path5);
       let data = await post(_this8.fetch, `${_this8.url}/object/sign/${_path}`, _objectSpread22({ expiresIn }, (options === null || options === void 0 ? void 0 : options.transform) ? { transform: options.transform } : {}), { headers: _this8.headers });
       const downloadQueryParam = (options === null || options === void 0 ? void 0 : options.download) ? `&download=${options.download === true ? "" : options.download}` : "";
       return { signedUrl: encodeURI(`${_this8.url}${data.signedURL}${downloadQueryParam}`) };
@@ -69740,11 +69921,11 @@ var StorageFileApi = class extends BaseApiClient {
   *   .download('folder/avatar1.png', {}, { signal: controller.signal })
   * ```
   */
-  download(path4, options, parameters) {
+  download(path5, options, parameters) {
     const renderPath = typeof (options === null || options === void 0 ? void 0 : options.transform) !== "undefined" ? "render/image/authenticated" : "object";
     const transformationQuery = this.transformOptsToQueryString((options === null || options === void 0 ? void 0 : options.transform) || {});
     const queryString = transformationQuery ? `?${transformationQuery}` : "";
-    const _path = this._getFinalPath(path4);
+    const _path = this._getFinalPath(path5);
     const downloadFn = /* @__PURE__ */ __name(() => get(this.fetch, `${this.url}/${renderPath}/${_path}${queryString}`, {
       headers: this.headers,
       noResolveJson: true
@@ -69766,9 +69947,9 @@ var StorageFileApi = class extends BaseApiClient {
   *   .info('folder/avatar1.png')
   * ```
   */
-  async info(path4) {
+  async info(path5) {
     var _this10 = this;
-    const _path = _this10._getFinalPath(path4);
+    const _path = _this10._getFinalPath(path5);
     return _this10.handleOperation(async () => {
       return recursiveToCamel(await get(_this10.fetch, `${_this10.url}/object/info/${_path}`, { headers: _this10.headers }));
     });
@@ -69788,9 +69969,9 @@ var StorageFileApi = class extends BaseApiClient {
   *   .exists('folder/avatar1.png')
   * ```
   */
-  async exists(path4) {
+  async exists(path5) {
     var _this11 = this;
-    const _path = _this11._getFinalPath(path4);
+    const _path = _this11._getFinalPath(path5);
     try {
       await head(_this11.fetch, `${_this11.url}/object/${_path}`, { headers: _this11.headers });
       return {
@@ -69859,8 +70040,8 @@ var StorageFileApi = class extends BaseApiClient {
   *   })
   * ```
   */
-  getPublicUrl(path4, options) {
-    const _path = this._getFinalPath(path4);
+  getPublicUrl(path5, options) {
+    const _path = this._getFinalPath(path5);
     const _queryString = [];
     const downloadQueryParam = (options === null || options === void 0 ? void 0 : options.download) ? `download=${options.download === true ? "" : options.download}` : "";
     if (downloadQueryParam !== "") _queryString.push(downloadQueryParam);
@@ -69968,10 +70149,10 @@ var StorageFileApi = class extends BaseApiClient {
   *   })
   * ```
   */
-  async list(path4, options, parameters) {
+  async list(path5, options, parameters) {
     var _this13 = this;
     return _this13.handleOperation(async () => {
-      const body = _objectSpread22(_objectSpread22(_objectSpread22({}, DEFAULT_SEARCH_OPTIONS), options), {}, { prefix: path4 || "" });
+      const body = _objectSpread22(_objectSpread22(_objectSpread22({}, DEFAULT_SEARCH_OPTIONS), options), {}, { prefix: path5 || "" });
       return await post(_this13.fetch, `${_this13.url}/object/list/${_this13.bucketId}`, body, { headers: _this13.headers }, parameters);
     });
   }
@@ -69996,11 +70177,11 @@ var StorageFileApi = class extends BaseApiClient {
     if (typeof Buffer !== "undefined") return Buffer.from(data).toString("base64");
     return btoa(data);
   }
-  _getFinalPath(path4) {
-    return `${this.bucketId}/${path4.replace(/^\/+/, "")}`;
+  _getFinalPath(path5) {
+    return `${this.bucketId}/${path5.replace(/^\/+/, "")}`;
   }
-  _removeEmptyFolders(path4) {
-    return path4.replace(/^\/|\/$/g, "").replace(/\/+/g, "/");
+  _removeEmptyFolders(path5) {
+    return path5.replace(/^\/|\/$/g, "").replace(/\/+/g, "/");
   }
   transformOptsToQueryString(transform2) {
     const params = [];
@@ -71643,67 +71824,7 @@ if (shouldShowDeprecationWarning()) console.warn("\u26A0\uFE0F  Node.js 18 and b
 
 // dist/lib/supabase.js
 var import_dotenv = __toESM(require_main(), 1);
-
-// dist/lib/credentials.js
-var import_fs = __toESM(require("fs"), 1);
-var import_path = __toESM(require("path"), 1);
-var import_os = __toESM(require("os"), 1);
-var CREDENTIALS_DIR = import_path.default.join(import_os.default.homedir(), ".mnemos");
-var CREDENTIALS_FILE = import_path.default.join(CREDENTIALS_DIR, "credentials.json");
-function loadCredentials() {
-  try {
-    if (!import_fs.default.existsSync(CREDENTIALS_FILE)) {
-      return null;
-    }
-    const raw = import_fs.default.readFileSync(CREDENTIALS_FILE, "utf-8");
-    const creds = JSON.parse(raw);
-    if (!creds.userId || !creds.accessToken || !creds.refreshToken) {
-      console.error("[Auth] Credentials incompletes, suppression");
-      clearCredentials();
-      return null;
-    }
-    return creds;
-  } catch (err) {
-    console.error("[Auth] Erreur lecture credentials:", err);
-    return null;
-  }
-}
-__name(loadCredentials, "loadCredentials");
-function saveCredentials(creds) {
-  try {
-    if (!import_fs.default.existsSync(CREDENTIALS_DIR)) {
-      import_fs.default.mkdirSync(CREDENTIALS_DIR, { recursive: true, mode: 448 });
-    }
-    import_fs.default.writeFileSync(CREDENTIALS_FILE, JSON.stringify(creds, null, 2), {
-      encoding: "utf-8",
-      mode: 384
-      // lecture/ecriture uniquement pour le proprietaire
-    });
-    console.error("[Auth] Credentials sauvegardees dans " + CREDENTIALS_FILE);
-  } catch (err) {
-    console.error("[Auth] Erreur sauvegarde credentials:", err);
-    throw new Error("Impossible de sauvegarder les credentials: " + String(err));
-  }
-}
-__name(saveCredentials, "saveCredentials");
-function clearCredentials() {
-  try {
-    if (import_fs.default.existsSync(CREDENTIALS_FILE)) {
-      import_fs.default.unlinkSync(CREDENTIALS_FILE);
-      console.error("[Auth] Credentials supprimees");
-    }
-  } catch (err) {
-    console.error("[Auth] Erreur suppression credentials:", err);
-  }
-}
-__name(clearCredentials, "clearCredentials");
-function isTokenExpired(creds) {
-  const MARGIN_MS = 5 * 60 * 1e3;
-  return Date.now() > creds.expiresAt - MARGIN_MS;
-}
-__name(isTokenExpired, "isTokenExpired");
-
-// dist/lib/supabase.js
+init_credentials();
 import_dotenv.default.config();
 var SUPABASE_URL = process.env.SUPABASE_URL;
 var SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -71746,6 +71867,131 @@ function getSupabaseClient() {
   throw new Error("Mnemos: pas de connexion. Utilisez mnemos_login pour vous connecter, ou configurez SUPABASE_SERVICE_ROLE_KEY pour le mode admin.");
 }
 __name(getSupabaseClient, "getSupabaseClient");
+function getAuthenticatedUserId() {
+  if (process.env.MNEMOS_USER_ID)
+    return process.env.MNEMOS_USER_ID;
+  const creds = loadCredentials();
+  if (creds && !isTokenExpired(creds))
+    return creds.userId;
+  return null;
+}
+__name(getAuthenticatedUserId, "getAuthenticatedUserId");
+function getAuthMode() {
+  if (SUPABASE_SERVICE_ROLE_KEY)
+    return "admin";
+  const creds = loadCredentials();
+  if (creds && !isTokenExpired(creds))
+    return "user";
+  return "none";
+}
+__name(getAuthMode, "getAuthMode");
+function resolveUserId(args) {
+  if (args.userId && typeof args.userId === "string" && args.userId.length > 0) {
+    return args.userId;
+  }
+  const fromAuth = getAuthenticatedUserId();
+  if (fromAuth)
+    return fromAuth;
+  throw new Error("Mnemos: userId manquant. Connectez-vous avec mnemos_login ou fournissez userId en param\xE8tre.");
+}
+__name(resolveUserId, "resolveUserId");
+
+// dist/lib/quotas.js
+var PLAN_LIMITS = {
+  free: { spaces: 2, atoms: 300 },
+  pro: { spaces: 10, atoms: 2e3 },
+  max: { spaces: Infinity, atoms: Infinity }
+  // fair use
+};
+async function getUserPlan(userId) {
+  const supabase = getSupabaseClient();
+  const { data, error: error2 } = await supabase.from("subscriptions").select("plan, status").eq("user_id", userId).eq("status", "active").single();
+  if (error2 || !data)
+    return "free";
+  const plan = data.plan;
+  if (plan === "pro" || plan === "max")
+    return plan;
+  return "free";
+}
+__name(getUserPlan, "getUserPlan");
+async function countUserSpaces(userId) {
+  const supabase = getSupabaseClient();
+  const { count, error: error2 } = await supabase.from("spaces").select("id", { count: "exact", head: true }).eq("user_id", userId).eq("is_system", false).in("status", ["actif", "en_veille"]);
+  if (error2) {
+    console.error("[Quotas] Erreur comptage spaces:", error2);
+    return 0;
+  }
+  return count || 0;
+}
+__name(countUserSpaces, "countUserSpaces");
+async function countUserAtoms(userId) {
+  const supabase = getSupabaseClient();
+  const { count, error: error2 } = await supabase.from("memory_atoms").select("id", { count: "exact", head: true }).eq("user_id", userId).eq("active", true);
+  if (error2) {
+    console.error("[Quotas] Erreur comptage atoms:", error2);
+    return 0;
+  }
+  return count || 0;
+}
+__name(countUserAtoms, "countUserAtoms");
+var QuotaExceededError = class extends Error {
+  static {
+    __name(this, "QuotaExceededError");
+  }
+  plan;
+  resource;
+  current;
+  limit;
+  constructor(plan, resource, current, limit) {
+    const msg = resource === "spaces" ? `Quota atteint : ${current}/${limit} espaces sur le plan ${plan}. Passez au plan sup\xE9rieur pour cr\xE9er plus d'espaces.` : `Quota atteint : ${current}/${limit} atomes sur le plan ${plan}. Passez au plan sup\xE9rieur pour stocker plus de m\xE9moire.`;
+    super(msg);
+    this.name = "QuotaExceededError";
+    this.plan = plan;
+    this.resource = resource;
+    this.current = current;
+    this.limit = limit;
+  }
+};
+async function checkSpaceQuota(userId) {
+  const plan = await getUserPlan(userId);
+  const limit = PLAN_LIMITS[plan].spaces;
+  if (limit === Infinity)
+    return;
+  const current = await countUserSpaces(userId);
+  if (current >= limit) {
+    console.error(`[Quotas] Space quota exceeded: ${current}/${limit} (plan: ${plan})`);
+    throw new QuotaExceededError(plan, "spaces", current, limit);
+  }
+  console.error(`[Quotas] Space OK: ${current}/${limit} (plan: ${plan})`);
+}
+__name(checkSpaceQuota, "checkSpaceQuota");
+async function checkAtomQuota(userId, count = 1) {
+  const plan = await getUserPlan(userId);
+  const limit = PLAN_LIMITS[plan].atoms;
+  if (limit === Infinity)
+    return;
+  const current = await countUserAtoms(userId);
+  if (current + count > limit) {
+    console.error(`[Quotas] Atom quota exceeded: ${current}+${count}/${limit} (plan: ${plan})`);
+    throw new QuotaExceededError(plan, "atoms", current, limit);
+  }
+  console.error(`[Quotas] Atoms OK: ${current}+${count}/${limit} (plan: ${plan})`);
+}
+__name(checkAtomQuota, "checkAtomQuota");
+async function getQuotaInfo(userId) {
+  const plan = await getUserPlan(userId);
+  const [spaces, atoms] = await Promise.all([
+    countUserSpaces(userId),
+    countUserAtoms(userId)
+  ]);
+  const limits = PLAN_LIMITS[plan];
+  return {
+    plan,
+    spaces: { current: spaces, limit: limits.spaces },
+    atoms: { current: atoms, limit: limits.atoms }
+  };
+}
+__name(getQuotaInfo, "getQuotaInfo");
 
 // dist/tools/spaces.js
 var createSpaceSchema = external_exports.object({
@@ -71779,6 +72025,7 @@ async function createSpace(params) {
   const { userId, name, description, status, priority } = params;
   const supabase = getSupabaseClient();
   console.error(`[Spaces] Cr\xE9ation espace "${name}" pour user ${userId}`);
+  await checkSpaceQuota(userId);
   const newSpace = {
     user_id: userId,
     name,
@@ -72242,13 +72489,13 @@ var MultipartBody = class {
 // node_modules/@anthropic-ai/sdk/_shims/node-runtime.mjs
 var import_web = require("node:stream/web");
 var fileFromPathWarned = false;
-async function fileFromPath3(path4, ...args) {
+async function fileFromPath3(path5, ...args) {
   const { fileFromPath: _fileFromPath } = await Promise.resolve().then(() => (init_fileFromPath(), fileFromPath_exports));
   if (!fileFromPathWarned) {
-    console.warn(`fileFromPath is deprecated; use fs.createReadStream(${JSON.stringify(path4)}) instead`);
+    console.warn(`fileFromPath is deprecated; use fs.createReadStream(${JSON.stringify(path5)}) instead`);
     fileFromPathWarned = true;
   }
-  return await _fileFromPath(path4, ...args);
+  return await _fileFromPath(path5, ...args);
 }
 __name(fileFromPath3, "fileFromPath");
 var defaultHttpAgent = new import_agentkeepalive.default({ keepAlive: true, timeout: 5 * 60 * 1e3 });
@@ -72878,29 +73125,29 @@ var APIClient = class {
   defaultIdempotencyKey() {
     return `stainless-node-retry-${uuid4()}`;
   }
-  get(path4, opts) {
-    return this.methodRequest("get", path4, opts);
+  get(path5, opts) {
+    return this.methodRequest("get", path5, opts);
   }
-  post(path4, opts) {
-    return this.methodRequest("post", path4, opts);
+  post(path5, opts) {
+    return this.methodRequest("post", path5, opts);
   }
-  patch(path4, opts) {
-    return this.methodRequest("patch", path4, opts);
+  patch(path5, opts) {
+    return this.methodRequest("patch", path5, opts);
   }
-  put(path4, opts) {
-    return this.methodRequest("put", path4, opts);
+  put(path5, opts) {
+    return this.methodRequest("put", path5, opts);
   }
-  delete(path4, opts) {
-    return this.methodRequest("delete", path4, opts);
+  delete(path5, opts) {
+    return this.methodRequest("delete", path5, opts);
   }
-  methodRequest(method, path4, opts) {
+  methodRequest(method, path5, opts) {
     return this.request(Promise.resolve(opts).then(async (opts2) => {
       const body = opts2 && isBlobLike(opts2?.body) ? new DataView(await opts2.body.arrayBuffer()) : opts2?.body instanceof DataView ? opts2.body : opts2?.body instanceof ArrayBuffer ? new DataView(opts2.body) : opts2 && ArrayBuffer.isView(opts2?.body) ? new DataView(opts2.body.buffer) : opts2?.body;
-      return { method, path: path4, ...opts2, body };
+      return { method, path: path5, ...opts2, body };
     }));
   }
-  getAPIList(path4, Page2, opts) {
-    return this.requestAPIList(Page2, { method: "get", path: path4, ...opts });
+  getAPIList(path5, Page2, opts) {
+    return this.requestAPIList(Page2, { method: "get", path: path5, ...opts });
   }
   calculateContentLength(body) {
     if (typeof body === "string") {
@@ -72918,10 +73165,10 @@ var APIClient = class {
     return null;
   }
   buildRequest(options, { retryCount = 0 } = {}) {
-    const { method, path: path4, query, headers = {} } = options;
+    const { method, path: path5, query, headers = {} } = options;
     const body = ArrayBuffer.isView(options.body) || options.__binaryRequest && typeof options.body === "string" ? options.body : isMultipartBody(options.body) ? options.body.body : options.body ? JSON.stringify(options.body, null, 2) : null;
     const contentLength = this.calculateContentLength(body);
-    const url = this.buildURL(path4, query);
+    const url = this.buildURL(path5, query);
     if ("timeout" in options)
       validatePositiveInteger("timeout", options.timeout);
     const timeout = options.timeout ?? this.timeout;
@@ -73034,8 +73281,8 @@ var APIClient = class {
     const request = this.makeRequest(options, null);
     return new PagePromise(this, request, Page2);
   }
-  buildURL(path4, query) {
-    const url = isAbsoluteURL(path4) ? new URL(path4) : new URL(this.baseURL + (this.baseURL.endsWith("/") && path4.startsWith("/") ? path4.slice(1) : path4));
+  buildURL(path5, query) {
+    const url = isAbsoluteURL(path5) ? new URL(path5) : new URL(this.baseURL + (this.baseURL.endsWith("/") && path5.startsWith("/") ? path5.slice(1) : path5));
     const defaultQuery = this.defaultQuery();
     if (!isEmptyObj(defaultQuery)) {
       query = { ...defaultQuery, ...query };
@@ -75197,117 +75444,98 @@ var sdk_default = Anthropic;
 
 // dist/lib/llm.js
 var import_dotenv2 = __toESM(require_main(), 1);
+init_credentials();
 import_dotenv2.default.config();
 var ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
+var SUPABASE_URL2 = process.env.SUPABASE_URL;
 var MODELS = {
   haiku: "claude-haiku-4-5-20251001",
   sonnet: "claude-sonnet-4-6",
   opus: "claude-opus-4-5-20251101"
 };
-function isAnthropicConfigured() {
-  return !!ANTHROPIC_API_KEY && ANTHROPIC_API_KEY !== "";
+function getLLMMode() {
+  if (ANTHROPIC_API_KEY && ANTHROPIC_API_KEY !== "")
+    return "direct";
+  if (SUPABASE_URL2) {
+    const creds = loadCredentials();
+    if (creds && !isTokenExpired(creds))
+      return "edge";
+  }
+  return "none";
 }
-__name(isAnthropicConfigured, "isAnthropicConfigured");
-async function callHaiku(systemPrompt, userPrompt, maxTokens = 1024) {
-  if (!isAnthropicConfigured()) {
-    throw new Error("ANTHROPIC_API_KEY non configur\xE9e");
+__name(getLLMMode, "getLLMMode");
+async function callDirectLLM(model, systemPrompt, messages, maxTokens) {
+  const client = new sdk_default({ apiKey: ANTHROPIC_API_KEY });
+  const response = await client.messages.create({
+    model: MODELS[model],
+    max_tokens: maxTokens,
+    system: systemPrompt,
+    messages
+  });
+  const content = response.content[0];
+  if (content.type === "text")
+    return content.text;
+  throw new Error(`R\xE9ponse invalide de ${model}`);
+}
+__name(callDirectLLM, "callDirectLLM");
+async function callEdgeLLM(model, systemPrompt, messages, maxTokens) {
+  const creds = loadCredentials();
+  if (!creds || isTokenExpired(creds)) {
+    throw new Error("Mnemos: session expir\xE9e. Utilisez mnemos_login pour vous reconnecter.");
+  }
+  const edgeUrl = `${SUPABASE_URL2}/functions/v1/mnemos-llm`;
+  const response = await fetch(edgeUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${creds.accessToken}`
+    },
+    body: JSON.stringify({
+      model,
+      system: systemPrompt,
+      messages,
+      max_tokens: maxTokens
+    })
+  });
+  if (!response.ok) {
+    const errBody = await response.text();
+    console.error(`[LLM/edge] Erreur:`, response.status, errBody);
+    if (response.status === 401) {
+      throw new Error("Mnemos: session expir\xE9e. Utilisez mnemos_login pour vous reconnecter.");
+    }
+    throw new Error(`Edge Function mnemos-llm error: ${response.status}`);
+  }
+  const data = await response.json();
+  return data.text;
+}
+__name(callEdgeLLM, "callEdgeLLM");
+async function callModel(model, systemPrompt, messages, maxTokens) {
+  const mode = getLLMMode();
+  if (mode === "none") {
+    throw new Error("Mnemos: impossible d'appeler le LLM. Configurez ANTHROPIC_API_KEY ou connectez-vous avec mnemos_login.");
   }
   try {
-    const client = new sdk_default({
-      apiKey: ANTHROPIC_API_KEY
-    });
-    const response = await client.messages.create({
-      model: MODELS.haiku,
-      max_tokens: maxTokens,
-      system: systemPrompt,
-      messages: [
-        {
-          role: "user",
-          content: userPrompt
-        }
-      ]
-    });
-    const content = response.content[0];
-    if (content.type === "text") {
-      return content.text;
-    }
-    throw new Error("R\xE9ponse invalide de Haiku");
+    return mode === "direct" ? await callDirectLLM(model, systemPrompt, messages, maxTokens) : await callEdgeLLM(model, systemPrompt, messages, maxTokens);
   } catch (error2) {
-    console.error("[Anthropic] Erreur Haiku:", error2);
+    console.error(`[Anthropic/${mode}] Erreur ${model}:`, error2);
     throw error2;
   }
+}
+__name(callModel, "callModel");
+async function callHaiku(systemPrompt, userPrompt, maxTokens = 1024) {
+  return callModel("haiku", systemPrompt, [{ role: "user", content: userPrompt }], maxTokens);
 }
 __name(callHaiku, "callHaiku");
 async function callSonnet(systemPrompt, userPrompt, maxTokens = 2048) {
-  if (!isAnthropicConfigured()) {
-    throw new Error("ANTHROPIC_API_KEY non configur\xE9e");
-  }
-  try {
-    const client = new sdk_default({
-      apiKey: ANTHROPIC_API_KEY
-    });
-    const response = await client.messages.create({
-      model: MODELS.sonnet,
-      max_tokens: maxTokens,
-      system: systemPrompt,
-      messages: [
-        {
-          role: "user",
-          content: userPrompt
-        }
-      ]
-    });
-    const content = response.content[0];
-    if (content.type === "text") {
-      return content.text;
-    }
-    throw new Error("R\xE9ponse invalide de Sonnet");
-  } catch (error2) {
-    console.error("[Anthropic] Erreur Sonnet:", error2);
-    throw error2;
-  }
+  return callModel("sonnet", systemPrompt, [{ role: "user", content: userPrompt }], maxTokens);
 }
 __name(callSonnet, "callSonnet");
 
-// dist/lib/embeddings.js
-var import_dotenv3 = __toESM(require_main(), 1);
-import_dotenv3.default.config();
-var VOYAGE_API_KEY = process.env.VOYAGE_API_KEY;
-var VOYAGE_API_URL = "https://api.voyageai.com/v1/embeddings";
-var MODEL = "voyage-3-lite";
-async function embedText(text, inputType = "document") {
-  if (!VOYAGE_API_KEY || VOYAGE_API_KEY === "") {
-    throw new Error("VOYAGE_API_KEY non configur\xE9e dans le .env");
-  }
-  try {
-    const response = await fetch(VOYAGE_API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${VOYAGE_API_KEY}`
-      },
-      body: JSON.stringify({
-        input: [text],
-        model: MODEL,
-        input_type: inputType
-      })
-    });
-    if (!response.ok) {
-      const error2 = await response.text();
-      console.error("[Voyage] Erreur API:", response.status, error2);
-      throw new Error(`Voyage API error: ${response.status}`);
-    }
-    const data = await response.json();
-    return data.data[0].embedding;
-  } catch (error2) {
-    console.error("[Voyage] Erreur lors de la vectorisation:", error2);
-    throw error2;
-  }
-}
-__name(embedText, "embedText");
+// dist/lib/extract-engine.js
+init_embeddings();
 
 // dist/lib/auto-connect.js
-var MIN_SIMILARITY = 0.7;
+var MIN_SIMILARITY = 0.6;
 var MAX_CONNECTIONS = 5;
 var CONNECTION_TYPE = "concerne";
 async function autoConnect(atomId, embedding, userId) {
@@ -75377,6 +75605,146 @@ function autoConnectAsync(atomId, embedding, userId) {
   });
 }
 __name(autoConnectAsync, "autoConnectAsync");
+
+// dist/lib/dedup.js
+var DEDUP_THRESHOLD_SKIP = 0.9;
+var DEDUP_THRESHOLD_MERGE = 0.8;
+function parseEmbedding(embedding) {
+  if (!embedding)
+    return [];
+  if (Array.isArray(embedding))
+    return embedding;
+  if (typeof embedding === "string") {
+    try {
+      const cleaned = embedding.replace(/^\[|\]$/g, "");
+      return cleaned.split(",").map(Number);
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
+__name(parseEmbedding, "parseEmbedding");
+function cosineSimilarity(a2, b2) {
+  if (a2.length !== b2.length || a2.length === 0)
+    return 0;
+  let dot = 0, nA = 0, nB = 0;
+  for (let i2 = 0; i2 < a2.length; i2++) {
+    dot += a2[i2] * b2[i2];
+    nA += a2[i2] * a2[i2];
+    nB += b2[i2] * b2[i2];
+  }
+  const denom = Math.sqrt(nA) * Math.sqrt(nB);
+  return denom === 0 ? 0 : dot / denom;
+}
+__name(cosineSimilarity, "cosineSimilarity");
+async function mergeAtomContents(existingContent, newContent) {
+  const prompt = `Fusionne ces deux textes en UN SEUL atome de m\xE9moire (200 mots max).
+Garde toutes les informations uniques des deux. Pas de perte.
+
+TEXTE EXISTANT:
+${existingContent}
+
+NOUVEAU TEXTE:
+${newContent}
+
+R\xE9ponds UNIQUEMENT avec le texte fusionn\xE9, sans explication.`;
+  try {
+    const merged = await callHaiku("Tu fusionne des atomes de m\xE9moire. R\xE9ponds uniquement avec le texte fusionn\xE9.", prompt, 512);
+    return merged.trim();
+  } catch (err) {
+    console.error("[Dedup] Erreur merge Haiku, garde le plus long:", err);
+    return existingContent.length >= newContent.length ? existingContent : newContent;
+  }
+}
+__name(mergeAtomContents, "mergeAtomContents");
+async function findDuplicate(embedding, content, userId) {
+  if (!embedding || embedding.length === 0) {
+    return { action: "insert", vectorScore: 0 };
+  }
+  const supabase = getSupabaseClient();
+  try {
+    const { data, error: error2 } = await supabase.rpc("hybrid_search_atoms", {
+      p_user_id: userId,
+      p_query_text: content,
+      p_query_embedding: embedding,
+      p_space_id: null,
+      p_match_count: 3,
+      p_vector_weight: 0.6,
+      p_text_weight: 0.4
+    });
+    if (error2) {
+      console.error("[Dedup] Erreur hybrid_search:", error2.message);
+      return { action: "insert", vectorScore: 0 };
+    }
+    const results = data;
+    if (!results || results.length === 0) {
+      return { action: "insert", vectorScore: 0 };
+    }
+    const best = results[0];
+    const bestEmbedding = parseEmbedding(best.embedding);
+    const vectorScore = bestEmbedding.length > 0 ? cosineSimilarity(embedding, bestEmbedding) : 0;
+    console.error(`[Dedup] Best match: "${best.content?.slice(0, 60)}..." vector_score=${vectorScore.toFixed(4)} hybrid_score=${best.hybrid_score?.toFixed(4)}`);
+    if (vectorScore >= DEDUP_THRESHOLD_SKIP) {
+      if (content.trim().length > (best.content?.length || 0)) {
+        console.error(`[Dedup] SKIP (>= 0.90) mais nouveau plus long \u2192 merge`);
+        return {
+          action: "merge",
+          existingAtomId: best.id,
+          mergedContent: content.trim(),
+          vectorScore
+        };
+      }
+      console.error(`[Dedup] SKIP (>= 0.90) existant plus long, on ignore le nouveau`);
+      return { action: "skip", existingAtomId: best.id, vectorScore };
+    }
+    if (vectorScore >= DEDUP_THRESHOLD_MERGE) {
+      console.error(`[Dedup] MERGE (0.80-0.90) fusion Haiku`);
+      const merged = await mergeAtomContents(best.content, content);
+      return {
+        action: "merge",
+        existingAtomId: best.id,
+        mergedContent: merged,
+        vectorScore
+      };
+    }
+    return { action: "insert", vectorScore };
+  } catch (err) {
+    console.error("[Dedup] Erreur g\xE9n\xE9rale (non bloquante):", err);
+    return { action: "insert", vectorScore: 0 };
+  }
+}
+__name(findDuplicate, "findDuplicate");
+async function applyDedup(result, newEmbedding, userId) {
+  if (result.action === "insert")
+    return false;
+  if (result.action === "skip") {
+    console.error(`[Dedup] Atome ignor\xE9 (doublon de ${result.existingAtomId})`);
+    return true;
+  }
+  if (!result.existingAtomId || !result.mergedContent)
+    return false;
+  const supabase = getSupabaseClient();
+  try {
+    const { embedText: embedText2 } = await Promise.resolve().then(() => (init_embeddings(), embeddings_exports));
+    const mergedEmbedding = await embedText2(result.mergedContent);
+    const { error: error2 } = await supabase.from("memory_atoms").update({
+      content: result.mergedContent,
+      embedding: mergedEmbedding || newEmbedding,
+      updated_at: (/* @__PURE__ */ new Date()).toISOString()
+    }).eq("id", result.existingAtomId).eq("user_id", userId);
+    if (error2) {
+      console.error("[Dedup] Erreur update merge:", error2.message);
+      return false;
+    }
+    console.error(`[Dedup] Atome fusionn\xE9 dans ${result.existingAtomId} (vector_score=${result.vectorScore.toFixed(4)})`);
+    return true;
+  } catch (err) {
+    console.error("[Dedup] Erreur applyDedup:", err);
+    return false;
+  }
+}
+__name(applyDedup, "applyDedup");
 
 // dist/lib/extract-engine.js
 function buildExtractionPrompt(userMessage, assistantResponse, existingAtoms) {
@@ -75452,12 +75820,21 @@ async function extractAtoms(params) {
       const { data: inboxSpace } = await supabase.from("spaces").select("id").eq("user_id", userId).eq("is_system", true).eq("name", "Non affect\xE9").single();
       targetSpaceId = inboxSpace?.id || null;
     }
+    await checkAtomQuota(userId, candidates.length);
     for (const candidate of candidates) {
       if (!candidate.type || !candidate.content) {
         console.warn("[Extract] Candidat invalide:", candidate);
         continue;
       }
       const embedding = await embedText(candidate.content);
+      if (embedding && embedding.length > 0) {
+        const dedupResult = await findDuplicate(embedding, candidate.content.trim(), userId);
+        const handled = await applyDedup(dedupResult, embedding, userId);
+        if (handled) {
+          console.error(`[Extract] Dedup: atome ${dedupResult.action} (vector_score=${dedupResult.vectorScore.toFixed(4)})`);
+          continue;
+        }
+      }
       const newAtom = {
         user_id: userId,
         type: candidate.type,
@@ -75626,12 +76003,21 @@ async function extractAtomsFromBuffer(userId, exchanges, spaceId, sessionId) {
       const { data: inboxSpace } = await supabase.from("spaces").select("id").eq("user_id", userId).eq("is_system", true).eq("name", "Non affect\xE9").single();
       targetSpaceId = inboxSpace?.id || null;
     }
+    await checkAtomQuota(userId, candidates.length);
     const extractedAtoms = [];
     const sourceRef = sessionId || `buffer-${Date.now()}`;
     for (const candidate of candidates) {
       if (!candidate.type || !candidate.content)
         continue;
       const embedding = await embedText(candidate.content);
+      if (embedding && embedding.length > 0) {
+        const dedupResult = await findDuplicate(embedding, candidate.content.trim(), userId);
+        const handled = await applyDedup(dedupResult, embedding, userId);
+        if (handled) {
+          console.error(`[Extract-B2] Dedup: atome ${dedupResult.action} (vector_score=${dedupResult.vectorScore.toFixed(4)})`);
+          continue;
+        }
+      }
       const newAtom = {
         user_id: userId,
         type: candidate.type,
@@ -75677,6 +76063,9 @@ async function extractAtomsFromBuffer(userId, exchanges, spaceId, sessionId) {
 }
 __name(extractAtomsFromBuffer, "extractAtomsFromBuffer");
 
+// dist/tools/memory.js
+init_embeddings();
+
 // dist/lib/resolve-space.js
 var UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 async function resolveSpaceId(spaceId, userId) {
@@ -75685,15 +76074,36 @@ async function resolveSpaceId(spaceId, userId) {
   if (UUID_REGEX.test(spaceId))
     return spaceId;
   const supabase = getSupabaseClient();
-  const { data: space, error: error2 } = await supabase.from("spaces").select("id").eq("user_id", userId).ilike("name", spaceId).limit(1).single();
-  if (error2 || !space) {
-    const msg = '[ResolveSpace] Espace non trouve pour nom "' + spaceId + '"';
-    console.error(msg);
-    return void 0;
+  const { data: exact } = await supabase.from("spaces").select("id, name").eq("user_id", userId).ilike("name", spaceId).limit(1).single();
+  if (exact) {
+    const resolvedId = exact.id;
+    console.error('[ResolveSpace] "' + spaceId + '" -> ' + resolvedId + " (exact: " + exact.name + ")");
+    return resolvedId;
   }
-  const resolvedId = space.id;
-  console.error('[ResolveSpace] "' + spaceId + '" -> ' + resolvedId);
-  return resolvedId;
+  const { data: partial2 } = await supabase.from("spaces").select("id, name").eq("user_id", userId).ilike("name", "%" + spaceId + "%").limit(1).single();
+  if (partial2) {
+    const resolvedId = partial2.id;
+    console.error('[ResolveSpace] "' + spaceId + '" -> ' + resolvedId + " (partial: " + partial2.name + ")");
+    return resolvedId;
+  }
+  const normalized = spaceId.replace(/[-_]/g, "%");
+  const { data: fuzzy } = await supabase.from("spaces").select("id, name").eq("user_id", userId).ilike("name", "%" + normalized + "%").limit(1).single();
+  if (fuzzy) {
+    const resolvedId = fuzzy.id;
+    console.error('[ResolveSpace] "' + spaceId + '" -> ' + resolvedId + " (fuzzy: " + fuzzy.name + ")");
+    return resolvedId;
+  }
+  const segments = spaceId.split(/[-_\s]+/).filter((s2) => s2.length >= 3).sort((a2, b2) => b2.length - a2.length);
+  for (const seg of segments) {
+    const { data: segMatch } = await supabase.from("spaces").select("id, name").eq("user_id", userId).ilike("name", "%" + seg + "%").limit(1).single();
+    if (segMatch) {
+      const resolvedId = segMatch.id;
+      console.error('[ResolveSpace] "' + spaceId + '" -> ' + resolvedId + ' (segment "' + seg + '": ' + segMatch.name + ")");
+      return resolvedId;
+    }
+  }
+  console.error('[ResolveSpace] Espace non trouve pour "' + spaceId + '"');
+  return void 0;
 }
 __name(resolveSpaceId, "resolveSpaceId");
 
@@ -75768,6 +76178,7 @@ async function extractAtomsFromConversation(params) {
   const { userId, userMessage, assistantResponse, spaceId, conversationId } = params;
   const supabase = getSupabaseClient();
   console.error(`[Memory] extract_atoms pour conversation ${conversationId}`);
+  await checkAtomQuota(userId);
   let existingAtoms = [];
   if (userMessage.length > 10) {
     const queryEmbedding = await embedText(userMessage);
@@ -75926,8 +76337,8 @@ async function searchAtoms(params) {
     throw new Error(`\xC9chec recherche: ${error2.message}`);
   }
   const atoms = (data || []).map((atom) => {
-    const parsedEmbedding = parseEmbedding(atom.embedding);
-    const similarity = parsedEmbedding.length > 0 ? cosineSimilarity(queryEmbedding, parsedEmbedding) : 0;
+    const parsedEmbedding = parseEmbedding2(atom.embedding);
+    const similarity = parsedEmbedding.length > 0 ? cosineSimilarity2(queryEmbedding, parsedEmbedding) : 0;
     return {
       ...atom,
       similarity
@@ -75946,32 +76357,48 @@ async function getStats(params) {
   const { userId, spaceId } = params;
   const supabase = getSupabaseClient();
   console.error(`[Memory] get_stats pour user ${userId}`);
-  let queryBuilder = supabase.from("memory_atoms").select("type, active, is_pinned").eq("user_id", userId);
-  if (spaceId) {
-    queryBuilder = queryBuilder.eq("space_id", spaceId);
-  }
-  const { data, error: error2 } = await queryBuilder;
-  if (error2) {
-    throw new Error(`\xC9chec r\xE9cup\xE9ration stats: ${error2.message}`);
-  }
-  const atoms = data;
-  const total = atoms?.length || 0;
-  const active = atoms?.filter((a2) => a2.active).length || 0;
-  const archived = atoms?.filter((a2) => !a2.active).length || 0;
-  const pinned = atoms?.filter((a2) => a2.is_pinned).length || 0;
+  const baseFilter = /* @__PURE__ */ __name((q2) => {
+    q2 = q2.eq("user_id", userId);
+    if (spaceId)
+      q2 = q2.eq("space_id", spaceId);
+    return q2;
+  }, "baseFilter");
+  const [totalRes, activeRes, archivedRes, pinnedRes] = await Promise.all([
+    baseFilter(supabase.from("memory_atoms").select("id", { count: "exact", head: true })),
+    baseFilter(supabase.from("memory_atoms").select("id", { count: "exact", head: true }).eq("active", true)),
+    baseFilter(supabase.from("memory_atoms").select("id", { count: "exact", head: true }).eq("active", false)),
+    baseFilter(supabase.from("memory_atoms").select("id", { count: "exact", head: true }).eq("is_pinned", true).eq("active", true))
+  ]);
+  const total = totalRes.count || 0;
+  const active = activeRes.count || 0;
+  const archived = archivedRes.count || 0;
+  const pinned = pinnedRes.count || 0;
   const byType = {};
-  atoms?.forEach((atom) => {
-    if (atom.active) {
+  let offset = 0;
+  const pageSize = 1e3;
+  while (true) {
+    let q2 = supabase.from("memory_atoms").select("type").eq("user_id", userId).eq("active", true).range(offset, offset + pageSize - 1);
+    if (spaceId)
+      q2 = q2.eq("space_id", spaceId);
+    const { data: page, error: pageError } = await q2;
+    if (pageError || !page || page.length === 0)
+      break;
+    for (const atom of page) {
       byType[atom.type] = (byType[atom.type] || 0) + 1;
     }
-  });
-  console.error(`[Memory] Stats: ${active} actifs, ${archived} archiv\xE9s, ${pinned} \xE9pingl\xE9s`);
+    if (page.length < pageSize)
+      break;
+    offset += pageSize;
+  }
+  console.error(`[Memory] Stats: ${active} actifs, ${archived} archiv\xE9s, ${pinned} \xE9pingl\xE9s (total: ${total})`);
+  const quota = await getQuotaInfo(userId);
   return {
     total,
     active,
     archived,
     pinned,
-    byType
+    byType,
+    quota
   };
 }
 __name(getStats, "getStats");
@@ -75981,12 +76408,24 @@ async function createAtomManual(params) {
   const spaceId = resolvedSpaceId;
   const supabase = getSupabaseClient();
   console.error(`[Memory] create_atom_manual: type=${type}`);
+  await checkAtomQuota(userId);
   let targetSpaceId = spaceId;
   if (!targetSpaceId) {
     const { data: inboxSpace } = await supabase.from("spaces").select("id").eq("user_id", userId).eq("is_system", true).eq("name", "Non affect\xE9").single();
     targetSpaceId = inboxSpace?.id || null;
   }
   const embedding = await embedText(content);
+  if (embedding && embedding.length > 0) {
+    const dedupResult = await findDuplicate(embedding, content.trim(), userId);
+    const handled = await applyDedup(dedupResult, embedding, userId);
+    if (handled) {
+      console.error(`[Memory] Dedup create_atom_manual: ${dedupResult.action} (vector_score=${dedupResult.vectorScore.toFixed(4)})`);
+      const supabaseForDedup = getSupabaseClient();
+      const { data: existingAtom } = await supabaseForDedup.from("memory_atoms").select("*").eq("id", dedupResult.existingAtomId).single();
+      if (existingAtom)
+        return stripEmbedding(existingAtom);
+    }
+  }
   const newAtom = {
     user_id: userId,
     type,
@@ -76017,7 +76456,7 @@ async function triageAtoms(params) {
   const { userId, spaceId, autoAssign, limit } = params;
   const supabase = getSupabaseClient();
   console.error(`[Memory] triage_atoms: autoAssign=${autoAssign}, limit=${limit}`);
-  const { data: rawSpaces } = await supabase.from("spaces").select("id, name, description, is_system").eq("user_id", userId).eq("status", "actif");
+  const { data: rawSpaces } = await supabase.from("spaces").select("id, name, description, is_system, codex").eq("user_id", userId).eq("status", "actif");
   const allSpaces = rawSpaces || [];
   if (allSpaces.length === 0) {
     return { suggestions: [], message: "Aucun espace disponible" };
@@ -76035,7 +76474,13 @@ async function triageAtoms(params) {
   }
   const spaceEmbeddings = /* @__PURE__ */ new Map();
   for (const space of targetSpaces) {
-    const text = `${space.name}. ${space.description || ""}`;
+    let text;
+    if (space.codex && space.codex.length > 50) {
+      const cleaned = space.codex.replace(/^---\n[\s\S]*?\n---\n\n?/, "");
+      text = `${space.name}. ${cleaned.slice(0, 2e3)}`;
+    } else {
+      text = `${space.name}. ${space.description || ""}`;
+    }
     const embedding = await embedText(text);
     if (embedding && embedding.length > 0) {
       spaceEmbeddings.set(space.id, embedding);
@@ -76043,7 +76488,7 @@ async function triageAtoms(params) {
   }
   const suggestions = [];
   for (const atom of atoms) {
-    const atomEmbedding = parseEmbedding(atom.embedding);
+    const atomEmbedding = parseEmbedding2(atom.embedding);
     if (atomEmbedding.length === 0)
       continue;
     let bestSpaceId = "";
@@ -76053,7 +76498,7 @@ async function triageAtoms(params) {
       const spaceEmb = spaceEmbeddings.get(space.id);
       if (!spaceEmb)
         continue;
-      const score = cosineSimilarity(atomEmbedding, spaceEmb);
+      const score = cosineSimilarity2(atomEmbedding, spaceEmb);
       if (score > bestScore) {
         bestScore = score;
         bestSpaceId = space.id;
@@ -76073,7 +76518,7 @@ async function triageAtoms(params) {
       continue;
     }
     let moved = false;
-    if (autoAssign && bestScore > 0.35) {
+    if (autoAssign && bestScore > 0.6) {
       const atomUpdate = { space_id: bestSpaceId };
       const { error: error2 } = await supabase.from("memory_atoms").update(atomUpdate).eq("id", atom.id).eq("user_id", userId);
       if (!error2) {
@@ -76119,7 +76564,7 @@ async function suggestSpaces(params) {
   }
   const atomsWithEmb = atoms.map((a2) => ({
     ...a2,
-    parsedEmbedding: parseEmbedding(a2.embedding)
+    parsedEmbedding: parseEmbedding2(a2.embedding)
   })).filter((a2) => a2.parsedEmbedding.length > 0);
   const spaceEmbeddings = [];
   for (const space of userSpaces) {
@@ -76136,7 +76581,7 @@ async function suggestSpaces(params) {
     let bestSpaceId = "";
     let bestScore = 0;
     for (const se2 of spaceEmbeddings) {
-      const score = cosineSimilarity(atom.parsedEmbedding, se2.embedding);
+      const score = cosineSimilarity2(atom.parsedEmbedding, se2.embedding);
       if (score > bestScore) {
         bestScore = score;
         bestSpaceId = se2.id;
@@ -76177,7 +76622,7 @@ async function suggestSpaces(params) {
     for (const other of unmatched) {
       if (clustered.has(other.id))
         continue;
-      const isClose = cluster.some((member) => cosineSimilarity(member.parsedEmbedding, other.parsedEmbedding) > 0.5);
+      const isClose = cluster.some((member) => cosineSimilarity2(member.parsedEmbedding, other.parsedEmbedding) > 0.5);
       if (isClose) {
         cluster.push(other);
         clustered.add(other.id);
@@ -76221,7 +76666,7 @@ async function suggestSpaces(params) {
   };
 }
 __name(suggestSpaces, "suggestSpaces");
-function parseEmbedding(embedding) {
+function parseEmbedding2(embedding) {
   if (!embedding)
     return [];
   if (Array.isArray(embedding))
@@ -76237,7 +76682,7 @@ function parseEmbedding(embedding) {
   }
   return [];
 }
-__name(parseEmbedding, "parseEmbedding");
+__name(parseEmbedding2, "parseEmbedding");
 function stripEmbedding(obj) {
   return { ...obj, embedding: null };
 }
@@ -76246,7 +76691,7 @@ function stripEmbeddings(arr) {
   return arr.map(stripEmbedding);
 }
 __name(stripEmbeddings, "stripEmbeddings");
-function cosineSimilarity(a2, b2) {
+function cosineSimilarity2(a2, b2) {
   if (a2.length !== b2.length)
     return 0;
   let dotProduct = 0;
@@ -76262,7 +76707,7 @@ function cosineSimilarity(a2, b2) {
     return 0;
   return dotProduct / denominator;
 }
-__name(cosineSimilarity, "cosineSimilarity");
+__name(cosineSimilarity2, "cosineSimilarity");
 
 // dist/tools/memory-files.js
 init_memory_files();
@@ -76402,9 +76847,10 @@ async function readMemory(params) {
 __name(readMemory, "readMemory");
 
 // dist/tools/documents.js
+init_embeddings();
 var ingestDocumentSchema = external_exports.object({
-  userId: external_exports.string().uuid(),
-  spaceId: external_exports.string().uuid(),
+  userId: external_exports.string(),
+  spaceId: external_exports.string(),
   filename: external_exports.string().min(1),
   fileType: external_exports.enum(["pdf", "docx", "xlsx", "txt", "csv"]),
   filePath: external_exports.string().min(1),
@@ -76412,8 +76858,8 @@ var ingestDocumentSchema = external_exports.object({
   sizeBytes: external_exports.number().int().positive()
 });
 var listDocumentsSchema = external_exports.object({
-  userId: external_exports.string().uuid(),
-  spaceId: external_exports.string().uuid().optional(),
+  userId: external_exports.string(),
+  spaceId: external_exports.string().optional(),
   status: external_exports.enum(["queued", "processing", "done", "error"]).optional(),
   limit: external_exports.number().int().positive().optional().default(50)
 });
@@ -76542,6 +76988,14 @@ async function processDocument(documentId, userId) {
       if (!candidate.type || !candidate.content)
         continue;
       const embedding = await embedText(candidate.content);
+      if (embedding && embedding.length > 0) {
+        const dedupResult = await findDuplicate(embedding, candidate.content.trim(), userId);
+        const handled = await applyDedup(dedupResult, embedding, userId);
+        if (handled) {
+          console.error(`[Documents] Dedup: atome ${dedupResult.action} (vector_score=${dedupResult.vectorScore.toFixed(4)})`);
+          continue;
+        }
+      }
       const newAtom = {
         user_id: userId,
         type: candidate.type,
@@ -76679,6 +77133,7 @@ async function createConnection(params) {
 __name(createConnection, "createConnection");
 
 // dist/lib/recall-engine.js
+init_embeddings();
 var workingMemoryStore = /* @__PURE__ */ new Map();
 var MEMORY_TTL_MS = 2 * 60 * 60 * 1e3;
 function getWorkingMemory(sessionId, userId) {
@@ -76857,10 +77312,10 @@ async function expandViaGraph(topAtomIds, existingAtomIds, userId) {
     for (const atom of newAtoms) {
       const paths = pathsToAtom.get(atom.id) || [];
       let graphScore = 0;
-      for (const path4 of paths) {
-        const hopWeight = path4.hop === 1 ? 1 : 0.5;
-        const typeMultiplier = CONNECTION_TYPE_MULTIPLIERS[path4.type] || 0.8;
-        const pathScore = hopWeight * typeMultiplier * path4.strength;
+      for (const path5 of paths) {
+        const hopWeight = path5.hop === 1 ? 1 : 0.5;
+        const typeMultiplier = CONNECTION_TYPE_MULTIPLIERS[path5.type] || 0.8;
+        const pathScore = hopWeight * typeMultiplier * path5.strength;
         graphScore += pathScore;
       }
       graphScore = graphScore * Math.min(1, Math.log(paths.length + 1) / Math.log(5));
@@ -76989,9 +77444,9 @@ async function recallContext(params) {
       if (hybridScores) {
         similarityScore = hybridScores.hybrid;
       } else if (queryEmbedding && queryEmbedding.length > 0 && atom.embedding) {
-        const parsedEmbedding = parseEmbedding2(atom.embedding);
+        const parsedEmbedding = parseEmbedding3(atom.embedding);
         if (parsedEmbedding.length > 0) {
-          similarityScore = cosineSimilarity2(queryEmbedding, parsedEmbedding);
+          similarityScore = cosineSimilarity3(queryEmbedding, parsedEmbedding);
         }
       }
       const topAtomIds = scoredAtoms.slice(0, 10).map((sa) => sa.atom.id);
@@ -77082,7 +77537,7 @@ async function recallContext(params) {
       });
       scoredChunks = filteredChunks.map((chunk) => ({
         chunk,
-        score: cosineSimilarity2(queryEmbedding, parseEmbedding2(chunk.embedding))
+        score: cosineSimilarity3(queryEmbedding, parseEmbedding3(chunk.embedding))
       })).sort((a2, b2) => b2.score - a2.score).slice(0, 3);
     }
   }
@@ -77097,7 +77552,7 @@ async function recallContext(params) {
   };
 }
 __name(recallContext, "recallContext");
-function parseEmbedding2(embedding) {
+function parseEmbedding3(embedding) {
   if (!embedding)
     return [];
   if (Array.isArray(embedding))
@@ -77113,8 +77568,8 @@ function parseEmbedding2(embedding) {
   }
   return [];
 }
-__name(parseEmbedding2, "parseEmbedding");
-function cosineSimilarity2(a2, b2) {
+__name(parseEmbedding3, "parseEmbedding");
+function cosineSimilarity3(a2, b2) {
   if (a2.length !== b2.length)
     return 0;
   let dotProduct = 0;
@@ -77130,7 +77585,7 @@ function cosineSimilarity2(a2, b2) {
     return 0;
   return dotProduct / denominator;
 }
-__name(cosineSimilarity2, "cosineSimilarity");
+__name(cosineSimilarity3, "cosineSimilarity");
 
 // dist/tools/profile.js
 var getProfileSchema = external_exports.object({
@@ -77611,7 +78066,7 @@ var analyzeSpaceSchema = external_exports.object({
   threshold: external_exports.number().min(0).max(1).optional().default(0.45),
   minClusterSize: external_exports.number().int().positive().optional().default(2)
 });
-function parseEmbedding3(embedding) {
+function parseEmbedding4(embedding) {
   if (!embedding)
     return [];
   if (Array.isArray(embedding))
@@ -77627,8 +78082,8 @@ function parseEmbedding3(embedding) {
   }
   return [];
 }
-__name(parseEmbedding3, "parseEmbedding");
-function cosineSimilarity3(a2, b2) {
+__name(parseEmbedding4, "parseEmbedding");
+function cosineSimilarity4(a2, b2) {
   if (a2.length !== b2.length || a2.length === 0)
     return 0;
   let dotProduct = 0;
@@ -77642,7 +78097,7 @@ function cosineSimilarity3(a2, b2) {
   const denom = Math.sqrt(normA) * Math.sqrt(normB);
   return denom === 0 ? 0 : dotProduct / denom;
 }
-__name(cosineSimilarity3, "cosineSimilarity");
+__name(cosineSimilarity4, "cosineSimilarity");
 function averageLinkageClustering(atoms, simMatrix, threshold, minClusterSize) {
   const n2 = atoms.length;
   let clusters = atoms.map((_2, i2) => [i2]);
@@ -77695,7 +78150,7 @@ function buildSimilarityMatrix(atoms) {
   for (let i2 = 0; i2 < n2; i2++) {
     matrix[i2][i2] = 1;
     for (let j2 = i2 + 1; j2 < n2; j2++) {
-      const sim = cosineSimilarity3(atoms[i2].embedding, atoms[j2].embedding);
+      const sim = cosineSimilarity4(atoms[i2].embedding, atoms[j2].embedding);
       matrix[i2][j2] = sim;
       matrix[j2][i2] = sim;
     }
@@ -77801,7 +78256,7 @@ function avgIntraClusterSimilarity(atoms, indices) {
   let count = 0;
   for (let i2 = 0; i2 < indices.length; i2++) {
     for (let j2 = i2 + 1; j2 < indices.length; j2++) {
-      total += cosineSimilarity3(atoms[indices[i2]].embedding, atoms[indices[j2]].embedding);
+      total += cosineSimilarity4(atoms[indices[i2]].embedding, atoms[indices[j2]].embedding);
       count++;
     }
   }
@@ -77827,7 +78282,7 @@ async function analyzeSpace(input) {
   const atomsWithEmb = [];
   const atomsWithoutEmb = [];
   for (const a2 of atoms) {
-    const parsed = parseEmbedding3(a2.embedding);
+    const parsed = parseEmbedding4(a2.embedding);
     if (parsed.length > 0) {
       atomsWithEmb.push({
         id: a2.id,
@@ -77900,7 +78355,7 @@ var crossInsightsSchema = external_exports.object({
   spaceIds: external_exports.array(external_exports.string()).min(2).optional().describe("2+ espaces a comparer (defaut: tous les espaces actifs)"),
   limit: external_exports.number().int().positive().optional().default(15).describe("Nombre max de paires a analyser (defaut: 15)")
 });
-function parseEmbedding4(embedding) {
+function parseEmbedding5(embedding) {
   if (!embedding)
     return [];
   if (Array.isArray(embedding))
@@ -77916,8 +78371,8 @@ function parseEmbedding4(embedding) {
   }
   return [];
 }
-__name(parseEmbedding4, "parseEmbedding");
-function cosineSimilarity4(a2, b2) {
+__name(parseEmbedding5, "parseEmbedding");
+function cosineSimilarity5(a2, b2) {
   if (a2.length !== b2.length || a2.length === 0)
     return 0;
   let dot = 0, nA = 0, nB = 0;
@@ -77929,7 +78384,7 @@ function cosineSimilarity4(a2, b2) {
   const d2 = Math.sqrt(nA) * Math.sqrt(nB);
   return d2 === 0 ? 0 : dot / d2;
 }
-__name(cosineSimilarity4, "cosineSimilarity");
+__name(cosineSimilarity5, "cosineSimilarity");
 var DIAGNOSIS_SYSTEM = `Tu es le neurone de Mnemos, un systeme de memoire augmentee.
 On te donne des paires d'atomes de memoire provenant d'espaces differents d'un meme utilisateur.
 Chaque paire a ete selectionnee parce que leur proximite semantique est forte malgre des espaces separes.
@@ -78026,7 +78481,7 @@ async function crossInsights(input) {
   }
   const strongAtoms = [];
   for (const a2 of atoms) {
-    const emb = parseEmbedding4(a2.embedding);
+    const emb = parseEmbedding5(a2.embedding);
     if (emb.length > 0) {
       strongAtoms.push({
         id: a2.id,
@@ -78045,7 +78500,7 @@ async function crossInsights(input) {
     for (let j2 = i2 + 1; j2 < strongAtoms.length; j2++) {
       if (strongAtoms[i2].spaceId === strongAtoms[j2].spaceId)
         continue;
-      const sim = cosineSimilarity4(strongAtoms[i2].embedding, strongAtoms[j2].embedding);
+      const sim = cosineSimilarity5(strongAtoms[i2].embedding, strongAtoms[j2].embedding);
       pairs.push({ a: strongAtoms[i2], b: strongAtoms[j2], sim });
     }
   }
@@ -78855,6 +79310,7 @@ async function searchContacts(params) {
 __name(searchContacts, "searchContacts");
 
 // dist/tools/source-events.js
+init_embeddings();
 async function ingestEvents(userId, events) {
   const supabase = getSupabaseClient();
   let inserted = 0;
@@ -79054,7 +79510,7 @@ var garbageCollectSchema = external_exports.object({
   deduplicateProbableThreshold: external_exports.number().default(0.85),
   consolidateThreshold: external_exports.number().default(0.75)
 });
-function cosineSimilarity5(a2, b2) {
+function cosineSimilarity6(a2, b2) {
   if (!a2 || !b2 || a2.length !== b2.length)
     return 0;
   let dot = 0, magA = 0, magB = 0;
@@ -79066,7 +79522,7 @@ function cosineSimilarity5(a2, b2) {
   const magnitude = Math.sqrt(magA) * Math.sqrt(magB);
   return magnitude === 0 ? 0 : dot / magnitude;
 }
-__name(cosineSimilarity5, "cosineSimilarity");
+__name(cosineSimilarity6, "cosineSimilarity");
 async function garbageCollect(params) {
   const { userId, dryRun, archiveThresholds, deduplicateCertainThreshold, deduplicateProbableThreshold, consolidateThreshold } = params;
   const supabase = getSupabaseClient();
@@ -79167,7 +79623,7 @@ async function garbageCollect(params) {
         const atomB = activeAtoms[j2];
         const embA = typeof atomA.embedding === "string" ? JSON.parse(atomA.embedding) : atomA.embedding;
         const embB = typeof atomB.embedding === "string" ? JSON.parse(atomB.embedding) : atomB.embedding;
-        const similarity = cosineSimilarity5(embA, embB);
+        const similarity = cosineSimilarity6(embA, embB);
         if (similarity >= deduplicateCertainThreshold) {
           let kept, archived;
           if (atomA.is_pinned && !atomB.is_pinned) {
@@ -79226,7 +79682,7 @@ async function garbageCollect(params) {
       for (let j2 = i2 + 1; j2 < atoms.length; j2++) {
         const embA = typeof atoms[i2].embedding === "string" ? JSON.parse(atoms[i2].embedding) : atoms[i2].embedding || [];
         const embB = typeof atoms[j2].embedding === "string" ? JSON.parse(atoms[j2].embedding) : atoms[j2].embedding || [];
-        const sim = cosineSimilarity5(embA, embB);
+        const sim = cosineSimilarity6(embA, embB);
         if (sim >= consolidateThreshold) {
           clusters.push({
             atoms: [atoms[i2], atoms[j2]],
@@ -79406,10 +79862,11 @@ ${adjustments.prompt_additions.map((a2) => `- ${a2}`).join("\n")}
 __name(getCalibration, "getCalibration");
 
 // dist/tools/auth.js
-var SUPABASE_URL2 = process.env.SUPABASE_URL || "https://hpbsowihyydzdnxuzoxs.supabase.co";
+init_credentials();
+var SUPABASE_URL4 = process.env.SUPABASE_URL || "https://hpbsowihyydzdnxuzoxs.supabase.co";
 var SUPABASE_ANON_KEY2 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwYnNvd2loeXlkemRueHV6b3hzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyODEyODksImV4cCI6MjA4Nzg1NzI4OX0.bz_mlQb6NEYOYMM5AKZKyak8mgLZQiHgEZyFf3EX91c";
 function getAuthClient() {
-  return createClient(SUPABASE_URL2, SUPABASE_ANON_KEY2, {
+  return createClient(SUPABASE_URL4, SUPABASE_ANON_KEY2, {
     auth: {
       autoRefreshToken: false,
       persistSession: false
@@ -79578,6 +80035,694 @@ async function refreshToken(creds) {
 }
 __name(refreshToken, "refreshToken");
 
+// dist/lib/transcript-watcher.js
+var import_fs4 = __toESM(require("fs"), 1);
+var import_path4 = __toESM(require("path"), 1);
+var import_os2 = __toESM(require("os"), 1);
+var POLL_INTERVAL_MS = 6e4;
+var WATCH_POLL_MS = 5e3;
+var FACE_A_MAX_ATOMS = 5;
+var FACE_A_MAX_INSIGHTS = 2;
+var FACE_A_MIN_QUERY_LENGTH = 10;
+var FACE_A_DEBOUNCE_MS = 2e3;
+var FACE_A_SECTION_MARKER = "## MNEMOS FACE-A";
+var FACE_A_SECTION_END = "<!-- fin Face-A -->";
+var BOOT_SECTION_MARKER = "## MNEMOS BOOT";
+var BOOT_SECTION_END = "<!-- fin Boot -->";
+var SESSION_MAX_INACTIVE_MS = 2 * 60 * 60 * 1e3;
+var SESSION_MAX_AGE_MS = 24 * 60 * 60 * 1e3;
+var DEFAULT_SPACE_ID = "dae83f25-f57c-4c29-93e2-b08282277d4d";
+var sessions = /* @__PURE__ */ new Map();
+var pollInterval = null;
+var started = false;
+function getSessionsBasePath() {
+  const platform = import_os2.default.platform();
+  const home = import_os2.default.homedir();
+  if (platform === "darwin") {
+    return import_path4.default.join(home, "Library", "Application Support", "Claude", "local-agent-mode-sessions");
+  }
+  if (platform === "win32") {
+    const appdata = process.env.APPDATA || import_path4.default.join(home, "AppData", "Roaming");
+    return import_path4.default.join(appdata, "Claude", "local-agent-mode-sessions");
+  }
+  return import_path4.default.join(home, ".config", "Claude", "local-agent-mode-sessions");
+}
+__name(getSessionsBasePath, "getSessionsBasePath");
+function findAllActiveTranscripts() {
+  const results = [];
+  try {
+    const basePath = getSessionsBasePath();
+    if (!basePath || !import_fs4.default.existsSync(basePath))
+      return results;
+    const now = Date.now();
+    const accounts = import_fs4.default.readdirSync(basePath);
+    for (const account of accounts) {
+      const accountPath = import_path4.default.join(basePath, account);
+      try {
+        if (!import_fs4.default.statSync(accountPath).isDirectory())
+          continue;
+      } catch {
+        continue;
+      }
+      const orgs = import_fs4.default.readdirSync(accountPath);
+      for (const org of orgs) {
+        const orgPath = import_path4.default.join(accountPath, org);
+        try {
+          if (!import_fs4.default.statSync(orgPath).isDirectory())
+            continue;
+        } catch {
+          continue;
+        }
+        const sessionDirs = import_fs4.default.readdirSync(orgPath).filter((d2) => d2.startsWith("local_") && !d2.endsWith(".json"));
+        for (const sess of sessionDirs) {
+          const sessPath = import_path4.default.join(orgPath, sess);
+          try {
+            if (!import_fs4.default.statSync(sessPath).isDirectory())
+              continue;
+          } catch {
+            continue;
+          }
+          const auditPath = import_path4.default.join(sessPath, "audit.jsonl");
+          try {
+            const stat = import_fs4.default.statSync(auditPath);
+            if (!stat.isFile())
+              continue;
+            if (now - stat.mtimeMs > SESSION_MAX_AGE_MS)
+              continue;
+            const sid = sess.replace("local_", "");
+            const metaPath = import_path4.default.join(orgPath, sess + ".json");
+            const metaExists = import_fs4.default.existsSync(metaPath);
+            results.push({
+              path: auditPath,
+              sessionId: sid,
+              metadataPath: metaExists ? metaPath : null,
+              lastModified: stat.mtimeMs
+            });
+          } catch {
+            continue;
+          }
+        }
+      }
+    }
+  } catch (err) {
+    console.error("[MultiWatcher] Error scanning transcripts:", err);
+  }
+  return results;
+}
+__name(findAllActiveTranscripts, "findAllActiveTranscripts");
+function readNewLines(state) {
+  try {
+    const stat = import_fs4.default.statSync(state.jsonlPath);
+    if (stat.size <= state.lastByteOffset)
+      return [];
+    const fd = import_fs4.default.openSync(state.jsonlPath, "r");
+    const buffer = Buffer.alloc(stat.size - state.lastByteOffset);
+    import_fs4.default.readSync(fd, buffer, 0, buffer.length, state.lastByteOffset);
+    import_fs4.default.closeSync(fd);
+    state.lastByteOffset = stat.size;
+    state.lastActivityAt = Date.now();
+    const lines = buffer.toString("utf-8").split("\n").filter((l2) => l2.trim());
+    const exchanges = [];
+    for (const line of lines) {
+      try {
+        const event = JSON.parse(line);
+        processEvent(event, state, exchanges);
+      } catch {
+      }
+    }
+    return exchanges;
+  } catch (err) {
+    console.error("[MultiWatcher] Error reading " + state.coworkSessionId + ":", err);
+    return [];
+  }
+}
+__name(readNewLines, "readNewLines");
+function processEvent(event, state, exchanges) {
+  if (!event.message)
+    return;
+  const { role, content } = event.message;
+  if (role === "assistant" && Array.isArray(content)) {
+    for (const block of content) {
+      if (block.type === "tool_use" && block.name && (block.name === "mnemos_session_start" || block.name.endsWith("mnemos_session_start"))) {
+        const input = block.input || {};
+        if (input.spaceId && !state.spaceId) {
+          state._pendingSpaceResolve = input.spaceId;
+          console.error("[MultiWatcher] Detected session_start in " + state.coworkSessionId + " with spaceId: " + input.spaceId);
+        }
+      }
+    }
+  }
+  if (role === "user") {
+    if (typeof content === "string" && content.trim()) {
+      const ts = event._audit_timestamp || event.timestamp || "";
+      state.pendingUser = { text: content, ts };
+      const trimmed = content.trim();
+      if (trimmed.length >= FACE_A_MIN_QUERY_LENGTH && !trimmed.startsWith("<uploaded_files>") && !trimmed.startsWith("<system-reminder>") && !trimmed.startsWith("This session is being continued")) {
+        state._faceALastQuery = trimmed;
+      }
+    }
+    if (Array.isArray(content)) {
+      for (const block of content) {
+        if (block.type === "text" && !block.tool_use_id && block.text?.length >= FACE_A_MIN_QUERY_LENGTH) {
+          const trimmed = block.text.trim();
+          if (!trimmed.startsWith("<uploaded_files>") && !trimmed.startsWith("<system-reminder>") && !trimmed.startsWith("This session is being continued")) {
+            state._faceALastQuery = trimmed;
+          }
+        }
+      }
+    }
+    return;
+  }
+  if (role === "assistant" && state.pendingUser) {
+    let assistantText = "";
+    if (Array.isArray(content)) {
+      assistantText = content.filter((b2) => b2.type === "text").map((b2) => b2.text).join("\n");
+    } else if (typeof content === "string") {
+      assistantText = content;
+    }
+    if (assistantText.trim()) {
+      exchanges.push({
+        user: state.pendingUser.text,
+        assistant: assistantText,
+        ts: state.pendingUser.ts
+      });
+      state.pendingUser = null;
+    }
+  }
+}
+__name(processEvent, "processEvent");
+async function pushToSupabase(state, exchanges) {
+  if (exchanges.length === 0)
+    return;
+  let userId;
+  try {
+    userId = resolveUserId({});
+  } catch {
+    console.error("[MultiWatcher] No userId available. Exchanges lost for session " + state.coworkSessionId);
+    return;
+  }
+  try {
+    const supabase = getSupabaseClient();
+    const { error: error2 } = await supabase.from("raw_exchanges").insert({
+      user_id: userId,
+      session_id: state.coworkSessionId,
+      space_id: state.spaceId || DEFAULT_SPACE_ID,
+      exchanges,
+      processed: false
+    });
+    if (error2) {
+      console.error("[MultiWatcher] Insert error (" + state.coworkSessionId + "):", error2.message);
+    } else {
+      console.error("[MultiWatcher] Pushed " + exchanges.length + " exchanges from " + state.coworkSessionId);
+    }
+    await supabase.from("sessions").update({
+      last_exchange_at: (/* @__PURE__ */ new Date()).toISOString()
+    }).eq("id", state.coworkSessionId);
+  } catch (err) {
+    console.error("[MultiWatcher] Push failed (" + state.coworkSessionId + "):", err);
+  }
+}
+__name(pushToSupabase, "pushToSupabase");
+async function refreshMetadata(state) {
+  if (!state.metadataPath)
+    return;
+  try {
+    const raw = import_fs4.default.readFileSync(state.metadataPath, "utf-8");
+    const meta = JSON.parse(raw);
+    const newTitle = meta.title || null;
+    if (newTitle && newTitle !== state.metadata.title) {
+      console.error("[MultiWatcher] Title changed (" + state.coworkSessionId + '): "' + (state.metadata.title || "null") + '" -> "' + newTitle + '"');
+      state.metadata.title = newTitle;
+      if (state.registered) {
+        const supabase = getSupabaseClient();
+        await supabase.from("sessions").update({
+          title: newTitle
+        }).eq("id", state.coworkSessionId);
+      }
+    }
+    if (!state.metadata.model && meta.model)
+      state.metadata.model = meta.model;
+    if (!state.metadata.processName && meta.processName)
+      state.metadata.processName = meta.processName;
+  } catch {
+  }
+}
+__name(refreshMetadata, "refreshMetadata");
+async function registerSession(state) {
+  let userId;
+  try {
+    userId = resolveUserId({});
+  } catch {
+    console.error("[MultiWatcher] No userId for handshake (" + state.coworkSessionId + ")");
+    return;
+  }
+  try {
+    const supabase = getSupabaseClient();
+    const { error: error2 } = await supabase.from("sessions").upsert({
+      id: state.coworkSessionId,
+      user_id: userId,
+      space_id: state.spaceId || DEFAULT_SPACE_ID,
+      status: "active",
+      started_at: (/* @__PURE__ */ new Date()).toISOString(),
+      last_exchange_at: (/* @__PURE__ */ new Date()).toISOString(),
+      title: state.metadata.title,
+      model: state.metadata.model,
+      process_name: state.metadata.processName,
+      metadata: state.metadata
+    }, { onConflict: "id" });
+    if (error2) {
+      console.error("[MultiWatcher] Handshake error (" + state.coworkSessionId + "):", error2.message);
+    } else {
+      state.registered = true;
+      console.error("[MultiWatcher] Session registered: " + state.coworkSessionId);
+    }
+  } catch (err) {
+    console.error("[MultiWatcher] Handshake failed (" + state.coworkSessionId + "):", err);
+  }
+}
+__name(registerSession, "registerSession");
+async function resolveSpaceForSession(state) {
+  if (!state._pendingSpaceResolve)
+    return;
+  const rawSpaceId = state._pendingSpaceResolve;
+  delete state._pendingSpaceResolve;
+  try {
+    let userId;
+    try {
+      userId = resolveUserId({});
+    } catch {
+      return;
+    }
+    const resolved = await resolveSpaceId(rawSpaceId, userId);
+    if (resolved) {
+      state.spaceId = resolved;
+      console.error("[MultiWatcher] Space resolved for " + state.coworkSessionId + ": " + resolved);
+      if (state.registered) {
+        const supabase = getSupabaseClient();
+        await supabase.from("sessions").update({
+          space_id: resolved
+        }).eq("id", state.coworkSessionId);
+      }
+    }
+  } catch (err) {
+    console.error("[MultiWatcher] Space resolve failed:", err);
+  }
+}
+__name(resolveSpaceForSession, "resolveSpaceForSession");
+async function pollSession(state) {
+  try {
+    const stat = import_fs4.default.statSync(state.jsonlPath);
+    if (stat.size <= state.lastByteOffset)
+      return;
+    const prevFaceAQuery = state._faceALastQuery;
+    await resolveSpaceForSession(state);
+    if (!state.registered)
+      await registerSession(state);
+    const exchanges = readNewLines(state);
+    await pushToSupabase(state, exchanges);
+    await refreshMetadata(state);
+    if (state._faceALastQuery && state._faceALastQuery !== prevFaceAQuery) {
+      if (state._faceADebounce)
+        clearTimeout(state._faceADebounce);
+      if (!prevFaceAQuery) {
+        state._faceADebounce = setTimeout(() => {
+          runBootPipeline(state).catch((err) => console.error("[Face-A] Boot pipeline error:", err));
+        }, FACE_A_DEBOUNCE_MS);
+      } else {
+        const query = state._faceALastQuery;
+        state._faceADebounce = setTimeout(() => {
+          runFaceAPipeline(state, query).catch((err) => console.error("[Face-A] Recall pipeline error:", err));
+        }, FACE_A_DEBOUNCE_MS);
+      }
+    }
+  } catch (err) {
+    console.error("[MultiWatcher] Watch-poll error for " + state.coworkSessionId + ":", err);
+  }
+}
+__name(pollSession, "pollSession");
+function setupFileWatch(state) {
+  try {
+    state._watcher = import_fs4.default.watch(state.jsonlPath, { persistent: false }, (eventType) => {
+      if (eventType !== "change")
+        return;
+      pollSession(state).catch(() => {
+      });
+    });
+  } catch {
+  }
+  state._watchPoll = setInterval(() => {
+    pollSession(state).catch(() => {
+    });
+  }, WATCH_POLL_MS);
+}
+__name(setupFileWatch, "setupFileWatch");
+function teardownFileWatch(state) {
+  if (state._watcher) {
+    try {
+      state._watcher.close();
+    } catch {
+    }
+    state._watcher = null;
+  }
+  if (state._watchPoll) {
+    clearInterval(state._watchPoll);
+    state._watchPoll = null;
+  }
+  if (state._faceADebounce) {
+    clearTimeout(state._faceADebounce);
+    state._faceADebounce = null;
+  }
+}
+__name(teardownFileWatch, "teardownFileWatch");
+function formatFaceASection(atoms, insights, query) {
+  const now = (/* @__PURE__ */ new Date()).toISOString().slice(0, 19);
+  const lines = [];
+  lines.push(FACE_A_SECTION_MARKER);
+  lines.push(`<!-- Face-A auto-inject ${now} | query: "${query.slice(0, 60)}" -->`);
+  lines.push("Contexte pertinent rappele automatiquement par Mnemos :");
+  lines.push("");
+  if (insights.length > 0) {
+    lines.push(`**Le neurone a remarque (${insights.length}) :**`);
+    for (const ins of insights) {
+      const tag = ins.importance === "haute" ? "!!" : "";
+      const text = (ins.content || "").slice(0, 200).replace(/\n/g, " ");
+      lines.push(`- [${ins.insight_type}]${tag} ${text}`);
+    }
+    lines.push("");
+  }
+  if (atoms.length > 0) {
+    lines.push(`**Memoire (${atoms.length} atomes) :**`);
+    for (const sa of atoms) {
+      const type = (sa.atom.type || "?").toLowerCase();
+      const prio = sa.atom.priority === "urgent" ? "[urgent] " : "";
+      const text = (sa.atom.content || "").slice(0, 200).replace(/\n/g, " ");
+      lines.push(`- [${type}] ${prio} ${text}`);
+    }
+  }
+  lines.push("");
+  lines.push(FACE_A_SECTION_END);
+  return lines.join("\n");
+}
+__name(formatFaceASection, "formatFaceASection");
+function writeSection(filePath, section, markerStart, markerEnd) {
+  try {
+    let content = import_fs4.default.readFileSync(filePath, "utf-8");
+    const startIdx = content.indexOf(markerStart);
+    const endIdx = content.indexOf(markerEnd);
+    if (startIdx !== -1 && endIdx !== -1) {
+      content = content.slice(0, startIdx) + section + content.slice(endIdx + markerEnd.length);
+    } else if (startIdx !== -1) {
+      content = content.slice(0, startIdx) + section;
+    } else {
+      content = content.trimEnd() + "\n\n" + section + "\n";
+    }
+    content = content.replace(/\nFace-A -->\s*/g, "\n");
+    import_fs4.default.writeFileSync(filePath, content, "utf-8");
+    return true;
+  } catch (err) {
+    console.error("[Face-A] Erreur ecriture " + filePath + ":", err);
+    return false;
+  }
+}
+__name(writeSection, "writeSection");
+function ensureSectionScaffolding(filePath) {
+  try {
+    let content = import_fs4.default.readFileSync(filePath, "utf-8");
+    let changed = false;
+    if (content.indexOf(BOOT_SECTION_MARKER) === -1) {
+      const faceAIdx = content.indexOf(FACE_A_SECTION_MARKER);
+      const bootStub = BOOT_SECTION_MARKER + "\n" + BOOT_SECTION_END + "\n\n";
+      if (faceAIdx !== -1) {
+        content = content.slice(0, faceAIdx) + bootStub + content.slice(faceAIdx);
+      } else {
+        content = content.trimEnd() + "\n\n" + bootStub;
+      }
+      changed = true;
+    }
+    if (content.indexOf(FACE_A_SECTION_MARKER) === -1) {
+      content = content.trimEnd() + "\n\n" + FACE_A_SECTION_MARKER + "\n" + FACE_A_SECTION_END + "\n";
+      changed = true;
+    }
+    if (changed) {
+      import_fs4.default.writeFileSync(filePath, content, "utf-8");
+      console.error("[Face-A] Scaffolding recree dans " + filePath);
+    }
+  } catch {
+  }
+}
+__name(ensureSectionScaffolding, "ensureSectionScaffolding");
+function injectFaceAIntoClaudeMd(sessionDir, section, markerStart, markerEnd) {
+  const orgDir = import_path4.default.dirname(sessionDir);
+  const memoryPath = import_path4.default.join(orgDir, "memory", "CLAUDE.md");
+  if (import_fs4.default.existsSync(memoryPath)) {
+    ensureSectionScaffolding(memoryPath);
+    console.error("[Face-A] Cible: " + memoryPath + " [" + markerStart + "]");
+    return writeSection(memoryPath, section, markerStart, markerEnd);
+  }
+  const sessionPath = import_path4.default.join(sessionDir, ".claude", "CLAUDE.md");
+  if (import_fs4.default.existsSync(sessionPath)) {
+    ensureSectionScaffolding(sessionPath);
+    console.error("[Face-A] memory/CLAUDE.md absent, fallback: " + sessionPath);
+    return writeSection(sessionPath, section, markerStart, markerEnd);
+  }
+  console.error("[Face-A] Aucun CLAUDE.md trouve");
+  return false;
+}
+__name(injectFaceAIntoClaudeMd, "injectFaceAIntoClaudeMd");
+async function runBootPipeline(state) {
+  if (state._faceAProcessing)
+    return;
+  state._faceAProcessing = true;
+  const t0 = Date.now();
+  try {
+    let userId;
+    try {
+      userId = resolveUserId({});
+    } catch {
+      return;
+    }
+    const supabase = getSupabaseClient();
+    const [spacesResult, memoireResult] = await Promise.all([
+      supabase.from("spaces").select("id, name, status, last_activity").eq("user_id", userId).eq("status", "actif").order("last_activity", { ascending: false }).limit(12),
+      supabase.from("spaces").select("codex").eq("user_id", userId).ilike("name", "%moire g%").limit(1).single()
+    ]);
+    const spaces = spacesResult.data || [];
+    const codexGeneral = memoireResult.data?.codex;
+    const now = (/* @__PURE__ */ new Date()).toISOString().slice(0, 19);
+    const lines = [];
+    lines.push(BOOT_SECTION_MARKER);
+    lines.push(`<!-- Boot auto ${now} -->`);
+    lines.push("Mnemos auto-boot : nouveau fil detecte.");
+    lines.push("");
+    if (codexGeneral) {
+      const cleaned = codexGeneral.replace(/^---\n[\s\S]*?\n---\n\n?/, "");
+      const truncated = cleaned.length > 2500 ? cleaned.slice(0, 2500) + "\n[...tronque]" : cleaned;
+      lines.push(truncated);
+      lines.push("");
+    }
+    if (spaces.length > 0) {
+      lines.push("**Espaces disponibles pour session_start :**");
+      for (const s2 of spaces) {
+        const date3 = new Date(s2.last_activity).toLocaleDateString("fr-FR");
+        lines.push(`- ${s2.name} (${date3})`);
+      }
+      lines.push("");
+    }
+    lines.push("**Action :** Propose a l'utilisateur de choisir un espace de travail parmi la liste ci-dessus, ou detecte-le depuis son message. Puis appelle mnemos_session_start avec le spaceId correspondant.");
+    lines.push("");
+    lines.push("Dashboard Mnemos : https://mnemos-dashboard.vercel.app");
+    lines.push("");
+    lines.push(BOOT_SECTION_END);
+    const section = lines.join("\n");
+    const sessionDir = import_path4.default.dirname(state.jsonlPath);
+    const ok = injectFaceAIntoClaudeMd(sessionDir, section, BOOT_SECTION_MARKER, BOOT_SECTION_END);
+    if (ok) {
+      console.error(`[Face-A] Boot injecte (${section.length} chars) en ${Date.now() - t0}ms (session: ${state.coworkSessionId})`);
+    }
+  } catch (err) {
+    console.error("[Face-A] Boot pipeline error:", err);
+  } finally {
+    state._faceAProcessing = false;
+  }
+}
+__name(runBootPipeline, "runBootPipeline");
+async function runFaceAPipeline(state, query) {
+  if (state._faceAProcessing)
+    return;
+  state._faceAProcessing = true;
+  const t0 = Date.now();
+  try {
+    let userId;
+    try {
+      userId = resolveUserId({});
+    } catch {
+      return;
+    }
+    const spaceId = state.spaceId || DEFAULT_SPACE_ID;
+    const result = await recallContext({
+      userId,
+      query,
+      spaceId,
+      crossSpace: true,
+      sessionId: state.coworkSessionId,
+      limit: FACE_A_MAX_ATOMS
+    });
+    console.error(`[Face-A] Recall: ${result.atoms.length} atoms en ${Date.now() - t0}ms (session: ${state.coworkSessionId})`);
+    let insights = [];
+    try {
+      const supabase = getSupabaseClient();
+      const { data } = await supabase.from("insights").select("insight_type, content, importance").eq("user_id", userId).eq("dismissed", false).order("created_at", { ascending: false }).limit(FACE_A_MAX_INSIGHTS);
+      if (data)
+        insights = data;
+    } catch {
+    }
+    if (result.atoms.length === 0 && insights.length === 0) {
+      console.error('[Face-A] Rien de pertinent pour: "' + query.slice(0, 50) + '"');
+      return;
+    }
+    const section = formatFaceASection(result.atoms, insights, query);
+    const sessionDir = import_path4.default.dirname(state.jsonlPath);
+    const ok = injectFaceAIntoClaudeMd(sessionDir, section, FACE_A_SECTION_MARKER, FACE_A_SECTION_END);
+    if (ok) {
+      console.error(`[Face-A] Injecte (${section.length} chars) en ${Date.now() - t0}ms`);
+    }
+  } catch (err) {
+    console.error("[Face-A] Pipeline error:", err);
+  } finally {
+    state._faceAProcessing = false;
+  }
+}
+__name(runFaceAPipeline, "runFaceAPipeline");
+async function mainCycle() {
+  const transcripts = findAllActiveTranscripts();
+  let newCount = 0;
+  for (const t2 of transcripts) {
+    if (!sessions.has(t2.sessionId)) {
+      const state = {
+        jsonlPath: t2.path,
+        coworkSessionId: t2.sessionId,
+        lastByteOffset: 0,
+        spaceId: null,
+        pendingUser: null,
+        metadataPath: t2.metadataPath,
+        metadata: { title: null, model: null, processName: null },
+        registered: false,
+        lastActivityAt: t2.lastModified
+      };
+      await refreshMetadata(state);
+      try {
+        const supabase = getSupabaseClient();
+        const { data: existingSession } = await supabase.from("sessions").select("space_id").eq("id", state.coworkSessionId).eq("status", "active").single();
+        if (existingSession?.space_id && existingSession.space_id !== DEFAULT_SPACE_ID) {
+          state.spaceId = existingSession.space_id;
+          state.registered = true;
+          console.error("[MultiWatcher] SpaceId recovered from Supabase for " + state.coworkSessionId + ": " + state.spaceId);
+        }
+      } catch {
+      }
+      const age = Date.now() - t2.lastModified;
+      if (age > 5 * 60 * 1e3) {
+        try {
+          state.lastByteOffset = import_fs4.default.statSync(t2.path).size;
+        } catch {
+        }
+      }
+      sessions.set(t2.sessionId, state);
+      setupFileWatch(state);
+      newCount++;
+      console.error("[MultiWatcher] New session detected: " + t2.sessionId + " (" + (state.metadata.title || "unnamed") + ")");
+    }
+  }
+  if (newCount > 0) {
+    console.error("[MultiWatcher] " + sessions.size + " session(s) tracked (" + newCount + " new)");
+  }
+  try {
+    const now = Date.now();
+    for (const [sid, state] of sessions) {
+      if (now - state.lastActivityAt > SESSION_MAX_INACTIVE_MS) {
+        console.error("[MultiWatcher] Removing inactive session: " + sid);
+        if (state.registered) {
+          try {
+            const supabase = getSupabaseClient();
+            await supabase.from("sessions").update({
+              status: "closed",
+              closed_at: (/* @__PURE__ */ new Date()).toISOString()
+            }).eq("id", sid);
+          } catch {
+          }
+        }
+        teardownFileWatch(state);
+        sessions.delete(sid);
+      }
+    }
+  } catch (err) {
+    console.error("[MultiWatcher] Cleanup error (non-fatal):", err);
+  }
+  console.error("[MultiWatcher] Cycle done. " + sessions.size + " session(s) tracked.");
+}
+__name(mainCycle, "mainCycle");
+async function startTranscriptWatcher() {
+  if (started) {
+    console.error("[MultiWatcher] Already running, skipping restart");
+    return;
+  }
+  started = true;
+  console.error("[MultiWatcher] Starting multi-session watcher...");
+  try {
+    const basePath = getSessionsBasePath();
+    console.error("[MultiWatcher] Debug:");
+    console.error("  platform: " + import_os2.default.platform());
+    console.error("  sessions_base: " + basePath);
+    console.error("  base_exists: " + (basePath ? import_fs4.default.existsSync(basePath) : false));
+    console.error("  MNEMOS_USER_ID: " + (process.env.MNEMOS_USER_ID || "(not set)"));
+    console.error("  poll_interval: " + POLL_INTERVAL_MS / 1e3 + "s");
+  } catch {
+  }
+  try {
+    await mainCycle();
+  } catch (err) {
+    console.error("[MultiWatcher] First cycle error (non-fatal):", err);
+  }
+  pollInterval = setInterval(() => {
+    mainCycle().catch((err) => console.error("[MultiWatcher] Cycle error:", err));
+  }, POLL_INTERVAL_MS);
+  console.error("[MultiWatcher] Polling every " + POLL_INTERVAL_MS / 1e3 + "s, tracking " + sessions.size + " session(s)");
+}
+__name(startTranscriptWatcher, "startTranscriptWatcher");
+async function stopTranscriptWatcher() {
+  console.error("[MultiWatcher] Stopping... (" + sessions.size + " session(s) to flush)");
+  if (pollInterval) {
+    clearInterval(pollInterval);
+    pollInterval = null;
+  }
+  for (const [sid, state] of sessions) {
+    try {
+      const exchanges = readNewLines(state);
+      await pushToSupabase(state, exchanges);
+      if (state.registered) {
+        const supabase = getSupabaseClient();
+        await supabase.from("sessions").update({
+          status: "closed",
+          closed_at: (/* @__PURE__ */ new Date()).toISOString()
+        }).eq("id", sid);
+        console.error("[MultiWatcher] Session " + sid + " closed");
+      }
+    } catch (err) {
+      console.error("[MultiWatcher] Flush error for " + sid + ":", err);
+    }
+  }
+  for (const [, state] of sessions) {
+    teardownFileWatch(state);
+  }
+  sessions.clear();
+  started = false;
+}
+__name(stopTranscriptWatcher, "stopTranscriptWatcher");
+async function setActiveSpaceId(_spaceId) {
+  console.error("[MultiWatcher] setActiveSpaceId called (no-op, handled via JSONL parsing)");
+}
+__name(setActiveSpaceId, "setActiveSpaceId");
+
 // dist/index.js
 var import_meta2 = {};
 import_dotenv4.default.config();
@@ -79597,13 +80742,13 @@ var TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        userId: { type: "string", format: "uuid", description: "ID utilisateur" },
+        userId: { type: "string", format: "uuid", description: "ID utilisateur (optionnel en mode SaaS, d\xE9duit du JWT)" },
         name: { type: "string", minLength: 1, maxLength: 100, description: "Nom de l'espace" },
         description: { type: "string", description: "Description optionnelle" },
         color: { type: "string", description: "Couleur hexad\xE9cimale (ex: #3B82F6)" },
         emoji: { type: "string", description: "Emoji repr\xE9sentant l'espace" }
       },
-      required: ["userId", "name"]
+      required: ["name"]
     }
   },
   {
@@ -79612,10 +80757,10 @@ var TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        userId: { type: "string", format: "uuid", description: "ID utilisateur" },
+        userId: { type: "string", format: "uuid", description: "ID utilisateur (optionnel en mode SaaS, d\xE9duit du JWT)" },
         status: { type: "string", enum: ["actif", "en_veille", "clos"], description: "Filtrer par statut (optionnel)" }
       },
-      required: ["userId"]
+      required: []
     }
   },
   {
@@ -79624,7 +80769,7 @@ var TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        userId: { type: "string", format: "uuid", description: "ID utilisateur" },
+        userId: { type: "string", format: "uuid", description: "ID utilisateur (optionnel en mode SaaS, d\xE9duit du JWT)" },
         spaceId: { type: "string", description: "ID de l'espace" },
         name: { type: "string", minLength: 1, maxLength: 100, description: "Nouveau nom" },
         description: { type: "string", description: "Nouvelle description" },
@@ -79632,7 +80777,7 @@ var TOOLS = [
         color: { type: "string", description: "Nouvelle couleur" },
         emoji: { type: "string", description: "Nouvel emoji" }
       },
-      required: ["userId", "spaceId"]
+      required: ["spaceId"]
     }
   },
   // MEMORY (7 tools)
@@ -79642,13 +80787,13 @@ var TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        userId: { type: "string", format: "uuid", description: "ID utilisateur" },
+        userId: { type: "string", format: "uuid", description: "ID utilisateur (optionnel en mode SaaS, d\xE9duit du JWT)" },
         userMessage: { type: "string", minLength: 1, description: "Message de l'utilisateur" },
         assistantResponse: { type: "string", minLength: 1, description: "R\xE9ponse de l'assistant" },
         spaceId: { type: "string", description: "ID de l'espace (optionnel, d\xE9faut: Inbox)" },
         conversationId: { type: "string", minLength: 1, description: "ID de la conversation" }
       },
-      required: ["userId", "userMessage", "assistantResponse", "conversationId"]
+      required: ["userMessage", "assistantResponse", "conversationId"]
     }
   },
   {
@@ -79657,11 +80802,11 @@ var TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        userId: { type: "string", format: "uuid", description: "ID utilisateur" },
+        userId: { type: "string", format: "uuid", description: "ID utilisateur (optionnel en mode SaaS, d\xE9duit du JWT)" },
         atomId: { type: "string", format: "uuid", description: "ID de l'atome" },
         isPinned: { type: "boolean", description: "true = \xE9pingler, false = d\xE9s\xE9pingler" }
       },
-      required: ["userId", "atomId", "isPinned"]
+      required: ["atomId", "isPinned"]
     }
   },
   {
@@ -79670,14 +80815,14 @@ var TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        userId: { type: "string", format: "uuid", description: "ID utilisateur" },
+        userId: { type: "string", format: "uuid", description: "ID utilisateur (optionnel en mode SaaS, d\xE9duit du JWT)" },
         atomId: { type: "string", format: "uuid", description: "ID de l'atome" },
         content: { type: "string", minLength: 1, description: "Nouveau contenu" },
         type: { type: "string", enum: ["fact", "decision", "position", "intention", "event", "contact", "contradiction", "signal_externe"], description: "Nouveau type" },
         priority: { type: "string", enum: ["normal", "high", "urgent"], description: "Nouvelle priorit\xE9" },
         active: { type: "boolean", description: "false = archiver" }
       },
-      required: ["userId", "atomId"]
+      required: ["atomId"]
     }
   },
   {
@@ -79686,13 +80831,13 @@ var TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        userId: { type: "string", format: "uuid", description: "ID utilisateur" },
+        userId: { type: "string", format: "uuid", description: "ID utilisateur (optionnel en mode SaaS, d\xE9duit du JWT)" },
         query: { type: "string", minLength: 1, description: "Requ\xEAte de recherche" },
         spaceId: { type: "string", description: "Limiter \xE0 un espace" },
         types: { type: "array", items: { type: "string" }, description: "Filtrer par types" },
         limit: { type: "number", default: 20, description: "Nombre max de r\xE9sultats" }
       },
-      required: ["userId", "query"]
+      required: ["query"]
     }
   },
   {
@@ -79701,14 +80846,14 @@ var TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        userId: { type: "string", format: "uuid", description: "ID utilisateur" },
+        userId: { type: "string", format: "uuid", description: "ID utilisateur (optionnel en mode SaaS, d\xE9duit du JWT)" },
         type: { type: "string", enum: ["fact", "decision", "position", "intention", "event", "contact", "contradiction", "signal_externe"], description: "Type d'atome" },
         content: { type: "string", minLength: 1, description: "Contenu de l'atome" },
         spaceId: { type: "string", description: "ID de l'espace" },
         priority: { type: "string", enum: ["normal", "high", "urgent"], default: "normal", description: "Priorit\xE9" },
         isPinned: { type: "boolean", default: false, description: "\xC9pingl\xE9 ou non" }
       },
-      required: ["userId", "type", "content"]
+      required: ["type", "content"]
     }
   },
   // ONBOARDING / ANALYSE
@@ -79718,10 +80863,10 @@ var TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        userId: { type: "string", format: "uuid", description: "ID utilisateur" },
+        userId: { type: "string", format: "uuid", description: "ID utilisateur (optionnel en mode SaaS, d\xE9duit du JWT)" },
         minClusterSize: { type: "number", default: 3, description: "Nombre min d'atomes pour former un cluster" }
       },
-      required: ["userId"]
+      required: []
     }
   },
   // TRIAGE
@@ -79731,12 +80876,12 @@ var TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        userId: { type: "string", format: "uuid", description: "ID utilisateur" },
+        userId: { type: "string", format: "uuid", description: "ID utilisateur (optionnel en mode SaaS, d\xE9duit du JWT)" },
         spaceId: { type: "string", description: "Espace source \xE0 trier (d\xE9faut: Non affect\xE9)" },
         autoAssign: { type: "boolean", default: false, description: "true = d\xE9placer automatiquement, false = proposer seulement" },
         limit: { type: "number", default: 20, description: "Nombre max d'atomes \xE0 trier" }
       },
-      required: ["userId"]
+      required: []
     }
   },
   // STATS
@@ -79746,10 +80891,10 @@ var TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        userId: { type: "string", format: "uuid", description: "ID utilisateur" },
+        userId: { type: "string", format: "uuid", description: "ID utilisateur (optionnel en mode SaaS, d\xE9duit du JWT)" },
         spaceId: { type: "string", description: "Limiter \xE0 un espace" }
       },
-      required: ["userId"]
+      required: []
     }
   },
   // DOCUMENTS (2 tools)
@@ -79759,14 +80904,14 @@ var TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        userId: { type: "string", format: "uuid", description: "ID utilisateur" },
+        userId: { type: "string", format: "uuid", description: "ID utilisateur (optionnel en mode SaaS, d\xE9duit du JWT)" },
         spaceId: { type: "string", description: "ID de l'espace" },
         filename: { type: "string", minLength: 1, description: "Nom du fichier" },
         fileType: { type: "string", enum: ["pdf", "docx", "xlsx", "txt", "csv"], description: "Type de fichier" },
         filePath: { type: "string", minLength: 1, description: "Chemin dans Supabase Storage" },
         sizeBytes: { type: "number", description: "Taille du fichier en octets" }
       },
-      required: ["userId", "spaceId", "filename", "fileType", "filePath", "sizeBytes"]
+      required: ["spaceId", "filename", "fileType", "filePath", "sizeBytes"]
     }
   },
   {
@@ -79775,12 +80920,12 @@ var TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        userId: { type: "string", format: "uuid", description: "ID utilisateur" },
+        userId: { type: "string", format: "uuid", description: "ID utilisateur (optionnel en mode SaaS, d\xE9duit du JWT)" },
         spaceId: { type: "string", description: "Limiter \xE0 un espace" },
         status: { type: "string", enum: ["queued", "processing", "done", "error"], description: "Filtrer par statut" },
         limit: { type: "number", default: 50, description: "Nombre max de r\xE9sultats" }
       },
-      required: ["userId"]
+      required: []
     }
   },
   // CONNECTIONS (1 tool - reduced from 3)
@@ -79790,13 +80935,13 @@ var TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        userId: { type: "string", format: "uuid", description: "ID utilisateur" },
+        userId: { type: "string", format: "uuid", description: "ID utilisateur (optionnel en mode SaaS, d\xE9duit du JWT)" },
         sourceAtomId: { type: "string", format: "uuid", description: "ID de l'atome source" },
         targetAtomId: { type: "string", format: "uuid", description: "ID de l'atome cible" },
         type: { type: "string", enum: ["concerne", "contredit", "confirme", "pr\xE9c\xE8de", "implique", "mentionne"], description: "Type de connexion" },
         strength: { type: "number", minimum: 0, maximum: 1, default: 0.5, description: "Force de la connexion" }
       },
-      required: ["userId", "sourceAtomId", "targetAtomId", "type"]
+      required: ["sourceAtomId", "targetAtomId", "type"]
     }
   },
   // ANALYSIS (1 tool)
@@ -79806,12 +80951,12 @@ var TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        userId: { type: "string", format: "uuid", description: "ID utilisateur" },
+        userId: { type: "string", format: "uuid", description: "ID utilisateur (optionnel en mode SaaS, d\xE9duit du JWT)" },
         spaceId: { type: "string", description: "ID de l'espace \xE0 analyser" },
         threshold: { type: "number", minimum: 0, maximum: 1, default: 0.45, description: "Seuil de similarit\xE9 pour le clustering (d\xE9faut: 0.45)" },
         minClusterSize: { type: "number", default: 2, description: "Taille minimum d'un cluster (d\xE9faut: 2)" }
       },
-      required: ["userId", "spaceId"]
+      required: ["spaceId"]
     }
   },
   // INSIGHTS (1 tool - le premier neurone)
@@ -79821,7 +80966,7 @@ var TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        userId: { type: "string", format: "uuid", description: "ID utilisateur" },
+        userId: { type: "string", format: "uuid", description: "ID utilisateur (optionnel en mode SaaS, d\xE9duit du JWT)" },
         spaceIds: {
           type: "array",
           items: { type: "string", format: "uuid" },
@@ -79829,7 +80974,7 @@ var TOOLS = [
         },
         limit: { type: "number", default: 15, description: "Nombre max de paires \xE0 analyser (d\xE9faut: 15)" }
       },
-      required: ["userId"]
+      required: []
     }
   },
   // SESSION (2 tools)
@@ -79839,13 +80984,13 @@ var TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        userId: { type: "string", description: "ID utilisateur" },
+        userId: { type: "string", description: "ID utilisateur (optionnel en mode SaaS, d\xE9duit du JWT)" },
         sessionId: { type: "string", minLength: 1, description: "ID de session" },
         userMessage: { type: "string", minLength: 1, description: "Message de l'utilisateur" },
         assistantResponse: { type: "string", minLength: 1, description: "R\xE9ponse de l'assistant" },
         spaceId: { type: "string", description: "ID de l'espace (optionnel, d\xE9faut: Inbox)" }
       },
-      required: ["userId", "sessionId", "userMessage", "assistantResponse"]
+      required: ["sessionId", "userMessage", "assistantResponse"]
     }
   },
   {
@@ -79854,7 +80999,7 @@ var TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        userId: { type: "string", format: "uuid", description: "ID utilisateur" },
+        userId: { type: "string", format: "uuid", description: "ID utilisateur (optionnel en mode SaaS, d\xE9duit du JWT)" },
         query: { type: "string", minLength: 1, description: "Requ\xEAte / message utilisateur" },
         spaceId: { type: "string", description: "Limiter \xE0 un espace" },
         crossSpace: { type: "boolean", default: false, description: "Si true avec spaceId, cherche aussi hors espace (atomes pinned toujours cross-space)" },
@@ -79863,7 +81008,7 @@ var TOOLS = [
         compact: { type: "boolean", default: true, description: "Format compact pr\xE9-format\xE9 (d\xE9faut) vs JSON brut (false)" },
         mode: { type: "string", enum: ["auto", "recall", "briefing", "morning", "explore", "onboard"], default: "auto", description: "Mode de rappel : auto (LLM choisit selon contexte), recall (chirurgical en plein \xE9change), briefing (lancement projet), morning (brief matinal + insights), explore (brainstorm cross-space), onboard (ouverture de fil, chargement large)" }
       },
-      required: ["userId", "query", "sessionId"]
+      required: ["query", "sessionId"]
     }
   },
   // PROFILE (2 tools)
@@ -79873,9 +81018,9 @@ var TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        userId: { type: "string", description: "ID utilisateur" }
+        userId: { type: "string", description: "ID utilisateur (optionnel en mode SaaS, d\xE9duit du JWT)" }
       },
-      required: ["userId"]
+      required: []
     }
   },
   {
@@ -79884,7 +81029,7 @@ var TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        userId: { type: "string", description: "ID utilisateur" },
+        userId: { type: "string", description: "ID utilisateur (optionnel en mode SaaS, d\xE9duit du JWT)" },
         displayName: { type: "string", description: "Nom affich\xE9" },
         email: { type: "string", description: "Email" },
         company: { type: "string", description: "Entreprise" },
@@ -79895,7 +81040,7 @@ var TOOLS = [
         portrait: { type: "string", description: "Portrait vivant de l'utilisateur (texte libre)" },
         behavioralInstructions: { type: "string", description: "Instructions comportementales pour l'IA" }
       },
-      required: ["userId"]
+      required: []
     }
   },
   // QUICK BOOT (1 tool)
@@ -79905,9 +81050,9 @@ var TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        userId: { type: "string", description: "ID utilisateur" }
+        userId: { type: "string", description: "ID utilisateur (optionnel en mode SaaS, d\xE9duit du JWT)" }
       },
-      required: ["userId"]
+      required: []
     }
   },
   // HANDOVERS (2 tools)
@@ -79917,11 +81062,11 @@ var TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        userId: { type: "string", description: "ID utilisateur" },
+        userId: { type: "string", description: "ID utilisateur (optionnel en mode SaaS, d\xE9duit du JWT)" },
         spaceId: { type: "string", description: "ID de l'espace/projet (optionnel)" },
         sessionId: { type: "string", minLength: 1, description: "ID de session" }
       },
-      required: ["userId", "sessionId"]
+      required: ["sessionId"]
     }
   },
   {
@@ -79930,12 +81075,12 @@ var TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        userId: { type: "string", description: "ID utilisateur" },
+        userId: { type: "string", description: "ID utilisateur (optionnel en mode SaaS, d\xE9duit du JWT)" },
         spaceId: { type: "string", description: "ID de l'espace/projet (optionnel)" },
         sessionId: { type: "string", minLength: 1, description: "ID de session" },
         workSummary: { type: "string", minLength: 1, description: "R\xE9sum\xE9 du travail effectu\xE9 durant cette session" }
       },
-      required: ["userId", "sessionId", "workSummary"]
+      required: ["sessionId", "workSummary"]
     }
   },
   // MEMORY FILES (2 tools - couche fichiers)
@@ -79945,12 +81090,12 @@ var TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        userId: { type: "string", minLength: 1, description: "ID utilisateur" },
+        userId: { type: "string", minLength: 1, description: "ID utilisateur (optionnel en mode SaaS, d\xE9duit du JWT)" },
         spaceId: { type: "string", description: "ID de l'espace" },
         type: { type: "string", enum: ["codex"], description: "Type de fichier (codex uniquement, handovers via session_end)" },
         content: { type: "string", minLength: 1, description: "Contenu du fichier" }
       },
-      required: ["userId", "spaceId", "type", "content"]
+      required: ["spaceId", "type", "content"]
     }
   },
   {
@@ -79959,11 +81104,11 @@ var TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        userId: { type: "string", minLength: 1, description: "ID utilisateur" },
+        userId: { type: "string", minLength: 1, description: "ID utilisateur (optionnel en mode SaaS, d\xE9duit du JWT)" },
         spaceId: { type: "string", description: "ID de l'espace (requis sauf pour type=index)" },
         type: { type: "string", enum: ["codex", "handover", "index", "all"], description: "Type de lecture (codex = document vivant, handover = 3 derniers, index = transversal, all = codex + handovers)" }
       },
-      required: ["userId", "type"]
+      required: ["type"]
     }
   },
   // CONTACTS (2 tools)
@@ -79973,7 +81118,7 @@ var TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        userId: { type: "string", description: "ID utilisateur" },
+        userId: { type: "string", description: "ID utilisateur (optionnel en mode SaaS, d\xE9duit du JWT)" },
         name: { type: "string", minLength: 1, description: "Nom du contact" },
         email: { type: "string", description: "Email" },
         phone: { type: "string", description: "T\xE9l\xE9phone" },
@@ -79984,7 +81129,7 @@ var TOOLS = [
         metadata: { type: "object", description: "M\xE9tadonn\xE9es additionnelles" },
         spaceId: { type: "string", description: "Espace/projet associ\xE9" }
       },
-      required: ["userId", "name"]
+      required: ["name"]
     }
   },
   {
@@ -79993,12 +81138,12 @@ var TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        userId: { type: "string", description: "ID utilisateur" },
+        userId: { type: "string", description: "ID utilisateur (optionnel en mode SaaS, d\xE9duit du JWT)" },
         query: { type: "string", minLength: 1, description: "Terme de recherche" },
         spaceId: { type: "string", description: "Filtrer par espace" },
         limit: { type: "number", default: 20, description: "Nombre max de r\xE9sultats" }
       },
-      required: ["userId", "query"]
+      required: ["query"]
     }
   },
   // SOURCE EVENTS (3 tools - collecte mail/calendar)
@@ -80008,7 +81153,7 @@ var TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        userId: { type: "string", description: "ID utilisateur" },
+        userId: { type: "string", description: "ID utilisateur (optionnel en mode SaaS, d\xE9duit du JWT)" },
         events: {
           type: "array",
           items: {
@@ -80028,7 +81173,7 @@ var TOOLS = [
           description: "Liste des \xE9v\xE9nements \xE0 ing\xE9rer"
         }
       },
-      required: ["userId", "events"]
+      required: ["events"]
     }
   },
   {
@@ -80037,10 +81182,10 @@ var TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        userId: { type: "string", description: "ID utilisateur" },
+        userId: { type: "string", description: "ID utilisateur (optionnel en mode SaaS, d\xE9duit du JWT)" },
         limit: { type: "number", default: 20, description: "Nombre max d'\xE9v\xE9nements \xE0 traiter" }
       },
-      required: ["userId"]
+      required: []
     }
   },
   {
@@ -80049,9 +81194,9 @@ var TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        userId: { type: "string", description: "ID utilisateur" }
+        userId: { type: "string", description: "ID utilisateur (optionnel en mode SaaS, d\xE9duit du JWT)" }
       },
-      required: ["userId"]
+      required: []
     }
   },
   // GARBAGE COLLECTOR (1 tool)
@@ -80061,7 +81206,7 @@ var TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        userId: { type: "string", description: "ID utilisateur" },
+        userId: { type: "string", description: "ID utilisateur (optionnel en mode SaaS, d\xE9duit du JWT)" },
         dryRun: { type: "boolean", default: true, description: "true = rapport sans action, false = ex\xE9cute les changements" },
         archiveThresholds: {
           type: "object",
@@ -80076,7 +81221,7 @@ var TOOLS = [
         deduplicateProbableThreshold: { type: "number", default: 0.85, description: "Seuil similarit\xE9 palier 2 (rapport seul)" },
         consolidateThreshold: { type: "number", default: 0.75, description: "Seuil similarit\xE9 pour consolidation signaux faibles" }
       },
-      required: ["userId"]
+      required: []
     }
   },
   // FEEDBACK LOOP (2 tools)
@@ -80086,13 +81231,13 @@ var TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        userId: { type: "string", description: "ID utilisateur" },
+        userId: { type: "string", description: "ID utilisateur (optionnel en mode SaaS, d\xE9duit du JWT)" },
         targetType: { type: "string", enum: ["brief", "insight", "cross_insight"], description: "Type de contenu \xE9valu\xE9" },
         targetId: { type: "string", description: "ID du contenu \xE9valu\xE9 (optionnel)" },
         verdict: { type: "string", enum: ["utile", "bruit", "interessant", "pas_pertinent", "actionnable"], description: "Verdict utilisateur" },
         comment: { type: "string", description: "Commentaire optionnel" }
       },
-      required: ["userId", "targetType", "verdict"]
+      required: ["targetType", "verdict"]
     }
   },
   {
@@ -80101,10 +81246,10 @@ var TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        userId: { type: "string", description: "ID utilisateur" },
+        userId: { type: "string", description: "ID utilisateur (optionnel en mode SaaS, d\xE9duit du JWT)" },
         targetType: { type: "string", enum: ["brief", "insight", "cross_insight"], description: "Type de contenu \xE0 calibrer" }
       },
-      required: ["userId", "targetType"]
+      required: ["targetType"]
     }
   },
   // AUTH (4 tools - SaaS onboarding)
@@ -80156,10 +81301,10 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
   };
 });
 function logFunctionRun(params) {
-  const SUPABASE_URL3 = process.env.SUPABASE_URL;
+  const SUPABASE_URL5 = process.env.SUPABASE_URL;
   const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const USER_ID = process.env.MNEMOS_USER_ID;
-  if (!SUPABASE_URL3 || !SUPABASE_KEY || !USER_ID)
+  if (!SUPABASE_URL5 || !SUPABASE_KEY || !USER_ID)
     return;
   const body = JSON.stringify({
     user_id: USER_ID,
@@ -80171,7 +81316,7 @@ function logFunctionRun(params) {
     error_message: params.errorMessage?.slice(0, 1e3) || null,
     metadata: { runtime: "mcp-stdio", node_version: process.version }
   });
-  fetch(`${SUPABASE_URL3}/rest/v1/function_runs`, {
+  fetch(`${SUPABASE_URL5}/rest/v1/function_runs`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -80185,6 +81330,27 @@ function logFunctionRun(params) {
   });
 }
 __name(logFunctionRun, "logFunctionRun");
+async function auditToolCall(toolName, durationMs, success, inputSummary, errorMessage) {
+  try {
+    const userId = getAuthenticatedUserId();
+    if (!userId)
+      return;
+    const supabase = getSupabaseClient();
+    await supabase.rpc("log_audit", {
+      p_user_id: userId,
+      p_tool_name: toolName,
+      p_action_type: "tool_call",
+      p_input_summary: inputSummary?.slice(0, 200) || null,
+      p_duration_ms: durationMs,
+      p_success: success,
+      p_error_message: errorMessage?.slice(0, 500) || null,
+      p_metadata: { auth_mode: getAuthMode() }
+    });
+  } catch (err) {
+    console.error("[Audit] Erreur (non bloquante):", err);
+  }
+}
+__name(auditToolCall, "auditToolCall");
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;
   const startTime = Date.now();
@@ -80201,6 +81367,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       switch (name) {
         // SPACES (3 tools)
         case "mnemos_create_space": {
+          args.userId = resolveUserId(args);
           const validated = createSpaceSchema.parse(args);
           const result2 = await createSpace(validated);
           return {
@@ -80208,6 +81375,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           };
         }
         case "mnemos_list_spaces": {
+          args.userId = resolveUserId(args);
           const validated = listSpacesSchema.parse(args);
           const result2 = await listSpaces(validated);
           return {
@@ -80215,6 +81383,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           };
         }
         case "mnemos_update_space": {
+          args.userId = resolveUserId(args);
           const validated = updateSpaceSchema.parse(args);
           const result2 = await updateSpace(validated);
           return {
@@ -80223,6 +81392,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         }
         // MEMORY
         case "mnemos_extract_atoms": {
+          args.userId = resolveUserId(args);
           const validated = extractAtomsSchema.parse(args);
           const result2 = await extractAtomsFromConversation(validated);
           return {
@@ -80230,6 +81400,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           };
         }
         case "mnemos_toggle_pin_atom": {
+          args.userId = resolveUserId(args);
           const validated = togglePinAtomSchema.parse(args);
           const result2 = await togglePinAtom(validated);
           return {
@@ -80237,6 +81408,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           };
         }
         case "mnemos_update_atom": {
+          args.userId = resolveUserId(args);
           const validated = updateAtomSchema.parse(args);
           const result2 = await updateAtom(validated);
           return {
@@ -80244,6 +81416,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           };
         }
         case "mnemos_search_atoms": {
+          args.userId = resolveUserId(args);
           const validated = searchAtomsSchema.parse(args);
           const result2 = await searchAtoms(validated);
           return {
@@ -80251,6 +81424,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           };
         }
         case "mnemos_create_atom_manual": {
+          args.userId = resolveUserId(args);
           const validated = createAtomManualSchema.parse(args);
           const result2 = await createAtomManual(validated);
           return {
@@ -80258,6 +81432,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           };
         }
         case "mnemos_suggest_spaces": {
+          args.userId = resolveUserId(args);
           const validated = suggestSpacesSchema.parse(args);
           const result2 = await suggestSpaces(validated);
           return {
@@ -80265,6 +81440,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           };
         }
         case "mnemos_triage_atoms": {
+          args.userId = resolveUserId(args);
           const validated = triageAtomsSchema.parse(args);
           const result2 = await triageAtoms(validated);
           return {
@@ -80272,6 +81448,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           };
         }
         case "mnemos_get_stats": {
+          args.userId = resolveUserId(args);
           const validated = getStatsSchema.parse(args);
           const result2 = await getStats(validated);
           return {
@@ -80280,6 +81457,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         }
         // DOCUMENTS
         case "mnemos_ingest_document": {
+          args.userId = resolveUserId(args);
           const validated = ingestDocumentSchema.parse(args);
           const result2 = await ingestDocument(validated);
           return {
@@ -80287,6 +81465,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           };
         }
         case "mnemos_list_documents": {
+          args.userId = resolveUserId(args);
           const validated = listDocumentsSchema.parse(args);
           const result2 = await listDocuments(validated);
           return {
@@ -80295,6 +81474,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         }
         // CONNECTIONS
         case "mnemos_create_connection": {
+          args.userId = resolveUserId(args);
           const validated = createConnectionSchema.parse(args);
           const result2 = await createConnection(validated);
           return {
@@ -80303,6 +81483,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         }
         // INSIGHTS
         case "mnemos_cross_insights": {
+          args.userId = resolveUserId(args);
           const validated = crossInsightsSchema.parse(args);
           const result2 = await crossInsights(validated);
           return {
@@ -80311,6 +81492,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         }
         // ANALYSIS
         case "mnemos_analyze_space": {
+          args.userId = resolveUserId(args);
           const validated = analyzeSpaceSchema.parse(args);
           const result2 = await analyzeSpace(validated);
           return {
@@ -80319,6 +81501,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         }
         // SESSION
         case "mnemos_log_exchange": {
+          args.userId = resolveUserId(args);
           const validated = logExchangeSchema.parse(args);
           const result2 = await logExchange(validated);
           return {
@@ -80326,6 +81509,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           };
         }
         case "mnemos_get_context": {
+          args.userId = resolveUserId(args);
           const validated = getContextSchema.parse(args);
           const result2 = await getContext(validated);
           return {
@@ -80334,6 +81518,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         }
         // PROFILE
         case "mnemos_get_profile": {
+          args.userId = resolveUserId(args);
           const validated = getProfileSchema.parse(args);
           const result2 = await getProfile(validated);
           return {
@@ -80341,6 +81526,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           };
         }
         case "mnemos_update_profile": {
+          args.userId = resolveUserId(args);
           const validated = updateProfileSchema.parse(args);
           const result2 = await updateProfile(validated);
           return {
@@ -80349,6 +81535,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         }
         // QUICK BOOT
         case "mnemos_quick_boot": {
+          args.userId = resolveUserId(args);
           const validated = quickBootSchema.parse(args);
           const result2 = await quickBoot(validated);
           return {
@@ -80357,13 +81544,23 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         }
         // HANDOVERS
         case "mnemos_session_start": {
+          args.userId = resolveUserId(args);
           const validated = sessionStartSchema.parse(args);
+          if (validated.spaceId) {
+            const resolvedId = await resolveSpaceId(validated.spaceId, validated.userId);
+            if (resolvedId)
+              validated.spaceId = resolvedId;
+          }
           const result2 = await sessionStart(validated);
+          if (validated.spaceId) {
+            await setActiveSpaceId(validated.spaceId);
+          }
           return {
             content: [{ type: "text", text: result2.formatted }]
           };
         }
         case "mnemos_session_end": {
+          args.userId = resolveUserId(args);
           const validated = sessionEndSchema.parse(args);
           const result2 = await sessionEnd(validated);
           return {
@@ -80372,6 +81569,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         }
         // MEMORY FILES
         case "mnemos_write_memory": {
+          args.userId = resolveUserId(args);
           const validated = writeMemorySchema.parse(args);
           const result2 = await writeMemory(validated);
           return {
@@ -80379,6 +81577,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           };
         }
         case "mnemos_read_memory": {
+          args.userId = resolveUserId(args);
           const validated = readMemorySchema.parse(args);
           const result2 = await readMemory(validated);
           return {
@@ -80387,6 +81586,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         }
         // CONTACTS
         case "mnemos_upsert_contact": {
+          args.userId = resolveUserId(args);
           const validated = upsertContactSchema.parse(args);
           const result2 = await upsertContact(validated);
           return {
@@ -80394,6 +81594,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           };
         }
         case "mnemos_search_contacts": {
+          args.userId = resolveUserId(args);
           const validated = searchContactsSchema.parse(args);
           const result2 = await searchContacts(validated);
           return {
@@ -80424,6 +81625,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         }
         // GARBAGE COLLECTOR
         case "mnemos_garbage_collect": {
+          args.userId = resolveUserId(args);
           const validated = garbageCollectSchema.parse(args);
           const result2 = await garbageCollect(validated);
           return {
@@ -80432,6 +81634,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         }
         // FEEDBACK LOOP
         case "mnemos_submit_feedback": {
+          args.userId = resolveUserId(args);
           const validated = submitFeedbackSchema.parse(args);
           const result2 = await submitFeedback(validated);
           return {
@@ -80439,6 +81642,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           };
         }
         case "mnemos_get_calibration": {
+          args.userId = resolveUserId(args);
           const validated = getCalibrationSchema.parse(args);
           const result2 = await getCalibration(validated);
           return {
@@ -80484,6 +81688,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       durationMs,
       resultSummary: `Completed in ${durationMs}ms`
     });
+    auditToolCall(name, durationMs, true).catch(() => {
+    });
     return result;
   } catch (error2) {
     const durationMs = Date.now() - startTime;
@@ -80494,6 +81700,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       source: "mcp",
       durationMs,
       errorMessage
+    });
+    auditToolCall(name, durationMs, false, void 0, errorMessage).catch(() => {
     });
     console.error(`[MCP] Error executing tool ${name}:`, error2);
     return {
@@ -80526,6 +81734,25 @@ async function main() {
   } else {
     console.error("[Mnemos] Dashboard disabled (set MNEMOS_DASHBOARD=1 to enable)");
   }
+  startTranscriptWatcher().catch((err) => {
+    console.error("[Mnemos] TranscriptWatcher startup error (non-blocking):", err);
+  });
+  const gracefulShutdown = /* @__PURE__ */ __name((signal) => {
+    console.error("[Mnemos] Received " + signal + ", flushing transcript watcher...");
+    const forceExit = setTimeout(() => {
+      console.error("[Mnemos] Force exit after timeout");
+      process.exit(0);
+    }, 3e3);
+    stopTranscriptWatcher().then(() => {
+      clearTimeout(forceExit);
+      process.exit(0);
+    }).catch(() => {
+      clearTimeout(forceExit);
+      process.exit(1);
+    });
+  }, "gracefulShutdown");
+  process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
+  process.on("SIGINT", () => gracefulShutdown("SIGINT"));
   console.error("[Mnemos] MCP server running on stdio");
   console.error("[Mnemos] 32 tools available:");
   console.error("  - Spaces: 3 tools (create, list, update)");
@@ -80551,8 +81778,8 @@ __name(main, "main");
 function startDashboard() {
   const DASHBOARD_PORT = 3001;
   const currentFile = typeof import_meta2 !== "undefined" && import_meta2.url ? (0, import_url.fileURLToPath)(import_meta2.url) : typeof __filename !== "undefined" ? __filename : process.argv[1] || "";
-  const currentDir = import_path4.default.dirname(currentFile);
-  const dashboardDist = import_path4.default.resolve(currentDir, "../../dashboard/dist");
+  const currentDir = import_path5.default.dirname(currentFile);
+  const dashboardDist = import_path5.default.resolve(currentDir, "../../dashboard/dist");
   try {
     try {
       (0, import_child_process.execSync)(`lsof -ti:${DASHBOARD_PORT} | xargs kill -9 2>/dev/null`, { stdio: "ignore" });

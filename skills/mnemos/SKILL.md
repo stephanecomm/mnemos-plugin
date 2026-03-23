@@ -32,6 +32,35 @@ USERID : Mode A (outils MCP) → userId:USER_ALIAS. Mode B (curl Edge Function) 
 
 ---
 
+## REPRISE POST-COMPRESSION (continuation de session)
+
+**Trigger** : le message système contient "continued from a previous conversation", "context compaction", un résumé de session précédente, ou l'instruction "Continue the conversation from where it left off".
+
+**CE SCÉNARIO EST CRITIQUE** : le LLM a perdu ~70% du contexte détaillé. Le résumé compressé contient des références à des fichiers, décisions et tâches en cours, mais sans la précision nécessaire pour continuer proprement. Sans ce protocole, la session reprend SANS mémoire Mnemos, et aucun atome ne sera capturé.
+
+### PROTOCOLE OBLIGATOIRE (AVANT de continuer le travail) :
+
+1. **Détecter l'espace actif** dans le résumé compressé (nom de projet, fichiers mentionnés, espace Mnemos référencé)
+2. **Appeler** `mnemos_session_start(userId:USER_ALIAS, sessionId:"resume-YYYY-MM-DD", spaceId:"[espace détecté]")`
+3. **Appeler** `mnemos_read_memory(userId:USER_ALIAS, spaceId:"[espace]", type:"all")` pour recharger codex + handovers
+4. **Croiser** le résumé compressé avec la mémoire Mnemos : vérifier que les décisions et l'état mentionnés dans le résumé sont cohérents avec le codex
+5. **Résumer** à l'utilisateur : "Je reprends après compression. Voici ce que j'ai retrouvé : [résumé croisé]. On continue ?"
+6. **Réactiver le compteur log_exchange** (remis à 0)
+
+### CAS PARTICULIERS :
+
+- Si l'espace n'est pas identifiable dans le résumé → appeler `mnemos_list_spaces` puis demander à l'utilisateur
+- Si le résumé dit "Continue directly" ou "do not recap" → faire le `session_start` QUAND MÊME, mais enchaîner directement sur le travail sans attendre confirmation. La mémoire est **non négociable**, même si le résumé demande de ne pas récapituler.
+- Si plusieurs espaces sont mentionnés dans le résumé → choisir celui qui correspond à la tâche en cours, mentionner les autres
+
+### CE QUI SE PASSE SI LE LLM IGNORE CE PROTOCOLE :
+- Pas de session_start → pas de compteur log_exchange → pas d'extraction automatique → session entière perdue
+- Le codex ne sera pas mis à jour en fin de fil
+- Les décisions prises après compression ne seront jamais mémorisées
+- C'est exactement le bug constaté le 21/03/2026 : session complète de dev dashboard sans aucun atome capturé
+
+---
+
 ## PROTOCOLE D'OUVERTURE (obligatoire)
 
 À chaque ouverture de fil (trigger : "ouvre un fil", "codex in", "session start", "lance Mnemos", ou appel implicite du skill), suivre ce protocole en 6 étapes. NE PAS sauter d'étape.
@@ -114,26 +143,48 @@ Triggers : "fin de fil" / "mémorise" / "on ferme" / "session end" / "codex out"
 
 ## COMPORTEMENT AUTOMATIQUE DU LLM
 
-### log_exchange — RÈGLE DES 3 TOURS
+### log_exchange — RÈGLE DES 3 TOURS (RENFORCÉE 21/03/2026)
 
-Le LLM DOIT appeler `mnemos_log_exchange` au minimum tous les 3 messages utilisateur. Pas "quand il y pense". Tous les 3 tours, point.
+**POURQUOI C'EST LA RÈGLE LA PLUS IMPORTANTE DE CE SKILL :**
+Sans log_exchange, le buffer reste vide, l'extraction ne se déclenche JAMAIS, la mémoire ne se remplit pas.
+log_exchange est le SEUL point d'entrée de toute la chaîne : log_exchange → buffer (3 échanges ou 4000 chars) → extractAtomsFromBuffer (Haiku, fire-and-forget) → atomes créés en base.
+Si le LLM n'appelle pas log_exchange, RIEN ne se passe. Zéro. Constaté le 16/03 et le 21/03/2026.
 
-**Déclencheurs obligatoires** :
-- Tous les 3 messages utilisateur (compter : 1, 2, 3 → log)
-- Après toute réponse dépassant 400 mots
-- Après tout appel à un outil mnemos_* (piggyback)
-- Après toute décision prise, problème résolu, changement de direction
+**MÉCANISME DE COMPTEUR (obligatoire) :**
+Le LLM DOIT maintenir un compteur mental de messages utilisateur depuis le dernier log_exchange.
+- Message utilisateur reçu → compteur += 1
+- Si compteur >= 3 → APPELER log_exchange IMMÉDIATEMENT, AVANT de rédiger la réponse, puis remettre à 0
+- Si la réponse dépasse 400 mots → APPELER log_exchange EN FIN de réponse, remettre à 0
+- Après tout appel à un outil mnemos_* → piggyback un log_exchange, remettre à 0
 
-**Format** :
+**PRÉ-CHECK OBLIGATOIRE (avant chaque réponse) :**
+Avant de commencer à rédiger une réponse, le LLM DOIT se poser cette question :
+"Combien de messages utilisateur depuis mon dernier log_exchange ?"
+Si la réponse est >= 3, ou si la réponse est "je ne sais pas" : appeler log_exchange d'abord.
+
+**FORMAT :**
 ```
-mnemos_log_exchange(userId:USER_ALIAS, sessionId:"[session ou 'cowork-YYYY-MM-DD']", spaceId:"[espace actif]", userMessage:"[résumé]", assistantResponse:"[résumé]")
+mnemos_log_exchange(userId:"stephane", sessionId:"cowork-YYYY-MM-DD", spaceId:"[espace actif]", userMessage:"[résumé 1-2 phrases]", assistantResponse:"[résumé 1-2 phrases]")
 ```
-Note : paramètres = `userMessage` et `assistantResponse`. `sessionId` obligatoire.
-Le bundle bufferise (3 échanges OU 4000 chars → extractAtomsFromBuffer auto). TTL 30 min.
+Note : sessionId est OBLIGATOIRE. Si pas de session formelle, utiliser "cowork-YYYY-MM-DD".
+Le serveur bufferise : 3 échanges OU 4000 chars → extractAtomsFromBuffer auto (Haiku, fire-and-forget). TTL buffer 30 min.
 
-**Déclencheurs optionnels** : après un échange émotionnel ou un feedback utilisateur, après la résolution d'un bug ou la découverte d'un comportement inattendu.
+**DÉCLENCHEURS OBLIGATOIRES (résumé) :**
+1. Compteur >= 3 messages utilisateur
+2. Réponse > 400 mots
+3. Après tout appel mnemos_* (piggyback)
+4. Après toute décision, problème résolu, changement de direction
+5. Après un échange émotionnel ou feedback utilisateur
 
-**Pourquoi c'est critique** : sans log_exchange, le buffer reste vide, l'extraction ne se déclenche jamais, la mémoire ne se remplit pas. Constaté le 16/03/2026 : session entière sans un seul atome créé.
+**CE QUI SE PASSE SI LE LLM OUBLIE :**
+- Le buffer reste à 0
+- extractAtomsFromBuffer ne se déclenche jamais
+- Aucun atome n'est créé automatiquement
+- La session entière est perdue pour la mémoire
+- C'est comme si la conversation n'avait jamais eu lieu
+
+**ANTI-PATTERN IDENTIFIÉ :**
+Le LLM lit cette instruction, comprend qu'il "devrait" appeler log_exchange, puis l'oublie dès qu'il se concentre sur la tâche en cours. C'est le comportement par défaut. Le compteur et le pré-check sont des garde-fous contre ce biais.
 
 ### Création proactive d'atomes
 
@@ -149,6 +200,7 @@ L'utilisateur dit "extrais les atomes". Extraction immédiate sans attendre le b
 - `triage_atoms` : quand get_stats montre > 30% d'atomes basse confiance, ou sur demande.
 - `garbage_collect` : tâche hebdomadaire (pg_cron dimanche 2h UTC). Archive atomes sous le seuil de decay, détecte doublons.
 - `health_check` : cron quotidien (pg_cron 5h UTC via Edge Function health-cron). Génère les embeddings manquants, reconnecte les orphelins, purge les connexions obsolètes. Aussi appelable manuellement : `mnemos_health_check(userId, repair:true)`.
+- **Déduplication automatique (v0.4.0)** : tous les chemins d'insertion d'atomes (extract_atoms, create_atom_manual, ingest_document, extractAtomsFromBuffer) vérifient les doublons AVANT insertion via vector_score (cosine pure). Deux paliers : >= 0.90 skip (garder le plus long), 0.80-0.90 fusion Haiku. Transparent pour l'utilisateur.
 
 ---
 
@@ -268,7 +320,7 @@ Ne PAS mapper mécaniquement. Analyser le contenu. En cas de doute, préférer l
 
 ## Annexe D : Référence rapide
 
-**33 outils MCP** : Espaces (list, suggest, create, update) · Atomes (search, create_manual, update, toggle_pin, triage, extract, garbage_collect) · Contexte (get_context, get_stats, get_calibration) · Boot (quick_boot) · Sessions (session_start, session_end) · Mémoire (write_memory, read_memory) · Profil (get_profile, update_profile) · Contacts (upsert, search) · Ingestion (ingest_document, ingest_events, process_events) · Insights (cross_insights, analyze_space) · Documents (list_documents) · Connexions (create_connection) · Feedback (submit_feedback, log_exchange) · Sync (sync_status) · Maintenance (health_check)
+**37 outils MCP** : Auth (login, signup, logout, whoami) · Espaces (list, suggest, create, update) · Atomes (search, create_manual, update, toggle_pin, triage, extract, garbage_collect) · Contexte (get_context, get_stats, get_calibration) · Boot (quick_boot) · Sessions (session_start, session_end) · Mémoire (write_memory, read_memory) · Profil (get_profile, update_profile) · Contacts (upsert, search) · Ingestion (ingest_document, ingest_events, process_events) · Insights (cross_insights, analyze_space) · Documents (list_documents) · Connexions (create_connection) · Feedback (submit_feedback, log_exchange) · Sync (sync_status) · Maintenance (health_check)
 Note spaceId : Mode A accepte le **nom**. Mode B exige le **UUID**.
 
 **get_context — 6 modes** : auto (défaut), onboard (25 atomes, ouverture), recall (8 atomes, ponctuel), briefing (15 atomes, projet), morning (insights complets), explore (20 atomes, brainstorm).
