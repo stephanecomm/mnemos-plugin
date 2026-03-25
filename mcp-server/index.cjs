@@ -80383,6 +80383,8 @@ var FACE_A_SECTION_MARKER = "## MNEMOS FACE-A";
 var FACE_A_SECTION_END = "<!-- fin Face-A -->";
 var BOOT_SECTION_MARKER = "## MNEMOS BOOT";
 var BOOT_SECTION_END = "<!-- fin Boot -->";
+var FACE_A_MAX_BLOCKS = 3;
+var FACE_A_BLOCK_SEPARATOR = "\n---\n";
 var SESSION_MAX_INACTIVE_MS = 2 * 60 * 60 * 1e3;
 var SESSION_MAX_AGE_MS = 24 * 60 * 60 * 1e3;
 var DEFAULT_SPACE_ID = "dae83f25-f57c-4c29-93e2-b08282277d4d";
@@ -80728,12 +80730,10 @@ function teardownFileWatch(state) {
   }
 }
 __name(teardownFileWatch, "teardownFileWatch");
-function formatFaceASection(atoms, insights, query) {
+function formatFaceABlock(atoms, insights, query) {
   const now = (/* @__PURE__ */ new Date()).toISOString().slice(0, 19);
   const lines = [];
-  lines.push(FACE_A_SECTION_MARKER);
-  lines.push(`<!-- Face-A auto-inject ${now} | query: "${query.slice(0, 60)}" -->`);
-  lines.push("Contexte pertinent rappele automatiquement par Mnemos :");
+  lines.push(`<!-- recall ${now} | "${query.slice(0, 60)}" -->`);
   lines.push("");
   if (insights.length > 0) {
     lines.push(`**Le neurone a remarque (${insights.length}) :**`);
@@ -80753,11 +80753,62 @@ function formatFaceASection(atoms, insights, query) {
       lines.push(`- [${type}] ${prio} ${text}`);
     }
   }
-  lines.push("");
-  lines.push(FACE_A_SECTION_END);
   return lines.join("\n");
 }
-__name(formatFaceASection, "formatFaceASection");
+__name(formatFaceABlock, "formatFaceABlock");
+function writeFaceAWithFIFO(filePath, newBlock) {
+  try {
+    let content = import_fs4.default.readFileSync(filePath, "utf-8");
+    const startIdx = content.indexOf(FACE_A_SECTION_MARKER);
+    const endIdx = content.indexOf(FACE_A_SECTION_END);
+    let existingBlocks = [];
+    if (startIdx !== -1 && endIdx !== -1) {
+      const inner = content.slice(startIdx + FACE_A_SECTION_MARKER.length, endIdx).trim();
+      if (inner) {
+        existingBlocks = inner.split("---").map((b2) => {
+          const lines = b2.trim().split("\n");
+          const cleaned = lines.filter((l2) => !l2.startsWith("Contexte pertinent"));
+          return cleaned.join("\n").trim();
+        }).filter((b2) => b2.includes("<!-- recall"));
+      }
+    }
+    if (existingBlocks.length > 0) {
+      const lastBlock = existingBlocks[existingBlocks.length - 1];
+      const newQueryMatch = newBlock.match(/<!-- recall [^|]+ \| "([^"]+)"/);
+      const lastQueryMatch = lastBlock.match(/<!-- recall [^|]+ \| "([^"]+)"/);
+      if (newQueryMatch && lastQueryMatch && newQueryMatch[1] === lastQueryMatch[1]) {
+        console.error('[Face-A] FIFO dedup: meme query "' + newQueryMatch[1].slice(0, 40) + '", skip');
+        return true;
+      }
+    }
+    existingBlocks.push(newBlock);
+    if (existingBlocks.length > FACE_A_MAX_BLOCKS) {
+      existingBlocks = existingBlocks.slice(-FACE_A_MAX_BLOCKS);
+    }
+    const assembled = [
+      FACE_A_SECTION_MARKER,
+      `Contexte pertinent rappele automatiquement par Mnemos (${existingBlocks.length}/${FACE_A_MAX_BLOCKS}) :`,
+      "",
+      existingBlocks.join(FACE_A_BLOCK_SEPARATOR),
+      "",
+      FACE_A_SECTION_END
+    ].join("\n");
+    if (startIdx !== -1 && endIdx !== -1) {
+      content = content.slice(0, startIdx) + assembled + content.slice(endIdx + FACE_A_SECTION_END.length);
+    } else if (startIdx !== -1) {
+      content = content.slice(0, startIdx) + assembled;
+    } else {
+      content = content.trimEnd() + "\n\n" + assembled + "\n";
+    }
+    import_fs4.default.writeFileSync(filePath, content, "utf-8");
+    console.error(`[Face-A] FIFO: ${existingBlocks.length}/${FACE_A_MAX_BLOCKS} blocs (${newBlock.length} chars)`);
+    return true;
+  } catch (err) {
+    console.error("[Face-A] Erreur FIFO ecriture " + filePath + ":", err);
+    return false;
+  }
+}
+__name(writeFaceAWithFIFO, "writeFaceAWithFIFO");
 function writeSection(filePath, section, markerStart, markerEnd) {
   try {
     let content = import_fs4.default.readFileSync(filePath, "utf-8");
@@ -80811,12 +80862,18 @@ function injectFaceAIntoClaudeMd(sessionDir, section, markerStart, markerEnd) {
   if (import_fs4.default.existsSync(memoryPath)) {
     ensureSectionScaffolding(memoryPath);
     console.error("[Face-A] Cible: " + memoryPath + " [" + markerStart + "]");
+    if (markerStart === FACE_A_SECTION_MARKER) {
+      return writeFaceAWithFIFO(memoryPath, section);
+    }
     return writeSection(memoryPath, section, markerStart, markerEnd);
   }
   const sessionPath = import_path4.default.join(sessionDir, ".claude", "CLAUDE.md");
   if (import_fs4.default.existsSync(sessionPath)) {
     ensureSectionScaffolding(sessionPath);
     console.error("[Face-A] memory/CLAUDE.md absent, fallback: " + sessionPath);
+    if (markerStart === FACE_A_SECTION_MARKER) {
+      return writeFaceAWithFIFO(sessionPath, section);
+    }
     return writeSection(sessionPath, section, markerStart, markerEnd);
   }
   console.error("[Face-A] Aucun CLAUDE.md trouve");
@@ -80914,7 +80971,7 @@ async function runFaceAPipeline(state, query) {
       console.error('[Face-A] Rien de pertinent pour: "' + query.slice(0, 50) + '"');
       return;
     }
-    const section = formatFaceASection(result.atoms, insights, query);
+    const section = formatFaceABlock(result.atoms, insights, query);
     const sessionDir = import_path4.default.dirname(state.jsonlPath);
     const ok = injectFaceAIntoClaudeMd(sessionDir, section, FACE_A_SECTION_MARKER, FACE_A_SECTION_END);
     if (ok) {

@@ -20,14 +20,10 @@
     "mnemos": {
       "command": "node",
       "args": [
-        "~/mnemos-mcp/index.cjs"
+        "mcp-server/index.cjs"
       ],
       "env": {
-        "SUPABASE_URL": "YOUR_SUPABASE_URL",
-        "SUPABASE_SERVICE_ROLE_KEY": "YOUR_SUPABASE_SERVICE_ROLE_KEY",
-        "ANTHROPIC_API_KEY": "YOUR_ANTHROPIC_API_KEY",
-        "VOYAGE_API_KEY": "YOUR_VOYAGE_API_KEY",
-        "MNEMOS_USER_ID": "YOUR_USER_ID"
+        "SUPABASE_URL": "https://hpbsowihyydzdnxuzoxs.supabase.co"
       }
     }
   }

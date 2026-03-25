@@ -3,7 +3,7 @@
     "mnemos": {
       "command": "node",
       "args": [
-        "~/mnemos-mcp/index.cjs"
+        "mcp-server/index.cjs"
       ],
       "env": {
         "SUPABASE_URL": "https://hpbsowihyydzdnxuzoxs.supabase.co"
