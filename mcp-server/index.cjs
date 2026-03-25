@@ -72010,7 +72010,7 @@ var updateSpaceSchema = external_exports.object({
   spaceId: external_exports.string().uuid(),
   name: external_exports.string().min(1).max(100).optional(),
   description: external_exports.string().optional(),
-  status: external_exports.enum(["actif", "en_veille", "clos", "archive"]).optional(),
+  status: external_exports.enum(["actif", "en_veille", "clos"]).optional(),
   priority: external_exports.number().min(0).max(1).optional()
 });
 var archiveSpaceSchema = external_exports.object({
@@ -75699,14 +75699,46 @@ async function findDuplicate(embedding, content, userId) {
       return { action: "skip", existingAtomId: best.id, vectorScore };
     }
     if (vectorScore >= DEDUP_THRESHOLD_MERGE) {
-      console.error(`[Dedup] MERGE (0.80-0.90) fusion Haiku`);
-      const merged = await mergeAtomContents(best.content, content);
-      return {
-        action: "merge",
-        existingAtomId: best.id,
-        mergedContent: merged,
-        vectorScore
-      };
+      console.error(`[Dedup] Palier 0.80-0.90 \u2192 classification Haiku`);
+      try {
+        const classifResponse = await callHaiku("Tu es un d\xE9tecteur de doublons et de supersession dans une base de m\xE9moire. R\xE9ponds UNIQUEMENT par DOUBLON, SUPERSEDE ou DISTINCT, suivi d'une raison en 10 mots max.\n- DOUBLON = m\xEAme information, m\xEAme sujet\n- SUPERSEDE = le nouveau rend l'ancien obsol\xE8te (ex: probl\xE8me \u2192 probl\xE8me r\xE9solu)\n- DISTINCT = sujets/entit\xE9s diff\xE9rents", `Compare ces deux atomes de m\xE9moire :
+
+ATOME EXISTANT (ancien):
+${best.content}
+
+NOUVEL ATOME (r\xE9cent):
+${content}`, 64);
+        const trimmed = classifResponse.trim().toUpperCase();
+        if (trimmed.startsWith("SUPERSEDE")) {
+          console.error(`[Dedup] SUPERSEDE d\xE9tect\xE9 : nouveau remplace existant ${best.id}`);
+          return {
+            action: "supersede",
+            existingAtomId: best.id,
+            vectorScore
+          };
+        } else if (trimmed.startsWith("DOUBLON")) {
+          console.error(`[Dedup] DOUBLON confirm\xE9 \u2192 fusion Haiku`);
+          const merged = await mergeAtomContents(best.content, content);
+          return {
+            action: "merge",
+            existingAtomId: best.id,
+            mergedContent: merged,
+            vectorScore
+          };
+        } else {
+          console.error(`[Dedup] DISTINCT confirm\xE9 \u2192 insertion normale`);
+          return { action: "insert", vectorScore };
+        }
+      } catch (err) {
+        console.error("[Dedup] Erreur classification Haiku, fallback merge:", err);
+        const merged = await mergeAtomContents(best.content, content);
+        return {
+          action: "merge",
+          existingAtomId: best.id,
+          mergedContent: merged,
+          vectorScore
+        };
+      }
     }
     return { action: "insert", vectorScore };
   } catch (err) {
@@ -75722,9 +75754,21 @@ async function applyDedup(result, newEmbedding, userId) {
     console.error(`[Dedup] Atome ignor\xE9 (doublon de ${result.existingAtomId})`);
     return true;
   }
+  const supabase = getSupabaseClient();
+  if (result.action === "supersede") {
+    if (!result.existingAtomId)
+      return false;
+    try {
+      await supabase.from("memory_atoms").update({ active: false, updated_at: (/* @__PURE__ */ new Date()).toISOString() }).eq("id", result.existingAtomId).eq("user_id", userId);
+      console.error(`[Dedup] Supersede: ancien ${result.existingAtomId} archiv\xE9 (vector_score=${result.vectorScore.toFixed(4)})`);
+      return false;
+    } catch (err) {
+      console.error("[Dedup] Erreur supersede:", err);
+      return false;
+    }
+  }
   if (!result.existingAtomId || !result.mergedContent)
     return false;
-  const supabase = getSupabaseClient();
   try {
     const { embedText: embedText2 } = await Promise.resolve().then(() => (init_embeddings(), embeddings_exports));
     const mergedEmbedding = await embedText2(result.mergedContent);
@@ -75749,6 +75793,7 @@ __name(applyDedup, "applyDedup");
 // dist/lib/extract-engine.js
 function buildExtractionPrompt(userMessage, assistantResponse, existingAtoms) {
   const existingAtomsJson = existingAtoms.length > 0 ? JSON.stringify(existingAtoms.slice(0, 10).map((a2) => ({
+    id: a2.id,
     type: a2.type,
     content: a2.content,
     created_at: a2.created_at
@@ -75768,6 +75813,7 @@ Pour chaque \xE9l\xE9ment :
 - type : un des types ci-dessus
 - confidence : 0.0-1.0 (certitude que c'est m\xE9morisable)
 - liens_suggeres : descriptions textuelles d'atomes potentiellement li\xE9s (optionnel)
+- supersedes : ID (champ "id") d'un atome existant du contexte que ce nouvel atome rend obsol\xE8te (optionnel). Utiliser quand une situation a \xE9volu\xE9 (probl\xE8me \u2192 r\xE9solu, en cours \u2192 termin\xE9, d\xE9cision provisoire \u2192 d\xE9finitive).
 
 NE PAS extraire : opinions du LLM, reformulations, politesses, informations g\xE9n\xE9riques.
 EXTRAIRE : tout ce qui est sp\xE9cifique au m\xE9tier/dossiers de l'utilisateur.
@@ -75775,7 +75821,7 @@ IMPORTANT : chaque atome doit faire 150 mots maximum. Si le contenu est plus ric
 
 R\xE9pondre UNIQUEMENT en JSON array :
 [
-  { "type": "...", "content": "...", "confidence": 0.0-1.0, "liens_suggeres": ["..."] }
+  { "type": "...", "content": "...", "confidence": 0.0-1.0, "liens_suggeres": ["..."], "supersedes": "id de l'atome existant remplac\xE9 ou null" }
 ]
 Si rien \xE0 extraire, r\xE9pondre : []`;
   const userPrompt = `Contexte existant (atomes d\xE9j\xE0 m\xE9moris\xE9s, pour d\xE9tecter contradictions) :
@@ -75827,10 +75873,19 @@ async function extractAtoms(params) {
         continue;
       }
       const embedding = await embedText(candidate.content);
+      let dedupResult = null;
       if (embedding && embedding.length > 0) {
-        const dedupResult = await findDuplicate(embedding, candidate.content.trim(), userId);
+        dedupResult = await findDuplicate(embedding, candidate.content.trim(), userId);
         const handled = await applyDedup(dedupResult, embedding, userId);
         if (handled) {
+          if (candidate.supersedes && typeof candidate.supersedes === "string" && candidate.supersedes !== "null") {
+            const supersededId = candidate.supersedes;
+            const supersededAtom = existingAtoms.find((a2) => a2.id === supersededId);
+            if (supersededAtom) {
+              await supabase.from("memory_atoms").update({ active: false, updated_at: (/* @__PURE__ */ new Date()).toISOString() }).eq("id", supersededId).eq("user_id", userId);
+              console.error(`[Extract] Supersede (prompt, pre-dedup): ${supersededId} archiv\xE9`);
+            }
+          }
           console.error(`[Extract] Dedup: atome ${dedupResult.action} (vector_score=${dedupResult.vectorScore.toFixed(4)})`);
           continue;
         }
@@ -75867,6 +75922,35 @@ async function extractAtoms(params) {
         // @ts-expect-error - Supabase type inference issue in strict mode (known library limitation)
         `[Extract] Atome cr\xE9\xE9: ${atom.type} (confidence: ${atom.confidence.toFixed(2)})`
       );
+      let promptSupersedeHandled = false;
+      if (candidate.supersedes && typeof candidate.supersedes === "string" && candidate.supersedes !== "null") {
+        const supersededId = candidate.supersedes;
+        const supersededAtom = existingAtoms.find((a2) => a2.id === supersededId);
+        if (supersededAtom) {
+          await supabase.from("memory_atoms").update({ active: false, updated_at: (/* @__PURE__ */ new Date()).toISOString() }).eq("id", supersededId).eq("user_id", userId);
+          await supabase.from("connections").insert({
+            user_id: userId,
+            source_atom_id: supersededId,
+            target_atom_id: atom.id,
+            type: "pr\xE9c\xE8de",
+            strength: 0.8
+          });
+          console.error(`[Extract] Supersede (prompt): ${supersededId} pr\xE9c\xE8de ${atom.id}`);
+          promptSupersedeHandled = true;
+        } else {
+          console.error(`[Extract] Supersede (prompt): ID ${supersededId} non trouv\xE9 dans existingAtoms`);
+        }
+      }
+      if (!promptSupersedeHandled && dedupResult?.action === "supersede" && dedupResult.existingAtomId) {
+        await supabase.from("connections").insert({
+          user_id: userId,
+          source_atom_id: dedupResult.existingAtomId,
+          target_atom_id: atom.id,
+          type: "pr\xE9c\xE8de",
+          strength: 0.8
+        });
+        console.error(`[Extract] Supersede (dedup): ${dedupResult.existingAtomId} pr\xE9c\xE8de ${atom.id}`);
+      }
       if (embedding && embedding.length > 0) {
         autoConnectAsync(atom.id, embedding, userId);
       }
@@ -75917,6 +76001,7 @@ async function generateConnections(newAtoms, existingAtoms) {
 __name(generateConnections, "generateConnections");
 function buildBufferExtractionPrompt(exchanges, existingAtoms) {
   const existingAtomsJson = existingAtoms.length > 0 ? JSON.stringify(existingAtoms.slice(0, 10).map((a2) => ({
+    id: a2.id,
     type: a2.type,
     content: a2.content,
     created_at: a2.created_at
@@ -75935,6 +76020,7 @@ Pour chaque \xE9l\xE9ment :
 - content : phrase compl\xE8te et autonome (compr\xE9hensible hors contexte)
 - type : un des types ci-dessus
 - confidence : 0.0-1.0 (certitude que c'est m\xE9morisable)
+- supersedes : ID (champ "id") d'un atome existant du contexte que ce nouvel atome rend obsol\xE8te (optionnel). Utiliser quand une situation a \xE9volu\xE9 (probl\xE8me \u2192 r\xE9solu, en cours \u2192 termin\xE9, d\xE9cision provisoire \u2192 d\xE9finitive).
 
 NE PAS extraire : opinions du LLM, reformulations, politesses, informations g\xE9n\xE9riques.
 EXTRAIRE : tout ce qui est sp\xE9cifique au m\xE9tier/dossiers de l'utilisateur.
@@ -75943,7 +76029,7 @@ IMPORTANT : chaque atome doit faire 150 mots maximum. Si le contenu est plus ric
 
 R\xE9pondre UNIQUEMENT en JSON array :
 [
-  { "type": "...", "content": "...", "confidence": 0.0-1.0 }
+  { "type": "...", "content": "...", "confidence": 0.0-1.0, "supersedes": "id de l'atome existant remplac\xE9 ou null" }
 ]
 Si rien \xE0 extraire, r\xE9pondre : []`;
   const exchangeLines = exchanges.map((ex, i2) => {
@@ -76010,10 +76096,19 @@ async function extractAtomsFromBuffer(userId, exchanges, spaceId, sessionId) {
       if (!candidate.type || !candidate.content)
         continue;
       const embedding = await embedText(candidate.content);
+      let dedupResult = null;
       if (embedding && embedding.length > 0) {
-        const dedupResult = await findDuplicate(embedding, candidate.content.trim(), userId);
+        dedupResult = await findDuplicate(embedding, candidate.content.trim(), userId);
         const handled = await applyDedup(dedupResult, embedding, userId);
         if (handled) {
+          if (candidate.supersedes && typeof candidate.supersedes === "string" && candidate.supersedes !== "null") {
+            const supersededId = candidate.supersedes;
+            const supersededAtom = existingAtoms.find((a2) => a2.id === supersededId);
+            if (supersededAtom) {
+              await supabase.from("memory_atoms").update({ active: false, updated_at: (/* @__PURE__ */ new Date()).toISOString() }).eq("id", supersededId).eq("user_id", userId);
+              console.error(`[Extract-B2] Supersede (prompt, pre-dedup): ${supersededId} archiv\xE9`);
+            }
+          }
           console.error(`[Extract-B2] Dedup: atome ${dedupResult.action} (vector_score=${dedupResult.vectorScore.toFixed(4)})`);
           continue;
         }
@@ -76047,6 +76142,35 @@ async function extractAtomsFromBuffer(userId, exchanges, spaceId, sessionId) {
         space_id: atom.space_id
       });
       console.error(`[Extract-B2] Atome cr\xE9\xE9: ${atom.type} (${atom.confidence.toFixed(2)})`);
+      let promptSupersedeHandled = false;
+      if (candidate.supersedes && typeof candidate.supersedes === "string" && candidate.supersedes !== "null") {
+        const supersededId = candidate.supersedes;
+        const supersededAtom = existingAtoms.find((a2) => a2.id === supersededId);
+        if (supersededAtom) {
+          await supabase.from("memory_atoms").update({ active: false, updated_at: (/* @__PURE__ */ new Date()).toISOString() }).eq("id", supersededId).eq("user_id", userId);
+          await supabase.from("connections").insert({
+            user_id: userId,
+            source_atom_id: supersededId,
+            target_atom_id: atom.id,
+            type: "pr\xE9c\xE8de",
+            strength: 0.8
+          });
+          console.error(`[Extract-B2] Supersede (prompt): ${supersededId} pr\xE9c\xE8de ${atom.id}`);
+          promptSupersedeHandled = true;
+        } else {
+          console.error(`[Extract-B2] Supersede (prompt): ID ${supersededId} non trouv\xE9 dans existingAtoms`);
+        }
+      }
+      if (!promptSupersedeHandled && dedupResult?.action === "supersede" && dedupResult.existingAtomId) {
+        await supabase.from("connections").insert({
+          user_id: userId,
+          source_atom_id: dedupResult.existingAtomId,
+          target_atom_id: atom.id,
+          type: "pr\xE9c\xE8de",
+          strength: 0.8
+        });
+        console.error(`[Extract-B2] Supersede (dedup): ${dedupResult.existingAtomId} pr\xE9c\xE8de ${atom.id}`);
+      }
       if (embedding && embedding.length > 0) {
         autoConnectAsync(atom.id, embedding, userId);
       }
@@ -76415,8 +76539,9 @@ async function createAtomManual(params) {
     targetSpaceId = inboxSpace?.id || null;
   }
   const embedding = await embedText(content);
+  let dedupResult = null;
   if (embedding && embedding.length > 0) {
-    const dedupResult = await findDuplicate(embedding, content.trim(), userId);
+    dedupResult = await findDuplicate(embedding, content.trim(), userId);
     const handled = await applyDedup(dedupResult, embedding, userId);
     if (handled) {
       console.error(`[Memory] Dedup create_atom_manual: ${dedupResult.action} (vector_score=${dedupResult.vectorScore.toFixed(4)})`);
@@ -76446,6 +76571,16 @@ async function createAtomManual(params) {
     throw new Error(`\xC9chec cr\xE9ation atome: ${error2.message}`);
   }
   console.error(`[Memory] Atome manuel cr\xE9\xE9: ${atom.id} (${type})`);
+  if (dedupResult?.action === "supersede" && dedupResult.existingAtomId) {
+    await supabase.from("connections").insert({
+      user_id: userId,
+      source_atom_id: dedupResult.existingAtomId,
+      target_atom_id: atom.id,
+      type: "pr\xE9c\xE8de",
+      strength: 0.8
+    });
+    console.error(`[Memory] Supersede: ${dedupResult.existingAtomId} pr\xE9c\xE8de ${atom.id}`);
+  }
   if (embedding && embedding.length > 0) {
     autoConnectAsync(atom.id, embedding, userId);
   }
@@ -76988,8 +77123,9 @@ async function processDocument(documentId, userId) {
       if (!candidate.type || !candidate.content)
         continue;
       const embedding = await embedText(candidate.content);
+      let dedupResult = null;
       if (embedding && embedding.length > 0) {
-        const dedupResult = await findDuplicate(embedding, candidate.content.trim(), userId);
+        dedupResult = await findDuplicate(embedding, candidate.content.trim(), userId);
         const handled = await applyDedup(dedupResult, embedding, userId);
         if (handled) {
           console.error(`[Documents] Dedup: atome ${dedupResult.action} (vector_score=${dedupResult.vectorScore.toFixed(4)})`);
@@ -77014,6 +77150,16 @@ async function processDocument(documentId, userId) {
       }
       atomCount++;
       console.error(`[Documents] Atome cree: ${atom.type} (${atom.confidence.toFixed(2)})`);
+      if (dedupResult?.action === "supersede" && dedupResult.existingAtomId) {
+        await supabase.from("connections").insert({
+          user_id: userId,
+          source_atom_id: dedupResult.existingAtomId,
+          target_atom_id: atom.id,
+          type: "pr\xE9c\xE8de",
+          strength: 0.8
+        });
+        console.error(`[Documents] Supersede: ${dedupResult.existingAtomId} pr\xE9c\xE8de ${atom.id}`);
+      }
       if (embedding && embedding.length > 0) {
         autoConnectAsync(atom.id, embedding, userId);
       }
@@ -77116,6 +77262,7 @@ async function createConnection(params) {
     throw new Error("Cette connexion existe d\xE9j\xE0");
   }
   const newConnection = {
+    user_id: userId,
     source_atom_id: sourceAtomId,
     target_atom_id: targetAtomId,
     type,
@@ -78632,7 +78779,10 @@ var sessionStartSchema = external_exports.object({
   userId: external_exports.string().min(1),
   spaceId: external_exports.string().min(1).optional(),
   // UUID ou nom d'espace (résolu dynamiquement)
-  sessionId: external_exports.string().min(1)
+  sessionId: external_exports.string().min(1).optional(),
+  // requis en mode normal, absent en mode light
+  light: external_exports.boolean().optional().default(false)
+  // true = quick_boot sans session
 });
 var sessionEndSchema = external_exports.object({
   userId: external_exports.string().min(1),
@@ -79510,8 +79660,24 @@ var garbageCollectSchema = external_exports.object({
   deduplicateProbableThreshold: external_exports.number().default(0.85),
   consolidateThreshold: external_exports.number().default(0.75)
 });
+function parseEmbedding6(embedding) {
+  if (!embedding)
+    return [];
+  if (Array.isArray(embedding))
+    return embedding;
+  if (typeof embedding === "string") {
+    try {
+      const cleaned = embedding.replace(/^\[|\]$/g, "");
+      return cleaned.split(",").map(Number);
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
+__name(parseEmbedding6, "parseEmbedding");
 function cosineSimilarity6(a2, b2) {
-  if (!a2 || !b2 || a2.length !== b2.length)
+  if (!a2 || !b2 || a2.length !== b2.length || a2.length === 0)
     return 0;
   let dot = 0, magA = 0, magB = 0;
   for (let i2 = 0; i2 < a2.length; i2++) {
@@ -79523,6 +79689,24 @@ function cosineSimilarity6(a2, b2) {
   return magnitude === 0 ? 0 : dot / magnitude;
 }
 __name(cosineSimilarity6, "cosineSimilarity");
+async function getConnectedIds(supabase, atomIds) {
+  const connected = /* @__PURE__ */ new Set();
+  if (atomIds.length === 0)
+    return connected;
+  for (let i2 = 0; i2 < atomIds.length; i2 += 100) {
+    const batch = atomIds.slice(i2, i2 + 100);
+    const [{ data: src }, { data: tgt }] = await Promise.all([
+      supabase.from("connections").select("source_atom_id").in("source_atom_id", batch),
+      supabase.from("connections").select("target_atom_id").in("target_atom_id", batch)
+    ]);
+    for (const c2 of src || [])
+      connected.add(c2.source_atom_id);
+    for (const c2 of tgt || [])
+      connected.add(c2.target_atom_id);
+  }
+  return connected;
+}
+__name(getConnectedIds, "getConnectedIds");
 async function garbageCollect(params) {
   const { userId, dryRun, archiveThresholds, deduplicateCertainThreshold, deduplicateProbableThreshold, consolidateThreshold } = params;
   const supabase = getSupabaseClient();
@@ -79538,7 +79722,8 @@ async function garbageCollect(params) {
     archived: { count: 0, atoms: [] },
     deduplicated: {
       certain: { count: 0, pairs: [] },
-      probable: { count: 0, pairs: [] }
+      probable: { count: 0, pairs: [] },
+      haikuVerified: { merged: 0, skipped: 0, details: [] }
     },
     consolidated: { count: 0, suggestions: [] },
     summary: ""
@@ -79546,29 +79731,43 @@ async function garbageCollect(params) {
   console.error(`[GC] Starting garbage collection (dryRun=${dryRun})`);
   const insightDismissCutoff = /* @__PURE__ */ new Date();
   insightDismissCutoff.setDate(insightDismissCutoff.getDate() - thresholds.insightDismissDays);
-  const { data: oldInsights } = await supabase.from("insights").select("id").eq("user_id", userId).eq("dismissed", false).lt("created_at", insightDismissCutoff.toISOString());
-  const insightsDismissed = oldInsights?.length || 0;
-  if (!dryRun && insightsDismissed > 0) {
-    const idsToDisimiss = (oldInsights || []).map((i2) => i2.id);
-    await supabase.from("insights").update({ dismissed: true }).in("id", idsToDisimiss);
-    console.error(`[GC] Dismissed ${insightsDismissed} insights > ${thresholds.insightDismissDays} jours`);
-  }
   const insightDeleteCutoff = /* @__PURE__ */ new Date();
   insightDeleteCutoff.setDate(insightDeleteCutoff.getDate() - thresholds.insightDeleteDays);
-  const { data: dismissedOldInsights } = await supabase.from("insights").select("id").eq("user_id", userId).eq("dismissed", true).lt("created_at", insightDeleteCutoff.toISOString());
+  const [{ data: oldInsights }, { data: dismissedOldInsights }] = await Promise.all([
+    supabase.from("insights").select("id").eq("user_id", userId).eq("dismissed", false).lt("created_at", insightDismissCutoff.toISOString()),
+    supabase.from("insights").select("id").eq("user_id", userId).eq("dismissed", true).lt("created_at", insightDeleteCutoff.toISOString())
+  ]);
+  const insightsDismissed = oldInsights?.length || 0;
   const insightsDeleted = dismissedOldInsights?.length || 0;
-  if (!dryRun && insightsDeleted > 0) {
-    const idsToDelete = (dismissedOldInsights || []).map((i2) => i2.id);
-    await supabase.from("insights").delete().in("id", idsToDelete);
-    console.error(`[GC] Deleted ${insightsDeleted} insights dismissed > ${thresholds.insightDeleteDays} jours`);
+  if (!dryRun && insightsDismissed > 0) {
+    const ids = (oldInsights || []).map((i2) => i2.id);
+    await supabase.from("insights").update({ dismissed: true }).in("id", ids);
+    console.error(`[GC] Dismissed ${insightsDismissed} insights`);
   }
-  console.error(`[GC] Insights: ${insightsDismissed} a dismiss, ${insightsDeleted} a supprimer${dryRun ? " (DRY RUN)" : ""}`);
+  if (!dryRun && insightsDeleted > 0) {
+    const ids = (dismissedOldInsights || []).map((i2) => i2.id);
+    await supabase.from("insights").delete().in("id", ids);
+    console.error(`[GC] Deleted ${insightsDeleted} insights`);
+  }
+  console.error(`[GC] Insights: ${insightsDismissed} \xE0 dismiss, ${insightsDeleted} \xE0 supprimer${dryRun ? " (DRY RUN)" : ""}`);
   const eventCutoff = /* @__PURE__ */ new Date();
   eventCutoff.setDate(eventCutoff.getDate() - thresholds.eventDays);
-  const { data: obsoleteEvents } = await supabase.from("memory_atoms").select("id, type, content, created_at").eq("user_id", userId).eq("active", true).eq("is_pinned", false).eq("type", "event").lt("created_at", eventCutoff.toISOString());
+  const factCutoff = /* @__PURE__ */ new Date();
+  factCutoff.setDate(factCutoff.getDate() - thresholds.factDays);
+  const signalCutoff = /* @__PURE__ */ new Date();
+  signalCutoff.setDate(signalCutoff.getDate() - thresholds.signalDays);
+  const [{ data: obsoleteEvents }, { data: obsoleteFacts }, { data: obsoleteSignals }] = await Promise.all([
+    supabase.from("memory_atoms").select("id, type, content, created_at").eq("user_id", userId).eq("active", true).eq("is_pinned", false).eq("type", "event").lt("created_at", eventCutoff.toISOString()),
+    supabase.from("memory_atoms").select("id, type, content, created_at, space_id").eq("user_id", userId).eq("active", true).eq("is_pinned", false).in("type", ["fact", "decision"]).lt("created_at", factCutoff.toISOString()),
+    supabase.from("memory_atoms").select("id, type, content, created_at").eq("user_id", userId).eq("active", true).eq("type", "signal_externe").lt("created_at", signalCutoff.toISOString())
+  ]);
+  const allObsoleteIds = [
+    ...(obsoleteEvents || []).map((a2) => a2.id),
+    ...(obsoleteFacts || []).map((a2) => a2.id)
+  ];
+  const connectedObsolete = await getConnectedIds(supabase, allObsoleteIds);
   for (const atom of obsoleteEvents || []) {
-    const { data: conns } = await supabase.from("connections").select("id").or(`source_atom_id.eq.${atom.id},target_atom_id.eq.${atom.id}`).limit(1);
-    if (!conns || conns.length === 0) {
+    if (!connectedObsolete.has(atom.id)) {
       result.archived.atoms.push({
         id: atom.id,
         type: atom.type,
@@ -79577,28 +79776,27 @@ async function garbageCollect(params) {
       });
     }
   }
-  const factCutoff = /* @__PURE__ */ new Date();
-  factCutoff.setDate(factCutoff.getDate() - thresholds.factDays);
-  const { data: obsoleteFacts } = await supabase.from("memory_atoms").select("id, type, content, created_at, space_id").eq("user_id", userId).eq("active", true).eq("is_pinned", false).in("type", ["fact", "decision"]).lt("created_at", factCutoff.toISOString());
-  for (const atom of obsoleteFacts || []) {
-    if (atom.space_id) {
-      const { data: space } = await supabase.from("spaces").select("status").eq("id", atom.space_id).single();
-      if (space?.status !== "clos")
-        continue;
-    }
-    const { data: conns } = await supabase.from("connections").select("id").or(`source_atom_id.eq.${atom.id},target_atom_id.eq.${atom.id}`).limit(1);
-    if (!conns || conns.length === 0) {
-      result.archived.atoms.push({
-        id: atom.id,
-        type: atom.type,
-        content: atom.content,
-        reason: `${atom.type} > ${thresholds.factDays} days, no connections, space closed`
-      });
+  const factSpaceIds = [...new Set((obsoleteFacts || []).filter((a2) => a2.space_id).map((a2) => a2.space_id))];
+  const closedSpaces = /* @__PURE__ */ new Set();
+  if (factSpaceIds.length > 0) {
+    const { data: spaces } = await supabase.from("spaces").select("id, status").in("id", factSpaceIds);
+    for (const s2 of spaces || []) {
+      if (s2.status === "clos")
+        closedSpaces.add(s2.id);
     }
   }
-  const signalCutoff = /* @__PURE__ */ new Date();
-  signalCutoff.setDate(signalCutoff.getDate() - thresholds.signalDays);
-  const { data: obsoleteSignals } = await supabase.from("memory_atoms").select("id, type, content, created_at").eq("user_id", userId).eq("active", true).eq("type", "signal_externe").lt("created_at", signalCutoff.toISOString());
+  for (const atom of obsoleteFacts || []) {
+    if (atom.space_id && !closedSpaces.has(atom.space_id))
+      continue;
+    if (connectedObsolete.has(atom.id))
+      continue;
+    result.archived.atoms.push({
+      id: atom.id,
+      type: atom.type,
+      content: atom.content,
+      reason: `${atom.type} > ${thresholds.factDays} days, no connections, space closed`
+    });
+  }
   for (const atom of obsoleteSignals || []) {
     if (!atom.content.startsWith("FEEDBACK")) {
       result.archived.atoms.push({
@@ -79611,51 +79809,83 @@ async function garbageCollect(params) {
   }
   result.archived.count = result.archived.atoms.length;
   if (!dryRun && result.archived.count > 0) {
-    const idsToArchive = result.archived.atoms.map((a2) => a2.id);
-    await supabase.from("memory_atoms").update({ active: false }).in("id", idsToArchive);
+    await supabase.from("memory_atoms").update({ active: false }).in("id", result.archived.atoms.map((a2) => a2.id));
     console.error(`[GC] Archived ${result.archived.count} atoms`);
   }
-  const { data: activeAtoms } = await supabase.from("memory_atoms").select("id, content, embedding, is_pinned, created_at").eq("user_id", userId).eq("active", true).not("embedding", "is", null);
-  if (activeAtoms && activeAtoms.length > 1) {
-    for (let i2 = 0; i2 < activeAtoms.length; i2++) {
-      for (let j2 = i2 + 1; j2 < activeAtoms.length; j2++) {
-        const atomA = activeAtoms[i2];
-        const atomB = activeAtoms[j2];
-        const embA = typeof atomA.embedding === "string" ? JSON.parse(atomA.embedding) : atomA.embedding;
-        const embB = typeof atomB.embedding === "string" ? JSON.parse(atomB.embedding) : atomB.embedding;
-        const similarity = cosineSimilarity6(embA, embB);
+  console.error(`[GC] Step 1 done: ${result.archived.count} atoms to archive`);
+  const DEDUP_SCAN_DAYS = 30;
+  const dedupScanCutoff = /* @__PURE__ */ new Date();
+  dedupScanCutoff.setDate(dedupScanCutoff.getDate() - DEDUP_SCAN_DAYS);
+  const { data: recentAtoms } = await supabase.from("memory_atoms").select("id, content, embedding, is_pinned, created_at, type").eq("user_id", userId).eq("active", true).not("embedding", "is", null).gt("created_at", dedupScanCutoff.toISOString()).order("created_at", { ascending: false });
+  console.error(`[GC] Dedup: ${recentAtoms?.length || 0} atomes r\xE9cents (${DEDUP_SCAN_DAYS}j)`);
+  const alreadyProcessed = /* @__PURE__ */ new Set();
+  const RPC_BATCH_SIZE = 10;
+  const atomsToScan = (recentAtoms || []).filter((a2) => {
+    const emb = parseEmbedding6(a2.embedding);
+    return emb.length > 0;
+  });
+  for (let batchStart = 0; batchStart < atomsToScan.length; batchStart += RPC_BATCH_SIZE) {
+    const batch = atomsToScan.slice(batchStart, batchStart + RPC_BATCH_SIZE).filter((a2) => !alreadyProcessed.has(a2.id));
+    if (batch.length === 0)
+      continue;
+    const rpcResults = await Promise.all(batch.map((atom) => {
+      const emb = parseEmbedding6(atom.embedding);
+      return supabase.rpc("hybrid_search_atoms", {
+        p_user_id: userId,
+        p_query_text: atom.content,
+        p_query_embedding: emb,
+        p_space_id: null,
+        p_match_count: 5,
+        p_vector_weight: 1,
+        p_text_weight: 0
+      }).then((res) => ({ atom, neighbors: res.data, error: res.error }));
+    }));
+    for (const { atom, neighbors, error: rpcError } of rpcResults) {
+      if (rpcError || !neighbors) {
+        console.error(`[GC] Dedup RPC error for ${atom.id}:`, rpcError?.message);
+        continue;
+      }
+      if (alreadyProcessed.has(atom.id))
+        continue;
+      for (const neighbor of neighbors) {
+        if (neighbor.id === atom.id)
+          continue;
+        if (alreadyProcessed.has(neighbor.id))
+          continue;
+        const similarity = neighbor.hybrid_score || 0;
         if (similarity >= deduplicateCertainThreshold) {
           let kept, archived;
-          if (atomA.is_pinned && !atomB.is_pinned) {
-            kept = atomA.id;
-            archived = atomB.id;
-          } else if (atomB.is_pinned && !atomA.is_pinned) {
-            kept = atomB.id;
-            archived = atomA.id;
+          if (atom.is_pinned && !neighbor.is_pinned) {
+            kept = atom.id;
+            archived = neighbor.id;
+          } else if (neighbor.is_pinned && !atom.is_pinned) {
+            kept = neighbor.id;
+            archived = atom.id;
           } else {
-            kept = new Date(atomA.created_at) > new Date(atomB.created_at) ? atomA.id : atomB.id;
-            archived = kept === atomA.id ? atomB.id : atomA.id;
+            kept = new Date(atom.created_at) > new Date(neighbor.created_at) ? atom.id : neighbor.id;
+            archived = kept === atom.id ? neighbor.id : atom.id;
           }
           result.deduplicated.certain.pairs.push({
-            id_a: atomA.id,
-            id_b: atomB.id,
+            id_a: atom.id,
+            id_b: neighbor.id,
             similarity,
             kept,
             archived
           });
+          alreadyProcessed.add(archived);
           if (!dryRun) {
             await supabase.from("connections").update({ source_atom_id: kept }).eq("source_atom_id", archived);
             await supabase.from("connections").update({ target_atom_id: kept }).eq("target_atom_id", archived);
             await supabase.from("memory_atoms").update({ active: false }).eq("id", archived);
-            console.error(`[GC] Merged duplicates: ${archived} \u2192 ${kept} (similarity: ${similarity.toFixed(3)})`);
+            console.error(`[GC] Merged: ${archived} \u2192 ${kept} (sim: ${similarity.toFixed(3)})`);
           }
-        } else if (similarity >= deduplicateProbableThreshold && similarity < deduplicateCertainThreshold) {
+        } else if (similarity >= deduplicateProbableThreshold) {
           result.deduplicated.probable.pairs.push({
-            id_a: atomA.id,
-            id_b: atomB.id,
+            id_a: atom.id,
+            id_b: neighbor.id,
             similarity,
-            content_a: atomA.content,
-            content_b: atomB.content
+            content_a: atom.content,
+            content_b: neighbor.content
           });
         }
       }
@@ -79663,15 +79893,121 @@ async function garbageCollect(params) {
   }
   result.deduplicated.certain.count = result.deduplicated.certain.pairs.length;
   result.deduplicated.probable.count = result.deduplicated.probable.pairs.length;
-  const { data: isolatedAtoms } = await supabase.from("memory_atoms").select("id, content, space_id, embedding").eq("user_id", userId).eq("active", true).not("space_id", "is", null).not("embedding", "is", null);
-  const bySpace = {};
-  for (const atom of isolatedAtoms || []) {
-    const { data: conns } = await supabase.from("connections").select("id").or(`source_atom_id.eq.${atom.id},target_atom_id.eq.${atom.id}`).limit(1);
-    if (!conns || conns.length === 0) {
-      if (!bySpace[atom.space_id])
-        bySpace[atom.space_id] = [];
-      bySpace[atom.space_id].push(atom);
+  console.error(`[GC] Step 2 done: ${result.deduplicated.certain.count} certains, ${result.deduplicated.probable.count} probables`);
+  const HAIKU_BATCH_SIZE = 10;
+  const HAIKU_MIN_SIMILARITY = 0.88;
+  const probablePairs = result.deduplicated.probable.pairs.filter((p2) => p2.similarity >= HAIKU_MIN_SIMILARITY);
+  console.error(`[GC] Step 2b: ${probablePairs.length} paires (>=${HAIKU_MIN_SIMILARITY}) \xE0 v\xE9rifier via Haiku (${result.deduplicated.probable.pairs.length} total)`);
+  for (let hBatch = 0; hBatch < probablePairs.length; hBatch += HAIKU_BATCH_SIZE) {
+    const batch = probablePairs.slice(hBatch, hBatch + HAIKU_BATCH_SIZE);
+    const verdicts = await Promise.all(batch.map(async (pair) => {
+      try {
+        const response = await callHaiku("Tu es un d\xE9tecteur de doublons et de supersession dans une base de m\xE9moire. R\xE9ponds UNIQUEMENT par DOUBLON, SUPERSEDE ou DISTINCT, suivi d'une raison en 10 mots max.\n- DOUBLON = m\xEAme information, m\xEAme sujet\n- SUPERSEDE = le plus r\xE9cent rend l'ancien obsol\xE8te (ex: probl\xE8me \u2192 probl\xE8me r\xE9solu)\n- DISTINCT = sujets/entit\xE9s diff\xE9rents", `Compare ces deux atomes de m\xE9moire :
+
+ATOME A:
+${pair.content_a}
+
+ATOME B:
+${pair.content_b}`, 64);
+        const trimmed = response.trim().toUpperCase();
+        const isDuplicate = trimmed.startsWith("DOUBLON");
+        const isSupersede = trimmed.startsWith("SUPERSEDE");
+        return { pair, isDuplicate, isSupersede, verdict: response.trim() };
+      } catch (err) {
+        console.error(`[GC] Haiku error for pair ${pair.id_a}/${pair.id_b}:`, err);
+        return { pair, isDuplicate: false, isSupersede: false, verdict: "ERROR" };
+      }
+    }));
+    for (const { pair, isDuplicate, isSupersede, verdict } of verdicts) {
+      if ((isDuplicate || isSupersede) && !alreadyProcessed.has(pair.id_a) && !alreadyProcessed.has(pair.id_b)) {
+        const atomA = (recentAtoms || []).find((a2) => a2.id === pair.id_a);
+        const atomB = (recentAtoms || []).find((a2) => a2.id === pair.id_b);
+        let kept, archived;
+        if (isSupersede) {
+          if (!atomB) {
+            kept = pair.id_a;
+            archived = pair.id_b;
+          } else if (!atomA) {
+            kept = pair.id_b;
+            archived = pair.id_a;
+          } else {
+            const dateA = new Date(atomA.created_at);
+            const dateB = new Date(atomB.created_at);
+            if (dateB > dateA) {
+              kept = pair.id_b;
+              archived = pair.id_a;
+            } else {
+              kept = pair.id_a;
+              archived = pair.id_b;
+            }
+          }
+        } else {
+          if (atomA?.is_pinned && !atomB?.is_pinned) {
+            kept = pair.id_a;
+            archived = pair.id_b;
+          } else if (atomB?.is_pinned && !atomA?.is_pinned) {
+            kept = pair.id_b;
+            archived = pair.id_a;
+          } else if (pair.content_a.length >= pair.content_b.length) {
+            kept = pair.id_a;
+            archived = pair.id_b;
+          } else {
+            kept = pair.id_b;
+            archived = pair.id_a;
+          }
+        }
+        result.deduplicated.haikuVerified.details.push({
+          id_a: pair.id_a,
+          id_b: pair.id_b,
+          similarity: pair.similarity,
+          verdict,
+          kept,
+          archived
+        });
+        result.deduplicated.haikuVerified.merged++;
+        alreadyProcessed.add(archived);
+        if (!dryRun) {
+          if (isSupersede) {
+            await supabase.from("connections").insert({
+              user_id: userId,
+              source_atom_id: archived,
+              target_atom_id: kept,
+              type: "pr\xE9c\xE8de",
+              strength: 0.8
+            });
+            console.error(`[GC] Supersede: ${archived} pr\xE9c\xE8de ${kept}`);
+          } else {
+            await supabase.from("connections").update({ source_atom_id: kept }).eq("source_atom_id", archived);
+            await supabase.from("connections").update({ target_atom_id: kept }).eq("target_atom_id", archived);
+          }
+          await supabase.from("memory_atoms").update({ active: false }).eq("id", archived);
+          console.error(`[GC] Haiku ${isSupersede ? "superseded" : "merged"}: ${archived} \u2192 ${kept} (sim: ${pair.similarity.toFixed(3)}, ${verdict})`);
+        }
+      } else {
+        result.deduplicated.haikuVerified.details.push({
+          id_a: pair.id_a,
+          id_b: pair.id_b,
+          similarity: pair.similarity,
+          verdict
+        });
+        result.deduplicated.haikuVerified.skipped++;
+      }
     }
+  }
+  console.error(`[GC] Step 2b done: ${result.deduplicated.haikuVerified.merged} merged/superseded, ${result.deduplicated.haikuVerified.skipped} skipped by Haiku`);
+  const CONSOLIDATE_SCAN_DAYS = 30;
+  const consolidateCutoff = /* @__PURE__ */ new Date();
+  consolidateCutoff.setDate(consolidateCutoff.getDate() - CONSOLIDATE_SCAN_DAYS);
+  const { data: recentIsolated } = await supabase.from("memory_atoms").select("id, content, space_id, embedding").eq("user_id", userId).eq("active", true).not("space_id", "is", null).not("embedding", "is", null).gt("created_at", consolidateCutoff.toISOString());
+  const recentIds = (recentIsolated || []).map((a2) => a2.id);
+  const connectedRecent = await getConnectedIds(supabase, recentIds);
+  const bySpace = {};
+  for (const atom of recentIsolated || []) {
+    if (connectedRecent.has(atom.id))
+      continue;
+    if (!bySpace[atom.space_id])
+      bySpace[atom.space_id] = [];
+    bySpace[atom.space_id].push(atom);
   }
   for (const [spaceId, atoms] of Object.entries(bySpace)) {
     if (atoms.length < 2)
@@ -79680,14 +80016,11 @@ async function garbageCollect(params) {
     const clusters = [];
     for (let i2 = 0; i2 < atoms.length; i2++) {
       for (let j2 = i2 + 1; j2 < atoms.length; j2++) {
-        const embA = typeof atoms[i2].embedding === "string" ? JSON.parse(atoms[i2].embedding) : atoms[i2].embedding || [];
-        const embB = typeof atoms[j2].embedding === "string" ? JSON.parse(atoms[j2].embedding) : atoms[j2].embedding || [];
+        const embA = parseEmbedding6(atoms[i2].embedding);
+        const embB = parseEmbedding6(atoms[j2].embedding);
         const sim = cosineSimilarity6(embA, embB);
         if (sim >= consolidateThreshold) {
-          clusters.push({
-            atoms: [atoms[i2], atoms[j2]],
-            avgSim: sim
-          });
+          clusters.push({ atoms: [atoms[i2], atoms[j2]], avgSim: sim });
         }
       }
     }
@@ -79701,15 +80034,16 @@ async function garbageCollect(params) {
       result.consolidated.count++;
     }
   }
+  console.error(`[GC] Step 3 done: ${result.consolidated.count} consolidation suggestions`);
   result.summary = `Garbage Collection ${dryRun ? "(DRY RUN)" : "(EXECUTED)"}
 Insights: ${insightsDismissed} dismissed, ${insightsDeleted} deleted
 Archived: ${result.archived.count} atoms
 Deduplicated (certain, >=${deduplicateCertainThreshold}): ${result.deduplicated.certain.count} pairs
-Duplicates probables (${deduplicateProbableThreshold}-${deduplicateCertainThreshold}): ${result.deduplicated.probable.count} pairs
+Haiku-verified (${deduplicateProbableThreshold}-${deduplicateCertainThreshold}): ${result.deduplicated.haikuVerified.merged} merged, ${result.deduplicated.haikuVerified.skipped} kept
 Consolidation suggestions: ${result.consolidated.count} clusters`;
   console.error(`[GC] ${result.summary}`);
   if (!dryRun) {
-    const logContent = `GARBAGE_COLLECT: ${result.archived.count} archiv\xE9s, ${result.deduplicated.certain.count} fusionn\xE9s (palier 1), ${result.deduplicated.probable.count} doublons probables signal\xE9s (palier 2), ${result.consolidated.count} regroupements propos\xE9s`;
+    const logContent = `GARBAGE_COLLECT: ${result.archived.count} archiv\xE9s, ${result.deduplicated.certain.count} fusionn\xE9s (auto), ${result.deduplicated.haikuVerified.merged} fusionn\xE9s (Haiku), ${result.deduplicated.haikuVerified.skipped} conserv\xE9s (Haiku), ${result.consolidated.count} regroupements`;
     await supabase.from("memory_atoms").insert({
       user_id: userId,
       type: "signal_externe",
@@ -80734,7 +81068,7 @@ var server = new Server({
     tools: {}
   }
 });
-var TOOLS = [
+var PUBLIC_TOOLS = [
   // SPACES (3 tools)
   {
     name: "mnemos_create_space",
@@ -80773,29 +81107,14 @@ var TOOLS = [
         spaceId: { type: "string", description: "ID de l'espace" },
         name: { type: "string", minLength: 1, maxLength: 100, description: "Nouveau nom" },
         description: { type: "string", description: "Nouvelle description" },
-        status: { type: "string", enum: ["actif", "en_veille", "clos", "archive"], description: "Nouveau statut" },
+        status: { type: "string", enum: ["actif", "en_veille", "clos"], description: "Nouveau statut" },
         color: { type: "string", description: "Nouvelle couleur" },
         emoji: { type: "string", description: "Nouvel emoji" }
       },
       required: ["spaceId"]
     }
   },
-  // MEMORY (7 tools)
-  {
-    name: "mnemos_extract_atoms",
-    description: "Extraire automatiquement des atomes de m\xE9moire depuis une conversation",
-    inputSchema: {
-      type: "object",
-      properties: {
-        userId: { type: "string", format: "uuid", description: "ID utilisateur (optionnel en mode SaaS, d\xE9duit du JWT)" },
-        userMessage: { type: "string", minLength: 1, description: "Message de l'utilisateur" },
-        assistantResponse: { type: "string", minLength: 1, description: "R\xE9ponse de l'assistant" },
-        spaceId: { type: "string", description: "ID de l'espace (optionnel, d\xE9faut: Inbox)" },
-        conversationId: { type: "string", minLength: 1, description: "ID de la conversation" }
-      },
-      required: ["userMessage", "assistantResponse", "conversationId"]
-    }
-  },
+  // ATOMS (4 tools)
   {
     name: "mnemos_toggle_pin_atom",
     description: "\xC9pingler ou d\xE9s\xE9pingler un atome (remplace pin_atom + unpin_atom)",
@@ -80856,47 +81175,6 @@ var TOOLS = [
       required: ["type", "content"]
     }
   },
-  // ONBOARDING / ANALYSE
-  {
-    name: "mnemos_suggest_spaces",
-    description: "Analyser les atomes non affect\xE9s et sugg\xE9rer des espaces (rattachement existant ou cr\xE9ation)",
-    inputSchema: {
-      type: "object",
-      properties: {
-        userId: { type: "string", format: "uuid", description: "ID utilisateur (optionnel en mode SaaS, d\xE9duit du JWT)" },
-        minClusterSize: { type: "number", default: 3, description: "Nombre min d'atomes pour former un cluster" }
-      },
-      required: []
-    }
-  },
-  // TRIAGE
-  {
-    name: "mnemos_triage_atoms",
-    description: "Trier les atomes non affect\xE9s vers les bons espaces (par similarit\xE9 s\xE9mantique)",
-    inputSchema: {
-      type: "object",
-      properties: {
-        userId: { type: "string", format: "uuid", description: "ID utilisateur (optionnel en mode SaaS, d\xE9duit du JWT)" },
-        spaceId: { type: "string", description: "Espace source \xE0 trier (d\xE9faut: Non affect\xE9)" },
-        autoAssign: { type: "boolean", default: false, description: "true = d\xE9placer automatiquement, false = proposer seulement" },
-        limit: { type: "number", default: 20, description: "Nombre max d'atomes \xE0 trier" }
-      },
-      required: []
-    }
-  },
-  // STATS
-  {
-    name: "mnemos_get_stats",
-    description: "Obtenir des statistiques sur les atomes de m\xE9moire",
-    inputSchema: {
-      type: "object",
-      properties: {
-        userId: { type: "string", format: "uuid", description: "ID utilisateur (optionnel en mode SaaS, d\xE9duit du JWT)" },
-        spaceId: { type: "string", description: "Limiter \xE0 un espace" }
-      },
-      required: []
-    }
-  },
   // DOCUMENTS (2 tools)
   {
     name: "mnemos_ingest_document",
@@ -80928,7 +81206,7 @@ var TOOLS = [
       required: []
     }
   },
-  // CONNECTIONS (1 tool - reduced from 3)
+  // CONNECTIONS (1 tool)
   {
     name: "mnemos_create_connection",
     description: "Cr\xE9er une connexion entre deux atomes",
@@ -80959,7 +81237,7 @@ var TOOLS = [
       required: ["spaceId"]
     }
   },
-  // INSIGHTS (1 tool - le premier neurone)
+  // INSIGHTS (1 tool)
   {
     name: "mnemos_cross_insights",
     description: "D\xE9tecter tensions, convergences et \xE9volutions entre espaces. Le premier neurone : Mnemos regarde \xE0 travers les espaces et dit ce qu'il voit.",
@@ -80977,22 +81255,7 @@ var TOOLS = [
       required: []
     }
   },
-  // SESSION (2 tools)
-  {
-    name: "mnemos_log_exchange",
-    description: "Logger un \xE9change conversation pour extraction automatique en arri\xE8re-plan. Appeler apr\xE8s chaque \xE9change. Le serveur bufferise et d\xE9clenche l'extraction silencieusement quand le seuil est atteint.",
-    inputSchema: {
-      type: "object",
-      properties: {
-        userId: { type: "string", description: "ID utilisateur (optionnel en mode SaaS, d\xE9duit du JWT)" },
-        sessionId: { type: "string", minLength: 1, description: "ID de session" },
-        userMessage: { type: "string", minLength: 1, description: "Message de l'utilisateur" },
-        assistantResponse: { type: "string", minLength: 1, description: "R\xE9ponse de l'assistant" },
-        spaceId: { type: "string", description: "ID de l'espace (optionnel, d\xE9faut: Inbox)" }
-      },
-      required: ["sessionId", "userMessage", "assistantResponse"]
-    }
-  },
+  // SESSION / CONTEXT (1 tool)
   {
     name: "mnemos_get_context",
     description: "R\xE9cup\xE9rer le contexte intelligent (Recall Engine - atomes + chunks pertinents)",
@@ -81043,19 +81306,7 @@ var TOOLS = [
       required: []
     }
   },
-  // QUICK BOOT (1 tool)
-  {
-    name: "mnemos_quick_boot",
-    description: "Chargement ultra-rapide du contexte Mnemos en debut de fil. Profil + memoire transversale + dernier handover + reperes epingles. Ne cree PAS de session. A appeler AUTOMATIQUEMENT au premier message de chaque fil.",
-    inputSchema: {
-      type: "object",
-      properties: {
-        userId: { type: "string", description: "ID utilisateur (optionnel en mode SaaS, d\xE9duit du JWT)" }
-      },
-      required: []
-    }
-  },
-  // HANDOVERS (2 tools)
+  // HANDOVERS / SESSION (2 tools)
   {
     name: "mnemos_session_start",
     description: 'D\xE9marrer une session ("Mnemos in"). Charge le profil, le dernier handover du projet, les atomes r\xE9cents et les atomes \xE9pingl\xE9s cross-space. \xC9quivalent du codex in.',
@@ -81064,9 +81315,11 @@ var TOOLS = [
       properties: {
         userId: { type: "string", description: "ID utilisateur (optionnel en mode SaaS, d\xE9duit du JWT)" },
         spaceId: { type: "string", description: "ID de l'espace/projet (optionnel)" },
-        sessionId: { type: "string", minLength: 1, description: "ID de session" }
+        sessionId: { type: "string", minLength: 1, description: "ID de session" },
+        light: { type: "boolean", default: false, description: "true = chargement rapide sans cr\xE9er de session (\xE9quivalent quick_boot)" }
       },
-      required: ["sessionId"]
+      required: []
+      // sessionId requis en mode normal, pas en mode light
     }
   },
   {
@@ -81083,7 +81336,7 @@ var TOOLS = [
       required: ["sessionId", "workSummary"]
     }
   },
-  // MEMORY FILES (2 tools - couche fichiers)
+  // MEMORY FILES (2 tools)
   {
     name: "mnemos_write_memory",
     description: "\xC9crire le codex (document vivant) d'un espace. Supabase first, fichier local en backup. Les handovers passent exclusivement par session_end.",
@@ -81146,113 +81399,22 @@ var TOOLS = [
       required: ["query"]
     }
   },
-  // SOURCE EVENTS (3 tools - collecte mail/calendar)
+  // ADMIN (1 tool - dispatcher vers les outils de maintenance)
   {
-    name: "mnemos_ingest_events",
-    description: "Ing\xE9rer des \xE9v\xE9nements bruts (mails, r\xE9unions) depuis les connecteurs Gmail/Calendar. Appel\xE9 par le scheduled task ou manuellement.",
+    name: "mnemos_admin",
+    description: "Outils d'administration et maintenance Mnemos. Actions disponibles : garbage_collect, triage_atoms, suggest_spaces, get_stats, get_calibration, submit_feedback, sync_status",
     inputSchema: {
       type: "object",
       properties: {
-        userId: { type: "string", description: "ID utilisateur (optionnel en mode SaaS, d\xE9duit du JWT)" },
-        events: {
-          type: "array",
-          items: {
-            type: "object",
-            properties: {
-              source: { type: "string", enum: ["gmail", "google_calendar", "outlook", "microsoft_calendar"], description: "Source de l'\xE9v\xE9nement" },
-              event_type: { type: "string", enum: ["mail_received", "mail_sent", "meeting_created", "meeting_updated", "meeting_cancelled"], description: "Type d'\xE9v\xE9nement" },
-              event_id: { type: "string", description: "ID externe (message_id Gmail, event_id Calendar)" },
-              subject: { type: "string", description: "Sujet du mail ou titre de la r\xE9union" },
-              body_preview: { type: "string", description: "Aper\xE7u du contenu (500 chars max)" },
-              participants: { type: "array", items: { type: "string" }, description: "Adresses email des participants" },
-              event_timestamp: { type: "string", description: "Date/heure de l'\xE9v\xE9nement (ISO 8601)" },
-              metadata: { type: "object", description: "Donn\xE9es additionnelles (thread_id, labels, location...)" }
-            },
-            required: ["source", "event_type", "event_id", "event_timestamp"]
-          },
-          description: "Liste des \xE9v\xE9nements \xE0 ing\xE9rer"
-        }
+        userId: { type: "string", description: "ID utilisateur" },
+        action: { type: "string", enum: ["garbage_collect", "triage_atoms", "suggest_spaces", "get_stats", "get_calibration", "submit_feedback", "sync_status"], description: "Action admin \xE0 ex\xE9cuter" },
+        params: { type: "object", description: "Param\xE8tres sp\xE9cifiques \xE0 l'action (voir documentation de chaque action)" }
       },
-      required: ["events"]
+      required: ["action"]
     }
-  },
-  {
-    name: "mnemos_process_events",
-    description: "Traiter les \xE9v\xE9nements en attente : Haiku \xE9value la pertinence, cr\xE9e des atomes pour les \xE9v\xE9nements importants, ignore les newsletters/spam.",
-    inputSchema: {
-      type: "object",
-      properties: {
-        userId: { type: "string", description: "ID utilisateur (optionnel en mode SaaS, d\xE9duit du JWT)" },
-        limit: { type: "number", default: 20, description: "Nombre max d'\xE9v\xE9nements \xE0 traiter" }
-      },
-      required: []
-    }
-  },
-  {
-    name: "mnemos_sync_status",
-    description: "Obtenir l'\xE9tat de la synchronisation mail/calendar : nombre d'\xE9v\xE9nements par source et statut, derni\xE8re sync.",
-    inputSchema: {
-      type: "object",
-      properties: {
-        userId: { type: "string", description: "ID utilisateur (optionnel en mode SaaS, d\xE9duit du JWT)" }
-      },
-      required: []
-    }
-  },
-  // GARBAGE COLLECTOR (1 tool)
-  {
-    name: "mnemos_garbage_collect",
-    description: "Nettoyer la base : archiver atoms obsol\xE8tes, fusionner doublons s\xE9mantiques (2 paliers), proposer consolidation de signaux faibles. Deux paliers de d\xE9duplication : >0.95 (fusion auto), 0.85-0.95 (rapport seul). Toujours en dryRun par d\xE9faut pour s\xE9curit\xE9.",
-    inputSchema: {
-      type: "object",
-      properties: {
-        userId: { type: "string", description: "ID utilisateur (optionnel en mode SaaS, d\xE9duit du JWT)" },
-        dryRun: { type: "boolean", default: true, description: "true = rapport sans action, false = ex\xE9cute les changements" },
-        archiveThresholds: {
-          type: "object",
-          properties: {
-            eventDays: { type: "number", default: 90, description: "Jours avant archivage des events" },
-            factDays: { type: "number", default: 180, description: "Jours avant archivage des facts/decisions dans espaces clos" },
-            signalDays: { type: "number", default: 60, description: "Jours avant archivage des signal_externe (hors FEEDBACK)" }
-          },
-          description: "Seuils d'archivage (optionnel)"
-        },
-        deduplicateCertainThreshold: { type: "number", default: 0.95, description: "Seuil similarit\xE9 palier 1 (fusion auto)" },
-        deduplicateProbableThreshold: { type: "number", default: 0.85, description: "Seuil similarit\xE9 palier 2 (rapport seul)" },
-        consolidateThreshold: { type: "number", default: 0.75, description: "Seuil similarit\xE9 pour consolidation signaux faibles" }
-      },
-      required: []
-    }
-  },
-  // FEEDBACK LOOP (2 tools)
-  {
-    name: "mnemos_submit_feedback",
-    description: "Soumettre un feedback utilisateur sur un brief/insight pour calibration automatique. Verdicts: utile, bruit, interessant, pas_pertinent, actionnable. Retourne stats courantes.",
-    inputSchema: {
-      type: "object",
-      properties: {
-        userId: { type: "string", description: "ID utilisateur (optionnel en mode SaaS, d\xE9duit du JWT)" },
-        targetType: { type: "string", enum: ["brief", "insight", "cross_insight"], description: "Type de contenu \xE9valu\xE9" },
-        targetId: { type: "string", description: "ID du contenu \xE9valu\xE9 (optionnel)" },
-        verdict: { type: "string", enum: ["utile", "bruit", "interessant", "pas_pertinent", "actionnable"], description: "Verdict utilisateur" },
-        comment: { type: "string", description: "Commentaire optionnel" }
-      },
-      required: ["targetType", "verdict"]
-    }
-  },
-  {
-    name: "mnemos_get_calibration",
-    description: "R\xE9cup\xE9rer la calibration \xE0 injecter dans les prompts de g\xE9n\xE9ration de briefs/insights. Analyse les 20 derniers feedbacks, calcule ratios, identifie patterns, retourne block de calibration pr\xEAt \xE0 injecter.",
-    inputSchema: {
-      type: "object",
-      properties: {
-        userId: { type: "string", description: "ID utilisateur (optionnel en mode SaaS, d\xE9duit du JWT)" },
-        targetType: { type: "string", enum: ["brief", "insight", "cross_insight"], description: "Type de contenu \xE0 calibrer" }
-      },
-      required: ["targetType"]
-    }
-  },
-  // AUTH (4 tools - SaaS onboarding)
+  }
+];
+var AUTH_TOOLS = [
   {
     name: "mnemos_login",
     description: "Se connecter a Mnemos avec email/mot de passe. Stocke le JWT localement dans ~/.mnemos/credentials.json.",
@@ -81297,7 +81459,7 @@ var TOOLS = [
 ];
 server.setRequestHandler(ListToolsRequestSchema, async () => {
   return {
-    tools: TOOLS
+    tools: [...PUBLIC_TOOLS, ...AUTH_TOOLS]
   };
 });
 function logFunctionRun(params) {
@@ -81390,15 +81552,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             content: [{ type: "text", text: JSON.stringify(result2, null, 2) }]
           };
         }
-        // MEMORY
-        case "mnemos_extract_atoms": {
-          args.userId = resolveUserId(args);
-          const validated = extractAtomsSchema.parse(args);
-          const result2 = await extractAtomsFromConversation(validated);
-          return {
-            content: [{ type: "text", text: JSON.stringify(result2, null, 2) }]
-          };
-        }
+        // ATOMS
         case "mnemos_toggle_pin_atom": {
           args.userId = resolveUserId(args);
           const validated = togglePinAtomSchema.parse(args);
@@ -81431,30 +81585,6 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             content: [{ type: "text", text: JSON.stringify(result2, null, 2) }]
           };
         }
-        case "mnemos_suggest_spaces": {
-          args.userId = resolveUserId(args);
-          const validated = suggestSpacesSchema.parse(args);
-          const result2 = await suggestSpaces(validated);
-          return {
-            content: [{ type: "text", text: JSON.stringify(result2, null, 2) }]
-          };
-        }
-        case "mnemos_triage_atoms": {
-          args.userId = resolveUserId(args);
-          const validated = triageAtomsSchema.parse(args);
-          const result2 = await triageAtoms(validated);
-          return {
-            content: [{ type: "text", text: JSON.stringify(result2, null, 2) }]
-          };
-        }
-        case "mnemos_get_stats": {
-          args.userId = resolveUserId(args);
-          const validated = getStatsSchema.parse(args);
-          const result2 = await getStats(validated);
-          return {
-            content: [{ type: "text", text: JSON.stringify(result2, null, 2) }]
-          };
-        }
         // DOCUMENTS
         case "mnemos_ingest_document": {
           args.userId = resolveUserId(args);
@@ -81481,15 +81611,6 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             content: [{ type: "text", text: JSON.stringify(result2, null, 2) }]
           };
         }
-        // INSIGHTS
-        case "mnemos_cross_insights": {
-          args.userId = resolveUserId(args);
-          const validated = crossInsightsSchema.parse(args);
-          const result2 = await crossInsights(validated);
-          return {
-            content: [{ type: "text", text: JSON.stringify(result2, null, 2) }]
-          };
-        }
         // ANALYSIS
         case "mnemos_analyze_space": {
           args.userId = resolveUserId(args);
@@ -81499,15 +81620,16 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             content: [{ type: "text", text: JSON.stringify(result2, null, 2) }]
           };
         }
-        // SESSION
-        case "mnemos_log_exchange": {
+        // INSIGHTS
+        case "mnemos_cross_insights": {
           args.userId = resolveUserId(args);
-          const validated = logExchangeSchema.parse(args);
-          const result2 = await logExchange(validated);
+          const validated = crossInsightsSchema.parse(args);
+          const result2 = await crossInsights(validated);
           return {
             content: [{ type: "text", text: JSON.stringify(result2, null, 2) }]
           };
         }
+        // SESSION / CONTEXT
         case "mnemos_get_context": {
           args.userId = resolveUserId(args);
           const validated = getContextSchema.parse(args);
@@ -81533,19 +81655,22 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             content: [{ type: "text", text: JSON.stringify(result2, null, 2) }]
           };
         }
-        // QUICK BOOT
-        case "mnemos_quick_boot": {
-          args.userId = resolveUserId(args);
-          const validated = quickBootSchema.parse(args);
-          const result2 = await quickBoot(validated);
-          return {
-            content: [{ type: "text", text: result2.formatted }]
-          };
-        }
-        // HANDOVERS
+        // HANDOVERS / SESSION
         case "mnemos_session_start": {
           args.userId = resolveUserId(args);
           const validated = sessionStartSchema.parse(args);
+          if (validated.light === true) {
+            const result3 = await quickBoot({ userId: validated.userId });
+            return {
+              content: [{ type: "text", text: result3.formatted }]
+            };
+          }
+          if (!validated.sessionId) {
+            return {
+              content: [{ type: "text", text: JSON.stringify({ error: "sessionId est requis en mode normal (non-light)" }, null, 2) }],
+              isError: true
+            };
+          }
           if (validated.spaceId) {
             const resolvedId = await resolveSpaceId(validated.spaceId, validated.userId);
             if (resolvedId)
@@ -81601,6 +81726,94 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             content: [{ type: "text", text: JSON.stringify(result2, null, 2) }]
           };
         }
+        // ADMIN (dispatcher vers les outils de maintenance)
+        case "mnemos_admin": {
+          const userId = resolveUserId(args);
+          const action = args.action;
+          const params = args.params || {};
+          switch (action) {
+            case "garbage_collect": {
+              const validated = garbageCollectSchema.parse({ userId, ...params });
+              const result2 = await garbageCollect(validated);
+              return {
+                content: [{ type: "text", text: JSON.stringify(result2, null, 2) }]
+              };
+            }
+            case "triage_atoms": {
+              const validated = triageAtomsSchema.parse({ userId, ...params });
+              const result2 = await triageAtoms(validated);
+              return {
+                content: [{ type: "text", text: JSON.stringify(result2, null, 2) }]
+              };
+            }
+            case "suggest_spaces": {
+              const validated = suggestSpacesSchema.parse({ userId, ...params });
+              const result2 = await suggestSpaces(validated);
+              return {
+                content: [{ type: "text", text: JSON.stringify(result2, null, 2) }]
+              };
+            }
+            case "get_stats": {
+              const validated = getStatsSchema.parse({ userId, ...params });
+              const result2 = await getStats(validated);
+              return {
+                content: [{ type: "text", text: JSON.stringify(result2, null, 2) }]
+              };
+            }
+            case "get_calibration": {
+              const validated = getCalibrationSchema.parse({ userId, ...params });
+              const result2 = await getCalibration(validated);
+              return {
+                content: [{ type: "text", text: JSON.stringify(result2, null, 2) }]
+              };
+            }
+            case "submit_feedback": {
+              const validated = submitFeedbackSchema.parse({ userId, ...params });
+              const result2 = await submitFeedback(validated);
+              return {
+                content: [{ type: "text", text: JSON.stringify(result2, null, 2) }]
+              };
+            }
+            case "sync_status": {
+              const result2 = await getSyncStatus(userId);
+              return {
+                content: [{ type: "text", text: JSON.stringify(result2, null, 2) }]
+              };
+            }
+            default:
+              return {
+                content: [{ type: "text", text: JSON.stringify({ error: `Action admin inconnue : ${action}` }, null, 2) }],
+                isError: true
+              };
+          }
+        }
+        // MEMORY EXTRACTION
+        case "mnemos_extract_atoms": {
+          args.userId = resolveUserId(args);
+          const validated = extractAtomsSchema.parse(args);
+          const result2 = await extractAtomsFromConversation(validated);
+          return {
+            content: [{ type: "text", text: JSON.stringify(result2, null, 2) }]
+          };
+        }
+        // SESSION LOGGING
+        case "mnemos_log_exchange": {
+          args.userId = resolveUserId(args);
+          const validated = logExchangeSchema.parse(args);
+          const result2 = await logExchange(validated);
+          return {
+            content: [{ type: "text", text: JSON.stringify(result2, null, 2) }]
+          };
+        }
+        // QUICK BOOT
+        case "mnemos_quick_boot": {
+          args.userId = resolveUserId(args);
+          const validated = quickBootSchema.parse(args);
+          const result2 = await quickBoot(validated);
+          return {
+            content: [{ type: "text", text: result2.formatted }]
+          };
+        }
         // SOURCE EVENTS
         case "mnemos_ingest_events": {
           const a2 = args;
@@ -81619,32 +81832,6 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         case "mnemos_sync_status": {
           const a2 = args;
           const result2 = await getSyncStatus(a2.userId);
-          return {
-            content: [{ type: "text", text: JSON.stringify(result2, null, 2) }]
-          };
-        }
-        // GARBAGE COLLECTOR
-        case "mnemos_garbage_collect": {
-          args.userId = resolveUserId(args);
-          const validated = garbageCollectSchema.parse(args);
-          const result2 = await garbageCollect(validated);
-          return {
-            content: [{ type: "text", text: JSON.stringify(result2, null, 2) }]
-          };
-        }
-        // FEEDBACK LOOP
-        case "mnemos_submit_feedback": {
-          args.userId = resolveUserId(args);
-          const validated = submitFeedbackSchema.parse(args);
-          const result2 = await submitFeedback(validated);
-          return {
-            content: [{ type: "text", text: JSON.stringify(result2, null, 2) }]
-          };
-        }
-        case "mnemos_get_calibration": {
-          args.userId = resolveUserId(args);
-          const validated = getCalibrationSchema.parse(args);
-          const result2 = await getCalibration(validated);
           return {
             content: [{ type: "text", text: JSON.stringify(result2, null, 2) }]
           };
@@ -81672,6 +81859,55 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         }
         case "mnemos_whoami": {
           const result2 = await whoami();
+          return {
+            content: [{ type: "text", text: JSON.stringify(result2, null, 2) }]
+          };
+        }
+        // RÉTROCOMPATIBILITÉ: anciens noms d'outils (crons, scripts)
+        case "mnemos_garbage_collect": {
+          args.userId = resolveUserId(args);
+          const validated = garbageCollectSchema.parse(args);
+          const result2 = await garbageCollect(validated);
+          return {
+            content: [{ type: "text", text: JSON.stringify(result2, null, 2) }]
+          };
+        }
+        case "mnemos_triage_atoms": {
+          args.userId = resolveUserId(args);
+          const validated = triageAtomsSchema.parse(args);
+          const result2 = await triageAtoms(validated);
+          return {
+            content: [{ type: "text", text: JSON.stringify(result2, null, 2) }]
+          };
+        }
+        case "mnemos_suggest_spaces": {
+          args.userId = resolveUserId(args);
+          const validated = suggestSpacesSchema.parse(args);
+          const result2 = await suggestSpaces(validated);
+          return {
+            content: [{ type: "text", text: JSON.stringify(result2, null, 2) }]
+          };
+        }
+        case "mnemos_get_stats": {
+          args.userId = resolveUserId(args);
+          const validated = getStatsSchema.parse(args);
+          const result2 = await getStats(validated);
+          return {
+            content: [{ type: "text", text: JSON.stringify(result2, null, 2) }]
+          };
+        }
+        case "mnemos_get_calibration": {
+          args.userId = resolveUserId(args);
+          const validated = getCalibrationSchema.parse(args);
+          const result2 = await getCalibration(validated);
+          return {
+            content: [{ type: "text", text: JSON.stringify(result2, null, 2) }]
+          };
+        }
+        case "mnemos_submit_feedback": {
+          args.userId = resolveUserId(args);
+          const validated = submitFeedbackSchema.parse(args);
+          const result2 = await submitFeedback(validated);
           return {
             content: [{ type: "text", text: JSON.stringify(result2, null, 2) }]
           };
@@ -81754,22 +81990,26 @@ async function main() {
   process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
   process.on("SIGINT", () => gracefulShutdown("SIGINT"));
   console.error("[Mnemos] MCP server running on stdio");
-  console.error("[Mnemos] 32 tools available:");
-  console.error("  - Spaces: 3 tools (create, list, update)");
-  console.error("  - Memory: 7 tools (toggle_pin, update, search, create_manual, suggest_spaces, triage, get_stats)");
-  console.error("  - Memory Files: 2 tools (write_memory + read_memory - couche fichiers)");
-  console.error("  - Documents: 2 tools");
-  console.error("  - Connections: 1 tool");
-  console.error("  - Analysis: 1 tool (analyze_space)");
-  console.error("  - Insights: 1 tool (cross_insights)");
-  console.error("  - Session: 2 tools (get_context + log_exchange B2)");
-  console.error("  - Profile: 2 tools (get_profile + update_profile)");
-  console.error("  - Handovers: 2 tools (session_start + session_end)");
-  console.error("  - Garbage Collector: 1 tool (garbage_collect - archive, deduplicate, consolidate)");
-  console.error("  - Feedback Loop: 2 tools (submit_feedback + get_calibration)");
-  console.error("  - Contacts: 2 tools (upsert + search)");
-  console.error("  - Auth: 4 tools (login, signup, logout, whoami)");
-  console.error("  - Source Events: 3 tools (ingest + process + sync_status)");
+  console.error("[Mnemos] 32 tools available (22 public + 6 internal + 4 auth):");
+  console.error("  PUBLIC TOOLS (22):");
+  console.error("    - Spaces: 3 (create, list, update)");
+  console.error("    - Atoms: 5 (toggle_pin, update, search, create_manual, get_context)");
+  console.error("    - Documents: 2 (ingest, list)");
+  console.error("    - Connections: 1 (create)");
+  console.error("    - Analysis: 1 (analyze_space)");
+  console.error("    - Insights: 1 (cross_insights)");
+  console.error("    - Profile: 2 (get, update)");
+  console.error("    - Handovers/Session: 2 (session_start, session_end)");
+  console.error("    - Memory Files: 2 (write_memory, read_memory)");
+  console.error("    - Contacts: 2 (upsert, search)");
+  console.error("    - Admin: 1 (dispatcher)");
+  console.error("  INTERNAL TOOLS (6):");
+  console.error("    - Memory Extraction: 1 (extract_atoms)");
+  console.error("    - Session Logging: 1 (log_exchange)");
+  console.error("    - Quick Boot: 1 (quick_boot)");
+  console.error("    - Source Events: 3 (ingest_events, process_events, sync_status)");
+  console.error("  AUTH TOOLS (4):");
+  console.error("    - login, signup, logout, whoami");
   if (process.env.MNEMOS_USER_ID) {
     console.error(`  - Default userId: ${process.env.MNEMOS_USER_ID.slice(0, 8)}...`);
   }

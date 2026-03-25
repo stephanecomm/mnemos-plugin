@@ -198,9 +198,14 @@ L'utilisateur dit "extrais les atomes". Extraction immédiate sans attendre le b
 
 ### Hygiène mémoire
 - `triage_atoms` : quand get_stats montre > 30% d'atomes basse confiance, ou sur demande.
-- `garbage_collect` : tâche hebdomadaire (pg_cron dimanche 2h UTC). Archive atomes sous le seuil de decay, détecte doublons.
+- `garbage_collect` : tâche hebdomadaire (pg_cron dimanche 2h UTC). GC v3 : 4 étapes (lifecycle, archivage obsolètes, dedup certaine >=0.95 + dedup Haiku 0.88-0.95 avec verdict DOUBLON/SUPERSEDE/DISTINCT, consolidation signaux faibles). Passe en <60s sur ~2000 atomes.
 - `health_check` : cron quotidien (pg_cron 5h UTC via Edge Function health-cron). Génère les embeddings manquants, reconnecte les orphelins, purge les connexions obsolètes. Aussi appelable manuellement : `mnemos_health_check(userId, repair:true)`.
-- **Déduplication automatique (v0.4.0)** : tous les chemins d'insertion d'atomes (extract_atoms, create_atom_manual, ingest_document, extractAtomsFromBuffer) vérifient les doublons AVANT insertion via vector_score (cosine pure). Deux paliers : >= 0.90 skip (garder le plus long), 0.80-0.90 fusion Haiku. Transparent pour l'utilisateur.
+- **Déduplication automatique (v0.4.1)** : tous les chemins d'insertion d'atomes (extract_atoms, create_atom_manual, ingest_document, extractAtomsFromBuffer) vérifient les doublons AVANT insertion via vector_score (cosine pure). Deux paliers : >= 0.90 skip (garder le plus long), 0.80-0.90 classification Haiku (DOUBLON/SUPERSEDE/DISTINCT). Transparent pour l'utilisateur.
+- **Supersession temporelle (v0.4.1)** : quand un atome rend un précédent obsolète (ex: "problème X" → "problème X résolu"), 3 couches de détection :
+  1. **Convention agent** (prioritaire) : search_atoms pour trouver l'ancien → update_atom(active:false) → create_connection(type:"précède", ancien → nouveau). Le LLM DOIT suivre ce pattern quand il sait qu'une info en remplace une autre.
+  2. **Extraction prompt** : Haiku reçoit les atomes existants avec leur ID et peut renseigner un champ `supersedes` pour archiver automatiquement l'ancien.
+  3. **Filet dedup/GC** : dans la zone 0.80-0.90, Haiku classe SUPERSEDE si le nouveau rend l'ancien obsolète. Archive l'ancien + connexion "précède".
+  Note : le cosine est structurellement inadapté pour détecter la supersession (vocabulaire opposé = score bas). La couche 1 (convention agent) est la plus fiable.
 
 ---
 
