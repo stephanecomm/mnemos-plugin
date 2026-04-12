@@ -75882,30 +75882,38 @@ function buildExtractionPrompt(userMessage, assistantResponse, existingAtoms) {
     content: a2.content,
     created_at: a2.created_at
   })), null, 2) : "[]";
-  const systemPrompt = `Tu es un extracteur de connaissances pour un dirigeant d'entreprise.
-\xC0 partir de cet \xE9change, extrais les \xE9l\xE9ments m\xE9morisables :
-- Faits nouveaux (type: fact)
-- D\xE9cisions prises (type: decision)
-- Positions exprim\xE9es (type: position)
-- Intentions d\xE9clar\xE9es (type: intention)
-- \xC9v\xE9nements mentionn\xE9s (type: event)
-- Contacts mentionn\xE9s (type: contact)
-- Contradictions avec des connaissances existantes (type: contradiction)
+  const systemPrompt = `Tu es un extracteur de connaissances S\xC9LECTIF pour un dirigeant d'entreprise.
+Tu ne retiens QUE ce qui sera encore pertinent dans 2 semaines ou plus.
+
+TYPES D'ATOMES (extraire uniquement si durable) :
+- fact : fait structurant (architecture choisie, stack technique, mod\xE8le \xE9conomique). PAS les \xE9tats interm\xE9diaires.
+- decision : choix explicite de l'utilisateur qui engage la suite (pivot, abandon, validation d\xE9finitive).
+- position : conviction, valeur, principe de fonctionnement exprim\xE9 par l'utilisateur.
+- intention : objectif ou plan d\xE9clar\xE9 par l'utilisateur (pas une simple t\xE2che en cours).
+- event : \xE9v\xE9nement marquant avec impact durable (lancement, signature, rencontre cl\xE9). PAS les micro-\xE9v\xE9nements quotidiens.
+- contact : personne mentionn\xE9e avec un r\xF4le ou une relation identifiable.
+- contradiction : conflit avec un atome existant du contexte.
 
 Pour chaque \xE9l\xE9ment :
 - content : phrase compl\xE8te et autonome (compr\xE9hensible hors contexte). 150 MOTS MAX.
 - type : un des types ci-dessus
-- confidence : 0.0-1.0 (certitude que c'est m\xE9morisable)
+- confidence : 0.0-1.0 (0.8+ = certain et durable, 0.5 = probablement utile, <0.4 = ne pas inclure)
 - liens_suggeres : descriptions textuelles d'atomes potentiellement li\xE9s (optionnel)
-- supersedes : ID (champ "id") d'un atome existant du contexte que ce nouvel atome rend obsol\xE8te (optionnel). Utiliser quand une situation a \xE9volu\xE9 (probl\xE8me \u2192 r\xE9solu, en cours \u2192 termin\xE9, d\xE9cision provisoire \u2192 d\xE9finitive).
+- supersedes : ID d'un atome existant rendu obsol\xE8te (optionnel)
 
-NE PAS extraire : opinions du LLM, reformulations, politesses, informations g\xE9n\xE9riques.
-EXTRAIRE : tout ce qui est sp\xE9cifique au m\xE9tier/dossiers de l'utilisateur.
-IMPORTANT : chaque atome doit faire 150 mots maximum. Si le contenu est plus riche, synth\xE9tiser.
+NE PAS EXTRAIRE (IMPORTANT) :
+- Opinions ou reformulations du LLM, politesses, informations g\xE9n\xE9riques
+- Actions techniques \xE9ph\xE9m\xE8res : d\xE9ploiements, builds, commits, r\xE9sultats de commandes, logs
+- \xC9tats interm\xE9diaires de d\xE9veloppement : page modifi\xE9e, bug fix\xE9, style CSS chang\xE9, test pass\xE9
+- D\xE9tails d'impl\xE9mentation : chemins de fichiers, num\xE9ros de ligne, noms de variables
+- T\xE2ches en cours ou \xE0 faire (utiliser intention uniquement pour les objectifs strat\xE9giques)
+- Toute information qui ne sera plus pertinente dans 2 semaines
+
+S\xC9LECTIVIT\xC9 : extraire 0 \xE0 3 atomes par \xE9change. Pr\xE9f\xE9rer 0 atome plut\xF4t qu'un atome douteux. La m\xE9moire doit rester SIGNAL, pas bruit.
 
 R\xE9pondre UNIQUEMENT en JSON array :
 [
-  { "type": "...", "content": "...", "confidence": 0.0-1.0, "liens_suggeres": ["..."], "supersedes": "id de l'atome existant remplac\xE9 ou null" }
+  { "type": "...", "content": "...", "confidence": 0.0-1.0, "liens_suggeres": ["..."], "supersedes": "id ou null" }
 ]
 Si rien \xE0 extraire, r\xE9pondre : []`;
   const userPrompt = `Contexte existant (atomes d\xE9j\xE0 m\xE9moris\xE9s, pour d\xE9tecter contradictions) :
@@ -75942,7 +75950,14 @@ async function extractAtoms(params) {
       console.error("[Extract] Aucun atome extrait");
       return [];
     }
-    console.error(`[Extract] ${candidates.length} atomes candidats extraits`);
+    const CONFIDENCE_THRESHOLD = 0.4;
+    const MAX_ATOMS_PER_EXTRACT = 3;
+    const before = candidates.length;
+    candidates = candidates.filter((c2) => (c2.confidence ?? 0.5) >= CONFIDENCE_THRESHOLD).sort((a2, b2) => (b2.confidence ?? 0.5) - (a2.confidence ?? 0.5)).slice(0, MAX_ATOMS_PER_EXTRACT);
+    if (candidates.length < before) {
+      console.error(`[Extract] Filtrage: ${before} \u2192 ${candidates.length} (seuil=${CONFIDENCE_THRESHOLD}, max=${MAX_ATOMS_PER_EXTRACT})`);
+    }
+    console.error(`[Extract] ${candidates.length} atomes candidats retenus`);
     const supabase = getSupabaseClient();
     const extractedAtoms = [];
     let targetSpaceId = spaceId;
@@ -76090,30 +76105,38 @@ function buildBufferExtractionPrompt(exchanges, existingAtoms) {
     content: a2.content,
     created_at: a2.created_at
   })), null, 2) : "[]";
-  const systemPrompt = `Tu es un extracteur de connaissances pour un dirigeant d'entreprise.
-\xC0 partir de cette s\xE9rie d'\xE9changes, extrais les \xE9l\xE9ments m\xE9morisables :
-- Faits nouveaux (type: fact)
-- D\xE9cisions prises (type: decision)
-- Positions exprim\xE9es (type: position)
-- Intentions d\xE9clar\xE9es (type: intention)
-- \xC9v\xE9nements mentionn\xE9s (type: event)
-- Contacts mentionn\xE9s (type: contact)
-- Contradictions avec des connaissances existantes (type: contradiction)
+  const systemPrompt = `Tu es un extracteur de connaissances S\xC9LECTIF pour un dirigeant d'entreprise.
+Tu ne retiens QUE ce qui sera encore pertinent dans 2 semaines ou plus.
+
+TYPES D'ATOMES (extraire uniquement si durable) :
+- fact : fait structurant (architecture choisie, stack technique, mod\xE8le \xE9conomique). PAS les \xE9tats interm\xE9diaires.
+- decision : choix explicite de l'utilisateur qui engage la suite (pivot, abandon, validation d\xE9finitive).
+- position : conviction, valeur, principe de fonctionnement exprim\xE9 par l'utilisateur.
+- intention : objectif ou plan d\xE9clar\xE9 par l'utilisateur (pas une simple t\xE2che en cours).
+- event : \xE9v\xE9nement marquant avec impact durable (lancement, signature, rencontre cl\xE9). PAS les micro-\xE9v\xE9nements quotidiens.
+- contact : personne mentionn\xE9e avec un r\xF4le ou une relation identifiable.
+- contradiction : conflit avec un atome existant du contexte.
 
 Pour chaque \xE9l\xE9ment :
-- content : phrase compl\xE8te et autonome (compr\xE9hensible hors contexte)
+- content : phrase compl\xE8te et autonome (compr\xE9hensible hors contexte). 150 MOTS MAX.
 - type : un des types ci-dessus
-- confidence : 0.0-1.0 (certitude que c'est m\xE9morisable)
-- supersedes : ID (champ "id") d'un atome existant du contexte que ce nouvel atome rend obsol\xE8te (optionnel). Utiliser quand une situation a \xE9volu\xE9 (probl\xE8me \u2192 r\xE9solu, en cours \u2192 termin\xE9, d\xE9cision provisoire \u2192 d\xE9finitive).
+- confidence : 0.0-1.0 (0.8+ = certain et durable, 0.5 = probablement utile, <0.4 = ne pas inclure)
+- supersedes : ID d'un atome existant rendu obsol\xE8te (optionnel)
 
-NE PAS extraire : opinions du LLM, reformulations, politesses, informations g\xE9n\xE9riques.
-EXTRAIRE : tout ce qui est sp\xE9cifique au m\xE9tier/dossiers de l'utilisateur.
+NE PAS EXTRAIRE (IMPORTANT) :
+- Opinions ou reformulations du LLM, politesses, informations g\xE9n\xE9riques
+- Actions techniques \xE9ph\xE9m\xE8res : d\xE9ploiements, builds, commits, r\xE9sultats de commandes, logs
+- \xC9tats interm\xE9diaires de d\xE9veloppement : page modifi\xE9e, bug fix\xE9, style CSS chang\xE9, test pass\xE9
+- D\xE9tails d'impl\xE9mentation : chemins de fichiers, num\xE9ros de ligne, noms de variables
+- T\xE2ches en cours ou \xE0 faire (utiliser intention uniquement pour les objectifs strat\xE9giques)
+- Toute information qui ne sera plus pertinente dans 2 semaines
+
 D\xC9DUPLIQUER : si la m\xEAme information appara\xEEt dans plusieurs \xE9changes, n'extraire qu'une fois.
-IMPORTANT : chaque atome doit faire 150 mots maximum. Si le contenu est plus riche, synth\xE9tiser.
+S\xC9LECTIVIT\xC9 : extraire 0 \xE0 5 atomes pour tout le buffer. Pr\xE9f\xE9rer 0 plut\xF4t qu'un atome douteux. La m\xE9moire doit rester SIGNAL, pas bruit.
 
 R\xE9pondre UNIQUEMENT en JSON array :
 [
-  { "type": "...", "content": "...", "confidence": 0.0-1.0, "supersedes": "id de l'atome existant remplac\xE9 ou null" }
+  { "type": "...", "content": "...", "confidence": 0.0-1.0, "supersedes": "id ou null" }
 ]
 Si rien \xE0 extraire, r\xE9pondre : []`;
   const exchangeLines = exchanges.map((ex, i2) => {
@@ -76167,7 +76190,14 @@ async function extractAtomsFromBuffer(userId, exchanges, spaceId, sessionId) {
       console.error("[Extract-B2] Aucun atome extrait du buffer");
       return [];
     }
-    console.error(`[Extract-B2] ${candidates.length} atomes candidats`);
+    const CONFIDENCE_THRESHOLD = 0.4;
+    const MAX_ATOMS_PER_BUFFER = 5;
+    const before = candidates.length;
+    candidates = candidates.filter((c2) => (c2.confidence ?? 0.5) >= CONFIDENCE_THRESHOLD).sort((a2, b2) => (b2.confidence ?? 0.5) - (a2.confidence ?? 0.5)).slice(0, MAX_ATOMS_PER_BUFFER);
+    if (candidates.length < before) {
+      console.error(`[Extract-B2] Filtrage: ${before} \u2192 ${candidates.length} (seuil=${CONFIDENCE_THRESHOLD}, max=${MAX_ATOMS_PER_BUFFER})`);
+    }
+    console.error(`[Extract-B2] ${candidates.length} atomes candidats retenus`);
     let targetSpaceId = spaceId;
     if (!targetSpaceId) {
       const { data: inboxSpace } = await supabase.from("spaces").select("id").eq("user_id", userId).eq("is_system", true).eq("name", "Non affect\xE9").single();
